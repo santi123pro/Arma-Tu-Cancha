@@ -1,109 +1,204 @@
 import { useState } from 'react'
-import { iniciarSesion, registrarse } from '../lib/datos'
+import { supabase, traducirError } from '../lib/supabase'
 import { useToast } from '../componentes/Toast'
 
-export default function Auth() {
+export default function Auth({ onAutenticado }) {
   const toast = useToast()
+  const [enviandoLogin, setEnviandoLogin] = useState(false)
+  const [enviandoRegistro, setEnviandoRegistro] = useState(false)
 
-  const [login, setLogin] = useState({ correo: '', password: '' })
-  const [reg, setReg] = useState({ nombre: '', correo: '', password: '' })
-  const [enviando, setEnviando] = useState(false)
+  // caja de iniciar sesion
+  const [correo, setCorreo] = useState('')
+  const [clave, setClave] = useState('')
 
-  async function entrar(e) {
+  // caja de registro
+  const [nombreR, setNombreR] = useState('')
+  const [telefonoR, setTelefonoR] = useState('')
+  const [correoR, setCorreoR] = useState('')
+  const [claveR, setClaveR] = useState('')
+
+  async function iniciarSesion(e) {
     e.preventDefault()
-    if (!login.correo || !login.password) {
-      return toast('Ingresa correo y contraseña.', 'warn')
+    if (enviandoLogin) return
+    setEnviandoLogin(true)
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: correo.trim(),
+      password: clave,
+    })
+
+    setEnviandoLogin(false)
+
+    if (error) {
+      toast(traducirError(error), 'error')
+      return
     }
 
-    setEnviando(true)
-    const { error } = await iniciarSesion(login.correo.trim(), login.password)
-    setEnviando(false)
-
-    if (error) return toast(error, 'error')
-    // No hay que hacer nada más: useSesion detecta el cambio y App.jsx
-    // cambia de pantalla solo.
+    toast('Sesion iniciada', 'exito')
+    if (onAutenticado) onAutenticado(data.user)
   }
 
-  async function crearCuenta(e) {
+  async function registrarse(e) {
     e.preventDefault()
-    if (!reg.nombre || !reg.correo || !reg.password) {
-      return toast('Completa todos los campos para registrarte.', 'warn')
-    }
-    if (reg.password.length < 6) {
-      return toast('La contraseña debe tener al menos 6 caracteres.', 'warn')
+    if (enviandoRegistro) return
+
+    if (claveR.length < 8) {
+      toast('La contrasena necesita al menos 8 caracteres', 'error')
+      return
     }
 
-    setEnviando(true)
-    const { error } = await registrarse({
-      nombre: reg.nombre.trim(),
-      correo: reg.correo.trim(),
-      password: reg.password,
+    setEnviandoRegistro(true)
+
+    const { data, error } = await supabase.auth.signUp({
+      email: correoR.trim(),
+      password: claveR,
+      options: {
+        data: {
+          nombre: nombreR.trim(),
+          telefono: telefonoR.trim(),
+          rol: 'jugador',
+        },
+      },
     })
-    setEnviando(false)
 
-    if (error) return toast(error, 'error')
+    setEnviandoRegistro(false)
 
-    toast('Cuenta creada. Ya puedes entrar.')
-    setLogin({ correo: reg.correo.trim(), password: '' })
-    setReg({ nombre: '', correo: '', password: '' })
+    if (error) {
+      toast(traducirError(error), 'error')
+      return
+    }
+
+    if (data.session) {
+      toast('Cuenta creada. Ya estas dentro', 'exito')
+      if (onAutenticado) onAutenticado(data.user)
+    } else {
+      toast('Cuenta creada. Revisa tu correo para confirmarla', 'exito')
+    }
+  }
+
+  async function recuperar(e) {
+    e.preventDefault()
+
+    if (!correo.trim()) {
+      toast('Escribe tu correo en el campo de arriba', 'error')
+      return
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(correo.trim(), {
+      redirectTo: window.location.origin,
+    })
+
+    if (error) {
+      toast(traducirError(error), 'error')
+      return
+    }
+
+    toast('Te enviamos un enlace para cambiar la contrasena', 'exito')
   }
 
   return (
-    <section
-      id="seccion-auth-principal"
-      className="auth-landing-container"
-      style={{ display: 'flex', justifyContent: 'center', gap: 30, flexWrap: 'wrap', padding: '60px 20px' }}
-    >
-      <div className="auth-card-landing" style={{ flex: 1, minWidth: 300, maxWidth: 380 }}>
-        <h2>🔑 Iniciar Sesión</h2>
-        <p>Accede con tus credenciales registradas.</p>
-        <form onSubmit={entrar}>
+    <div className="auth-landing-container" id="auth-landing">
+      {/* ── Caja 1: iniciar sesion ── */}
+      <div className="auth-card-landing" style={{ width: 'min(360px, 100%)' }}>
+        <h2>Iniciar sesion</h2>
+        <p>Ya tienes cuenta? Entra y reserva tu cancha.</p>
+
+        <form onSubmit={iniciarSesion}>
           <input
-            type="email" placeholder="Correo electrónico" className="input-moderno"
-            value={login.correo}
-            onChange={(e) => setLogin({ ...login, correo: e.target.value })}
+            className="input-moderno"
+            type="email"
+            required
+            value={correo}
+            onChange={function (e) {
+              setCorreo(e.target.value)
+            }}
+            placeholder="Correo"
           />
           <input
-            type="password" placeholder="Contraseña" className="input-moderno"
-            value={login.password}
-            onChange={(e) => setLogin({ ...login, password: e.target.value })}
+            className="input-moderno"
+            type="password"
+            required
+            value={clave}
+            onChange={function (e) {
+              setClave(e.target.value)
+            }}
+            placeholder="Contrasena"
           />
+
           <button
-            type="submit" className="btn-cta-primary" disabled={enviando}
-            style={{ marginTop: 15, width: '100%' }}
+            type="submit"
+            className="btn-cta-primary"
+            disabled={enviandoLogin}
+            style={{ width: '100%', marginTop: 12 }}
           >
-            {enviando ? 'Entrando…' : 'Entrar al Sistema'}
+            {enviandoLogin ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <p style={{ marginTop: 14, marginBottom: 0, fontSize: 12 }}>
+          <a href="#" onClick={recuperar}>
+            Olvide mi contrasena
+          </a>
+        </p>
       </div>
 
-      <div className="auth-card-landing" style={{ flex: 1, minWidth: 300, maxWidth: 380 }}>
-        <h2>📝 Crear Cuenta Nueva</h2>
-        <p>Regístrate para armar partidos y torneos.</p>
-        <form onSubmit={crearCuenta}>
+      {/* ── Caja 2: registro ── */}
+      <div className="auth-card-landing" style={{ width: 'min(360px, 100%)' }}>
+        <h2>Crear cuenta</h2>
+        <p>Registrate gratis para reservar y unirte a partidos.</p>
+
+        <form onSubmit={registrarse}>
           <input
-            type="text" placeholder="Nombre completo" className="input-moderno"
-            value={reg.nombre}
-            onChange={(e) => setReg({ ...reg, nombre: e.target.value })}
+            className="input-moderno"
+            type="text"
+            required
+            value={nombreR}
+            onChange={function (e) {
+              setNombreR(e.target.value)
+            }}
+            placeholder="Nombre completo"
           />
           <input
-            type="email" placeholder="Correo electrónico" className="input-moderno"
-            value={reg.correo}
-            onChange={(e) => setReg({ ...reg, correo: e.target.value })}
+            className="input-moderno"
+            type="tel"
+            value={telefonoR}
+            onChange={function (e) {
+              setTelefonoR(e.target.value)
+            }}
+            placeholder="Telefono"
           />
           <input
-            type="password" placeholder="Contraseña segura" className="input-moderno"
-            value={reg.password}
-            onChange={(e) => setReg({ ...reg, password: e.target.value })}
+            className="input-moderno"
+            type="email"
+            required
+            value={correoR}
+            onChange={function (e) {
+              setCorreoR(e.target.value)
+            }}
+            placeholder="Correo"
           />
+          <input
+            className="input-moderno"
+            type="password"
+            required
+            minLength={8}
+            value={claveR}
+            onChange={function (e) {
+              setClaveR(e.target.value)
+            }}
+            placeholder="Contrasena (minimo 8)"
+          />
+
           <button
-            type="submit" className="btn-cta-secondary" disabled={enviando}
-            style={{ marginTop: 15, width: '100%', background: '#2980b9', border: 'none', color: 'white' }}
+            type="submit"
+            className="btn-cta-primary"
+            disabled={enviandoRegistro}
+            style={{ width: '100%', marginTop: 12 }}
           >
-            {enviando ? 'Creando…' : 'Registrarse Ahora'}
+            {enviandoRegistro ? 'Creando...' : 'Registrarme'}
           </button>
         </form>
       </div>
-    </section>
+    </div>
   )
 }

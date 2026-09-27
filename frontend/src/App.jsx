@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useSesion } from './lib/useSesion'
 import { cerrarSesion } from './lib/datos'
 import { ToastProvider, useToast } from './componentes/Toast'
-import Auth from './paginas/Auth'
 import Marketplace from './paginas/MarketPlace'
 import Sede from './paginas/sede'
+import Portada from './paginas/portada'
 
 function Contenido() {
   const { perfil, cargando, autenticado, esAdmin } = useSesion()
@@ -57,7 +57,7 @@ function Contenido() {
         </div>
       </header>
 
-      {!autenticado && <Auth />}
+     {!autenticado && <Portada />}
 
       {autenticado && vista === 'marketplace' && (
         <Marketplace onElegirSede={(slug) => setVista(slug)} />

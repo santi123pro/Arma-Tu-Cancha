@@ -629,3 +629,20 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   .mkt-grid { grid-template-columns: 1fr; }
   .landing-grid-3 { grid-template-columns: 1fr; }
 }
+
+.header-wembley { z-index: 1000; }
+
+.leaflet-container { z-index: 1; }
+
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control { z-index: 2 !important; }
+
+/* El popup si debe quedar por encima del mapa, pero nunca del header */
+.leaflet-popup-pane { z-index: 3 !important; }
+
+/* El header sticky tapa el destino cuando bajamos con scrollIntoView.
+   Esto le deja aire a las secciones a las que saltamos. */
+#donde-jugamos,
+#auth-landing { scroll-margin-top: 96px; }
