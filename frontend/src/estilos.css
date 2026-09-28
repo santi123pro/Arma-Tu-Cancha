@@ -646,3 +646,261 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
    Esto le deja aire a las secciones a las que saltamos. */
 #donde-jugamos,
 #auth-landing { scroll-margin-top: 96px; }
+
+/* ── Tarjetas de sede (Marketplace) ──────────────────────── */
+.lista-sedes {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  text-align: left;
+}
+.tarjeta-sede {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+.tarjeta-sede:hover { box-shadow: var(--shadow); }
+.imagen-sede {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  font-weight: 800;
+  text-align: center;
+  padding: 0 16px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.imagen-sede img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.imagen-sede:has(img) { padding: 0; }
+.tarjeta-sede-imagen { aspect-ratio: 16 / 6; font-size: 36px; }
+.tarjeta-sede-info {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  border-top: 1px solid var(--gray-200);
+}
+.tarjeta-sede-zona {
+  padding: 22px 26px;
+  min-width: 0;
+}
+.tarjeta-sede-zona + .tarjeta-sede-zona { border-left: 1px solid var(--gray-200); }
+.tarjeta-sede-zona h3 { color: var(--navy); font-size: 22px; margin: 0 0 6px; }
+.tarjeta-sede-zona h4 { color: var(--navy); font-size: 15px; margin: 0 0 6px; }
+.tarjeta-sede-zona p { font-size: 13px; color: var(--gray-600); margin: 0 0 4px; overflow-wrap: anywhere; }
+.tarjeta-sede-centro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+@media (max-width: 768px) {
+  .tarjeta-sede-zona { padding: 18px; }
+  .tarjeta-sede-centro { padding-left: 24px; padding-right: 24px; }
+}
+
+@media (max-width: 600px) {
+  .tarjeta-sede-imagen { aspect-ratio: 16 / 9; }
+  .tarjeta-sede-info { grid-template-columns: 1fr; }
+  .tarjeta-sede-zona + .tarjeta-sede-zona { border-left: none; border-top: 1px solid var(--gray-200); }
+  .tarjeta-sede-centro .btn-cta-primary { width: 100%; }
+}
+
+/* ── Reservas: canchas de una sede ───────────────────────── */
+.sede-reservas-cuerpo { padding: 32px 36px; }
+.canchas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.cancha-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  min-width: 0;
+}
+.cancha-card-imagen { aspect-ratio: 16 / 9; font-size: 24px; }
+.cancha-card-cuerpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px;
+}
+.cancha-card-cuerpo h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cancha-card-cuerpo > p { font-size: 13px; margin: 0; }
+.cancha-card-cuerpo strong { color: var(--navy); }
+.cancha-card-fecha {
+  margin-top: 10px !important;
+  font-weight: 600;
+  color: var(--navy) !important;
+}
+.cancha-card-estado { font-size: 13px; color: var(--gray-400) !important; padding: 10px 0; }
+.cancha-card-franjas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 6px;
+  margin-top: 4px;
+}
+.franja {
+  background: #dcfce7;
+  color: #166534;
+  border: 1.5px solid transparent;
+  padding: 6px 4px;
+  font-size: 12px;
+}
+.franja:hover:not(:disabled) { border-color: var(--green); }
+.franja-activa,
+.franja-activa:hover { background: var(--green); color: #fff; border-color: var(--green-d); }
+.franja:disabled {
+  background: var(--gray-100);
+  color: var(--gray-400);
+  text-decoration: line-through;
+  opacity: 1;
+}
+.cancha-card-acciones {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-elegir-dia {
+  background: #fff;
+  color: var(--navy);
+  border: 1.5px solid var(--gray-200);
+  padding: 9px 14px;
+  font-size: 13px;
+}
+.btn-elegir-dia:hover { border-color: var(--green); }
+.cancha-card-acciones .input-moderno { margin: 0; }
+.btn-reservar {
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.cancha-card-error {
+  font-size: 13px;
+  color: #b91c1c !important;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
+.cancha-card-comprobante {
+  margin-top: 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cancha-card-comprobante h4 { color: var(--green-d); font-size: 17px; }
+.cancha-card-comprobante dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
+.cancha-card-comprobante dt { color: var(--gray-600); }
+.cancha-card-comprobante dd { color: var(--navy); font-weight: 600; overflow-wrap: anywhere; }
+.cancha-card-codigo { font-family: monospace; font-size: 15px; letter-spacing: .05em; }
+
+@media (max-width: 960px) {
+  .canchas-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .sede-reservas-cuerpo { padding: 22px 16px; }
+  .canchas-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Sede: barra superior y sección de partidos ──────────── */
+.sede-barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.sede-volver {
+  background: none;
+  color: var(--gray-600);
+  font-size: 13px;
+  padding: 0;
+  text-align: left;
+}
+.sede-volver:hover { color: var(--navy); }
+
+.seccion-partidos {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.partidos-encabezado { margin-bottom: 24px; }
+.partidos-aviso {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--gray-600);
+  background: var(--gray-50);
+  border: 1px dashed var(--gray-200);
+  border-radius: var(--radius-lg);
+  margin-top: 20px;
+}
+.partidos-error { color: var(--red) !important; font-size: 13px; margin-bottom: 10px; }
+
+.form-partido {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+.form-partido label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  min-width: 0;
+}
+.form-partido-completo { grid-column: 1 / -1; }
+.form-partido .btn-cta-primary { width: 100%; padding: 13px; margin-top: 6px; }
+
+.grid-partidos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.partido-fecha { color: var(--navy) !important; font-weight: 600; text-transform: capitalize; }
+.partido-cupos {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--gray-100);
+}
+.partido-cupos span { font-size: 22px; font-weight: 800; color: var(--green-d); }
+
+@media (max-width: 960px) {
+  .grid-partidos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .seccion-partidos { padding: 22px 16px; }
+  .form-partido { grid-template-columns: minmax(0, 1fr); }
+  .grid-partidos { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { disponibilidad, crearReserva } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
+import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
 
 /**
  * Pantalla de reserva — ejemplo completo del patrón a seguir.
@@ -69,7 +70,7 @@ export default function Reservar({ cancha }) {
       setError(error)
       // Si el horario se ocupó mientras llenaba el formulario, se recarga
       // la disponibilidad para que vea el estado real.
-      if (error.includes('ya está reservada')) setFecha((f) => f)
+      if (error === ERROR_FRANJA_OCUPADA) setFecha((f) => f)
       return
     }
     setComprobante(datos)

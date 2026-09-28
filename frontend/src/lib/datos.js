@@ -110,6 +110,17 @@ export function listarCanchas(sedeId) {
   return consultar(q.order('nombre'))
 }
 
+export function canchasDeSede(sedeId) {
+  return consultar(
+    supabase
+      .from('canchas')
+      .select('id, nombre')
+      .eq('sede_id', sedeId)
+      .eq('activa', true)
+      .order('nombre')
+  )
+}
+
 export function disponibilidad(canchaId, fecha) {
   return consultar(
     supabase.rpc('disponibilidad_cancha', {
@@ -212,20 +223,41 @@ export function listarPartidos(sedeId) {
   return consultar(q.order('fecha').limit(50))
 }
 
-export function crearPartido(datos) {
+// Partidos abiertos que todavía tienen cupo. cupos_disponibles es una
+// columna generada: PostgREST no compara dos columnas entre sí, por eso
+// el filtro va contra ella y no contra cupos_ocupados/cupos_totales.
+export function partidosBuscandoJugadores(sedeId, desde) {
+  let q = supabase
+    .from('partidos_abiertos')
+    .select(`
+      id, fecha, hora_inicio, modalidad, nivel, posicion_requerida,
+      cupos_totales, cupos_ocupados, cupos_disponibles,
+      canchas!inner ( nombre, sede_id, sedes ( nombre, slug ) )
+    `)
+    .eq('estado', 'abierto')
+    .gte('fecha', desde)
+    .gt('cupos_disponibles', 0)
+  if (sedeId) q = q.eq('canchas.sede_id', sedeId)
+  return consultar(q.order('fecha').order('hora_inicio'))
+}
+
+// creador_id sale de la sesión, nunca del formulario. cupos_ocupados lo
+// mantiene el trigger y cupos_disponibles es generada: no se escriben.
+export async function crearPartido(datos) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { datos: null, error: 'Inicia sesión para publicar un partido.' }
+
   return consultar(
-    supabase.auth.getUser().then(({ data: { user } }) =>
-      supabase.from('partidos_abiertos').insert({
-        creador_id: user.id,
-        cancha_id: datos.canchaId,
-        fecha: datos.fecha,
-        hora_inicio: datos.hora,
-        modalidad: datos.modalidad ?? 'Fútbol 6',
-        nivel: datos.nivel ?? 'todos',
-        posicion_requerida: datos.posicionRequerida ?? null,
-        cupos_totales: datos.cuposTotales,
-      }).select().single()
-    )
+    supabase.from('partidos_abiertos').insert({
+      creador_id: user.id,
+      cancha_id: datos.canchaId,
+      fecha: datos.fecha,
+      hora_inicio: datos.hora,
+      modalidad: datos.modalidad ?? 'Fútbol 6',
+      nivel: datos.nivel ?? 'todos',
+      posicion_requerida: datos.posicionRequerida || null,
+      cupos_totales: datos.cuposTotales,
+    }).select().single()
   )
 }
 

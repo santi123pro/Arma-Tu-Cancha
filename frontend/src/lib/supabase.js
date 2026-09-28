@@ -34,9 +34,13 @@ export const supabase = createClient(url, clave, {
 // Es lo mismo que hacía tu errorHandler.js, pero del lado del cliente.
 // ---------------------------------------------------------------------
 
+// Las pantallas comparan contra este texto para saber que la franja se
+// ocupó entre que se consultó la disponibilidad y se pulsó "Reservar".
+export const ERROR_FRANJA_OCUPADA =
+  'Esta franja acaba de ser reservada por otro usuario. Actualiza la disponibilidad e intenta con otro horario.'
+
 const POR_RESTRICCION = {
-  reservas_sin_solape:
-    'Esa cancha ya está reservada en ese horario. Elige otra franja u otra cancha.',
+  reservas_sin_solape: ERROR_FRANJA_OCUPADA,
   inscripcion_equipo_unico:
     'Ese nombre de equipo ya está inscrito en este torneo.',
   inscripcion_capitan_unico:

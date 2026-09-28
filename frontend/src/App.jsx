@@ -52,7 +52,16 @@ function Contenido() {
               </button>
             </div>
           ) : (
-            <span style={{ color: '#94a3b8', fontSize: 13 }}>Inicia sesión abajo</span>
+            <button
+              type="button"
+              className="btn-cta-secondary"
+              onClick={function () {
+                const destino = document.getElementById('auth-landing')
+                if (destino) destino.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }}
+            >
+              Iniciar sesion
+            </button>
           )}
         </div>
       </header>

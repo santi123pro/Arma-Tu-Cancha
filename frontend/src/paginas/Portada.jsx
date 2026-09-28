@@ -55,16 +55,6 @@ más <span>partido.</span>
           >
             Ver sedes y horarios
           </button>
-
-          <button
-            type="button"
-            className="btn-cta-secondary"
-            onClick={function () {
-              bajarA('auth-landing')
-            }}
-          >
-            Iniciar sesion
-          </button>
         </div>
       </div>
 
