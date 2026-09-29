@@ -716,6 +716,54 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 }
 
 /* ── Reservas: canchas de una sede ───────────────────────── */
+/* ── Sede: portada "Reservar cancha" ─────────────────────── */
+/* Sin foto: bloque del color de la sede. Con foto: la imagen se funde
+   hacia abajo en un fondo oscuro teñido con el color de la sede, y el
+   texto queda sobre esa transición sin tapar el escudo del centro. */
+.sede-hero {
+  position: relative;
+  padding: 48px 20px;
+  text-align: center;
+  background: var(--sede-color);
+}
+.sede-hero-con-foto {
+  padding: 0;
+  background:
+    radial-gradient(ellipse 70% 90% at 50% 100%,
+      color-mix(in srgb, var(--sede-color) 45%, transparent), transparent 70%),
+    var(--navy, #0f172a);
+}
+.sede-hero-foto {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1600 / 590;
+  max-height: 420px;
+  object-fit: cover;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+.sede-hero-con-foto .sede-hero-texto {
+  position: relative;
+  margin-top: -48px;
+  padding: 0 20px 34px;
+}
+.sede-hero h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 6px;
+  text-shadow: 0 3px 16px rgba(0,0,0,.45);
+}
+.sede-hero-etiqueta {
+  color: rgba(255,255,255,.85);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.sede-hero-datos { color: rgba(255,255,255,.85); font-size: 14px; margin: 0; }
+
 .sede-reservas-cuerpo { padding: 32px 36px; }
 .canchas-grid {
   display: grid;
@@ -828,6 +876,8 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 }
 @media (max-width: 640px) {
   .sede-reservas-cuerpo { padding: 22px 16px; }
+  .sede-hero h1 { font-size: 30px; }
+  .sede-hero-con-foto .sede-hero-texto { margin-top: -20px; padding: 0 16px 24px; }
   .canchas-grid { grid-template-columns: minmax(0, 1fr); }
 }
 

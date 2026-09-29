@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSesion } from './lib/useSesion'
 import { cerrarSesion } from './lib/datos'
 import { ToastProvider, useToast } from './componentes/Toast'
+import { logo } from './lib/imagenes'
 import Marketplace from './paginas/MarketPlace'
 import Sede from './paginas/sede'
 import Portada from './paginas/portada'
@@ -28,6 +29,7 @@ function Contenido() {
     <>
       <header className="header-wembley">
         <div className="logo-container">
+          <img src={logo} alt="Logo de Arma Tu Cancha" className="logo-img" />
           <div>
             <h1>Arma Tu Cancha ⚽</h1>
             <p className="info-contacto">📞 +57 316 2528100</p>

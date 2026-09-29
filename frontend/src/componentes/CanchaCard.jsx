@@ -3,6 +3,7 @@ import { disponibilidad, crearReserva } from '../lib/datos'
 import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
 import { useToast } from './Toast'
 import ImagenSede from './ImagenSede'
+import { fotoCancha } from '../lib/imagenes'
 
 // crear_reserva acepta fechas entre hoy y hoy + 15 días. El selector
 // usa el mismo rango para no ofrecer días que el backend va a rechazar.
@@ -107,7 +108,12 @@ export default function CanchaCard({ cancha, sede }) {
 
   return (
     <article className="cancha-card">
-      <ImagenSede className="cancha-card-imagen" color={sede.color_hex} texto={sede.nombre} />
+      <ImagenSede
+        className="cancha-card-imagen"
+        url={fotoCancha(sede, cancha)}
+        color={sede.color_hex}
+        texto={sede.nombre}
+      />
 
       <div className="cancha-card-cuerpo">
         <h3>{cancha.nombre}</h3>

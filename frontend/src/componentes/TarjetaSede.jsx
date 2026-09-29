@@ -1,4 +1,5 @@
 import ImagenSede from './ImagenSede'
+import { fotoSede } from '../lib/imagenes'
 
 // Tarjeta horizontal grande de una sede:
 // imagen arriba y, debajo, tres zonas (nombre + descripcion | Entrar | ubicacion).
@@ -11,7 +12,7 @@ export default function TarjetaSede({ sede, onEntrar }) {
     <article className="tarjeta-sede">
       <ImagenSede
         className="tarjeta-sede-imagen"
-        url={sede.logo_url}
+        url={fotoSede(sede) ?? sede.logo_url}
         color={sede.color_hex}
         texto={sede.nombre}
       />

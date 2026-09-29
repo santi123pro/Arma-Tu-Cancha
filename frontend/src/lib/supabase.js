@@ -45,6 +45,8 @@ const POR_RESTRICCION = {
     'Ese nombre de equipo ya está inscrito en este torneo.',
   inscripcion_capitan_unico:
     'Ya inscribiste un equipo en este torneo.',
+  partidos_sin_solape:
+    'Ya hay un partido publicado en esa cancha, ese día y a esa hora. Elige otro horario.',
   partido_jugador_unico:
     'Ya estás anotado en este partido.',
   canchas_nombre_unico_por_sede:

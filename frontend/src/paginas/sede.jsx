@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { detalleSede } from '../lib/datos'
 import CanchaCard from '../componentes/CanchaCard'
 import Partidos from './Partidos'
+import { fotoSede } from '../lib/imagenes'
 
 export default function Sede({ slug, onVolver }) {
   const [sede, setSede] = useState(null)
@@ -50,6 +51,7 @@ export default function Sede({ slug, onVolver }) {
   }
 
   const canchas = [...(sede.canchas ?? [])].sort((a, b) => a.nombre.localeCompare(b.nombre))
+  const portada = fotoSede(sede)
 
   return (
     <div style={{ maxWidth: 1180, margin: '0 auto', padding: '28px 20px' }}>
@@ -73,25 +75,18 @@ export default function Sede({ slug, onVolver }) {
         background: '#fff', borderRadius: 20, overflow: 'hidden',
         border: '1px solid #e2e8f0', boxShadow: '0 8px 32px rgba(0,0,0,.07)',
       }}>
-        <div style={{
-          padding: '48px 20px', textAlign: 'center',
-          background: sede.color_hex ?? '#2563eb',
-        }}>
-          <p style={{
-            color: 'rgba(255,255,255,.85)', fontSize: 13, fontWeight: 700,
-            letterSpacing: '.12em', textTransform: 'uppercase', margin: '0 0 6px',
-          }}>
-            Reservar cancha
-          </p>
-          <h1 style={{
-            fontSize: 42, fontWeight: 800, color: '#fff', margin: '0 0 6px',
-            textShadow: '0 3px 12px rgba(0,0,0,.25)',
-          }}>
-            {sede.nombre}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,.85)', fontSize: 14, margin: 0 }}>
-            {sede.direccion} · {sede.telefono}
-          </p>
+        <div
+          className={'sede-hero' + (portada ? ' sede-hero-con-foto' : '')}
+          style={{ '--sede-color': sede.color_hex ?? '#2563eb' }}
+        >
+          {portada && <img className="sede-hero-foto" src={portada} alt="" />}
+          <div className="sede-hero-texto">
+            <p className="sede-hero-etiqueta">Reservar cancha</p>
+            <h1>{sede.nombre}</h1>
+            <p className="sede-hero-datos">
+              {sede.direccion} · {sede.telefono}
+            </p>
+          </div>
         </div>
 
         <div className="sede-reservas-cuerpo">
