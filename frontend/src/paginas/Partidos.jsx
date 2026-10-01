@@ -237,9 +237,12 @@ export default function Partidos({ sedeId, sedeNombre }) {
                 <p><strong>Modalidad:</strong> {p.modalidad}</p>
                 <p><strong>Nivel:</strong> {etiquetaNivel(p.nivel)}</p>
                 <p><strong>Buscan:</strong> {p.posicion_requerida ?? 'Cualquier posición'}</p>
-                <p className="partido-cupos">
-                  <span>{p.cupos_disponibles}</span> de {p.cupos_totales} cupos libres
-                </p>
+                <div className="partido-cupos">
+                  <p><span>{p.cupos_disponibles}</span> de {p.cupos_totales} cupos libres</p>
+                  <div className="partido-barra">
+                    <i style={{ width: `${(1 - p.cupos_disponibles / p.cupos_totales) * 100}%` }} />
+                  </div>
+                </div>
                 <button type="button" className="btn-cta-primary" onClick={() => unirseAlPartido(p.id)}>
                   Unirse al partido
                 </button>

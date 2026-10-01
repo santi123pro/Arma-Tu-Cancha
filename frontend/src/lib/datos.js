@@ -359,3 +359,83 @@ export function ocupacionPorCancha(desde, hasta) {
 export function zonasMuertas(dias = 60) {
   return consultar(supabase.rpc('zonas_muertas', { p_dias: dias }))
 }
+
+// =====================================================================
+// ADMINISTRADOR GENERAL   (migración 0007, solo rol superadmin)
+// =====================================================================
+
+// Si RLS no deja borrar, Supabase no da error: borra cero filas. Por eso
+// se pide la fila borrada de vuelta y se revisa que haya llegado.
+async function eliminarFila(tabla, id) {
+  const { datos, error } = await consultar(supabase.from(tabla).delete().eq('id', id).select('id'))
+  if (error) return { datos: null, error }
+  if (!datos?.length) return { datos: null, error: 'No se pudo eliminar: no existe o no tienes permiso.' }
+  return { datos: datos[0], error: null }
+}
+
+export function eliminarTorneo(id) {
+  return eliminarFila('torneos', id)
+}
+
+export function eliminarPartido(id) {
+  return eliminarFila('partidos_abiertos', id)
+}
+
+// Todo el contenido para el panel: partidos, torneos y canchas con su
+// sede. Son pocas filas, así que se agrupan en el navegador.
+export async function contenidoAdmin() {
+  const [partidos, torneos, canchas] = await Promise.all([
+    consultar(
+      supabase.from('partidos_abiertos')
+        .select('id, fecha, hora_inicio, modalidad, estado, cupos_totales, cupos_ocupados, canchas ( nombre, sede_id, sedes ( nombre ) )')
+        .order('fecha', { ascending: false })
+    ),
+    consultar(
+      supabase.from('torneos')
+        .select('id, nombre, modalidad, estado, cupos_totales, cupos_inscritos, fecha_inicio, sede_id, sedes ( nombre )')
+        .order('creado_at', { ascending: false })
+    ),
+    consultar(supabase.from('canchas').select('id, nombre, activa, sede_id')),
+  ])
+
+  const error = partidos.error ?? torneos.error ?? canchas.error
+  if (error) return { datos: null, error }
+
+  return {
+    datos: { partidos: partidos.datos ?? [], torneos: torneos.datos ?? [], canchas: canchas.datos ?? [] },
+    error: null,
+  }
+}
+
+export function adminListarUsuarios() {
+  return consultar(supabase.rpc('admin_listar_usuarios'))
+}
+
+export function adminCrearUsuario({ correo, clave, nombre, telefono = null, rol = 'jugador', sedeId = null }) {
+  return consultar(
+    supabase.rpc('admin_crear_usuario', {
+      p_correo: correo,
+      p_clave: clave,
+      p_nombre: nombre,
+      p_telefono: telefono,
+      p_rol: rol,
+      p_sede_id: sedeId,
+    })
+  )
+}
+
+export function adminCambiarRol(usuarioId, rol, sedeId = null) {
+  return consultar(
+    supabase.rpc('admin_cambiar_rol', { p_usuario: usuarioId, p_rol: rol, p_sede_id: sedeId })
+  )
+}
+
+export function adminEliminarUsuario(usuarioId) {
+  return consultar(supabase.rpc('admin_eliminar_usuario', { p_usuario: usuarioId }))
+}
+
+export function metricasGlobales(desde, hasta) {
+  return consultar(
+    supabase.rpc('metricas_globales', { p_desde: desde, p_hasta: hasta })
+  )
+}

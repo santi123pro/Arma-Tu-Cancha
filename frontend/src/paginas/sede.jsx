@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import { detalleSede } from '../lib/datos'
 import CanchaCard from '../componentes/CanchaCard'
-import Partidos from './Partidos'
 import { fotoSede } from '../lib/imagenes'
 
-export default function Sede({ slug, onVolver }) {
+export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos }) {
   const [sede, setSede] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [intento, setIntento] = useState(0)
-  const [verPartidos, setVerPartidos] = useState(false)
 
   // detalleSede trae la sede por su slug junto con sus canchas activas
   // (filtradas por sede_id en la relación), así nunca se mezclan sedes.
@@ -59,17 +57,15 @@ export default function Sede({ slug, onVolver }) {
         <button type="button" className="sede-volver" onClick={onVolver}>
           ← Volver a los complejos
         </button>
-        <button
-          type="button"
-          className="btn-cta-primary"
-          aria-expanded={verPartidos}
-          onClick={() => setVerPartidos((v) => !v)}
-        >
-          Partidos
-        </button>
+        <div className="sede-acciones">
+          <button type="button" className="btn-cta-primary btn-ir-partidos" onClick={onVerPartidos}>
+            ⚽ Partidos abiertos →
+          </button>
+          <button type="button" className="btn-cta-primary btn-ir-partidos btn-ir-torneos" onClick={onVerTorneos}>
+            🏆 Torneos →
+          </button>
+        </div>
       </div>
-
-      {verPartidos && <Partidos sedeId={sede.id} sedeNombre={sede.nombre} />}
 
       <div style={{
         background: '#fff', borderRadius: 20, overflow: 'hidden',
