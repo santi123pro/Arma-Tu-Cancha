@@ -4,6 +4,7 @@ import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
 import { useToast } from './Toast'
 import ImagenSede from './ImagenSede'
 import { fotoCancha } from '../lib/imagenes'
+import Cargando from './Cargando'
 
 // crear_reserva acepta fechas entre hoy y hoy + 15 días. El selector
 // usa el mismo rango para no ofrecer días que el backend va a rechazar.
@@ -142,7 +143,7 @@ export default function CanchaCard({ cancha, sede }) {
             </p>
 
             {cargando ? (
-              <p className="cancha-card-estado">Consultando disponibilidad…</p>
+              <Cargando tamano="chico" texto="Consultando disponibilidad" />
             ) : franjas.length === 0 ? (
               <p className="cancha-card-estado">No hay franjas para este día.</p>
             ) : (

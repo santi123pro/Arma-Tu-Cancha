@@ -9,20 +9,23 @@ import Portada from './paginas/Portada'
 import Login from './paginas/Login'
 import PaginaPartidos from './paginas/PaginaPartidos'
 import PanelAdmin from './paginas/PanelAdmin'
+import NuevaClave from './paginas/NuevaClave'
+import Cargando from './componentes/Cargando'
 
 function Contenido() {
-  const { perfil, cargando, autenticado, esAdmin } = useSesion()
+  const { perfil, cargando, autenticado, esAdmin, recuperando, terminarRecuperacion } = useSesion()
   const toast = useToast()
 
-  // Sin sesion: 'portada' o 'login'.
-  // Con sesion: 'marketplace', el slug de una sede, 'partidos/<slug>', 'torneos/<slug>'
+  // Sin sesion: 'portada', 'login' o 'recuperar' (olvidé mi contraseña).
+  // Con sesion: 'marketplace', el slug de una sede, 'partidos/<slug>', 'torneos/<slug>',
+  // 'reservas/<slug>'
   // o 'admin' (solo superadmin).
   const [vista, setVista] = useState('portada')
   // Sede que el visitante toco antes de iniciar sesion.
   const [sedePendiente, setSedePendiente] = useState(null)
 
   if (cargando) {
-    return <p style={{ textAlign: 'center', padding: 60, color: '#64748b' }}>Cargando…</p>
+    return <Cargando tamano="grande" texto="Calentando en la banca" />
   }
 
   function irA(destino) {
@@ -40,18 +43,29 @@ function Contenido() {
     setSedePendiente(null)
   }
 
+  function claveCambiada() {
+    terminarRecuperacion()
+    irA('marketplace')
+  }
+
+  function pedirOtroEnlace() {
+    terminarRecuperacion()
+    irA('recuperar')
+  }
+
   async function salir() {
     await cerrarSesion()
+    terminarRecuperacion()
     irA('portada')
     toast('Sesión cerrada.')
   }
 
   // Si hay sesion pero la vista quedo en una pantalla publica, mostramos las sedes.
   const esSuperadmin = perfil?.rol === 'superadmin'
-  let vistaPrivada = vista === 'portada' || vista === 'login' ? 'marketplace' : vista
+  let vistaPrivada = ['portada', 'login', 'recuperar'].includes(vista) ? 'marketplace' : vista
   if (vistaPrivada === 'admin' && !esSuperadmin) vistaPrivada = 'marketplace'
   // 'torneos/wembley' → ['torneos', 'wembley']
-  const [, seccion, slugSeccion] = vistaPrivada.match(/^(partidos|torneos)\/(.+)$/) ?? []
+  const [, seccion, slugSeccion] = vistaPrivada.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
 
   return (
     <>
@@ -108,45 +122,55 @@ function Contenido() {
         </div>
       </header>
 
-      {!autenticado && vista === 'portada' && (
-        <Portada onIrLogin={() => irA('login')} onVerSede={verSedeSinSesion} />
-      )}
+      {/* Llegó por el enlace de "olvidé mi contraseña": primero la clave nueva. */}
+      {recuperando ? (
+        <NuevaClave autenticado={autenticado} onListo={claveCambiada} onPedirOtro={pedirOtroEnlace} />
+      ) : (
+        <>
+          {!autenticado && vista === 'portada' && (
+            <Portada onIrLogin={() => irA('login')} onVerSede={verSedeSinSesion} />
+          )}
 
-      {/* Tras entrar, la vista cambia un instante antes de que llegue la sesion:
-          seguimos mostrando el login hasta entonces. */}
-      {!autenticado && vista !== 'portada' && (
-        <Login
-          sedePendiente={sedePendiente}
-          onAutenticado={alAutenticarse}
-          onVolver={() => irA('portada')}
-        />
-      )}
+          {/* Tras entrar, la vista cambia un instante antes de que llegue la sesion:
+              seguimos mostrando el login hasta entonces. */}
+          {!autenticado && vista !== 'portada' && (
+            <Login
+              key={vista}
+              modoInicial={vista === 'recuperar' ? 'recuperar' : 'entrar'}
+              sedePendiente={sedePendiente}
+              onAutenticado={alAutenticarse}
+              onVolver={() => irA('portada')}
+            />
+          )}
 
-      {autenticado && vistaPrivada === 'admin' && (
-        <PanelAdmin nombre={perfil?.nombre} onVolver={() => irA('marketplace')} />
-      )}
+          {autenticado && vistaPrivada === 'admin' && (
+            <PanelAdmin nombre={perfil?.nombre} onVolver={() => irA('marketplace')} />
+          )}
 
-      {autenticado && vistaPrivada === 'marketplace' && (
-        <Marketplace onElegirSede={(slug) => irA(slug)} />
-      )}
+          {autenticado && vistaPrivada === 'marketplace' && (
+            <Marketplace onElegirSede={(slug) => irA(slug)} />
+          )}
 
-      {autenticado && seccion && (
-        <PaginaPartidos
-          key={vistaPrivada}
-          slug={slugSeccion}
-          tipo={seccion}
-          onVolver={() => irA(slugSeccion)}
-          onCambiar={() => irA((seccion === 'partidos' ? 'torneos/' : 'partidos/') + slugSeccion)}
-        />
-      )}
+          {autenticado && seccion && (
+            <PaginaPartidos
+              key={vistaPrivada}
+              slug={slugSeccion}
+              tipo={seccion}
+              onVolver={() => irA(slugSeccion)}
+              onCambiar={seccion === 'reservas' ? undefined : () => irA((seccion === 'partidos' ? 'torneos/' : 'partidos/') + slugSeccion)}
+            />
+          )}
 
-      {autenticado && vistaPrivada !== 'marketplace' && vistaPrivada !== 'admin' && !seccion && (
-        <Sede
-          slug={vistaPrivada}
-          onVolver={() => irA('marketplace')}
-          onVerPartidos={() => irA('partidos/' + vistaPrivada)}
-          onVerTorneos={() => irA('torneos/' + vistaPrivada)}
-        />
+          {autenticado && vistaPrivada !== 'marketplace' && vistaPrivada !== 'admin' && !seccion && (
+            <Sede
+              slug={vistaPrivada}
+              onVolver={() => irA('marketplace')}
+              onVerPartidos={() => irA('partidos/' + vistaPrivada)}
+              onVerTorneos={() => irA('torneos/' + vistaPrivada)}
+              onVerReservas={() => irA('reservas/' + vistaPrivada)}
+            />
+          )}
+        </>
       )}
     </>
   )

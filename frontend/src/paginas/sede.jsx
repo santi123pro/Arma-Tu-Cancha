@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { detalleSede } from '../lib/datos'
 import CanchaCard from '../componentes/CanchaCard'
 import { fotoSede } from '../lib/imagenes'
+import Cargando from '../componentes/Cargando'
 
-export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos }) {
+export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVerReservas }) {
   const [sede, setSede] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -25,7 +26,7 @@ export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos }) {
   }, [slug, intento])
 
   if (cargando) {
-    return <p style={{ textAlign: 'center', padding: 60, color: '#64748b' }}>Cargando canchas…</p>
+    return <Cargando tamano="grande" texto="Cargando canchas" />
   }
 
   if (error || !sede) {
@@ -58,6 +59,9 @@ export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos }) {
           ← Volver a los complejos
         </button>
         <div className="sede-acciones">
+          <button type="button" className="btn-cta-primary btn-ir-partidos btn-ir-reservas" onClick={onVerReservas}>
+            📅 Mis reservas →
+          </button>
           <button type="button" className="btn-cta-primary btn-ir-partidos" onClick={onVerPartidos}>
             ⚽ Partidos abiertos →
           </button>

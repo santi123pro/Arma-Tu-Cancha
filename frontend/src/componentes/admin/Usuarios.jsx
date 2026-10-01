@@ -4,6 +4,7 @@ import {
 } from '../../lib/datos'
 import { useSesion } from '../../lib/useSesion'
 import { useToast } from '../Toast'
+import Cargando from '../Cargando'
 
 const ROLES = [
   { valor: 'jugador', texto: 'Jugador' },
@@ -263,7 +264,7 @@ export default function Usuarios() {
       )}
 
       {cargando ? (
-        <p className="partidos-aviso">Cargando usuarios…</p>
+        <Cargando texto="Cargando usuarios" />
       ) : error ? (
         <p className="partidos-aviso partidos-error">{error}</p>
       ) : (

@@ -18,6 +18,13 @@ if (!url || !clave) {
   )
 }
 
+// El enlace del correo de recuperación vuelve a la app con ?recuperar=1.
+// Se lee antes de crear el cliente porque este limpia la URL al leer la
+// sesión que trae el enlace.
+export const MARCA_RECUPERAR = 'recuperar'
+export const vieneDeRecuperacion =
+  new URLSearchParams(window.location.search).has(MARCA_RECUPERAR)
+
 export const supabase = createClient(url, clave, {
   auth: {
     persistSession: true,     // la sesión sobrevive al refrescar la página
@@ -67,6 +74,9 @@ const POR_MENSAJE_AUTH = [
   ['Email not confirmed',        'Confirma tu correo antes de entrar. Revisa tu bandeja.'],
   ['Password should be at least','La contraseña debe tener al menos 6 caracteres.'],
   ['For security purposes',      'Espera unos segundos antes de volver a intentar.'],
+  ['New password should be different', 'La contraseña nueva debe ser distinta a la anterior.'],
+  ['rate limit exceeded',        'Se enviaron demasiados correos. Espera un rato e intenta de nuevo.'],
+  ['Auth session missing',       'El enlace ya no es válido. Pide uno nuevo.'],
 ]
 
 export function traducirError(error) {

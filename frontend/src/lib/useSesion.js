@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from './supabase'
+import { supabase, vieneDeRecuperacion } from './supabase'
 import { miPerfil } from './datos'
 
 /**
@@ -12,11 +12,15 @@ import { miPerfil } from './datos'
  *   usuario  — el registro de auth.users, o null si no hay sesión
  *   perfil   — la fila de la tabla perfiles (nombre, rol, sede_id)
  *   cargando — true mientras se resuelve la sesión inicial
+ *   recuperando — true si el usuario llegó por el enlace de "olvidé mi
+ *                  contraseña" y aún no ha puesto la nueva
+ *   terminarRecuperacion — se llama cuando ya cambió la contraseña
  */
 export function useSesion() {
   const [usuario, setUsuario] = useState(null)
   const [perfil, setPerfil] = useState(null)
   const [cargando, setCargando] = useState(true)
+  const [recuperando, setRecuperando] = useState(vieneDeRecuperacion)
 
   useEffect(() => {
     let vivo = true
@@ -35,8 +39,9 @@ export function useSesion() {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_evento, session) => {
+      async (evento, session) => {
         if (!vivo) return
+        if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
         setUsuario(session?.user ?? null)
         await cargarPerfil(session?.user)
       }
@@ -47,5 +52,14 @@ export function useSesion() {
 
   const esAdmin = perfil?.rol === 'admin_sede' || perfil?.rol === 'superadmin'
 
-  return { usuario, perfil, cargando, esAdmin, autenticado: Boolean(usuario) }
+  function terminarRecuperacion() {
+    setRecuperando(false)
+    // Quita ?recuperar=1 para que al refrescar no vuelva a pedir la clave.
+    window.history.replaceState(null, '', window.location.pathname)
+  }
+
+  return {
+    usuario, perfil, cargando, esAdmin, autenticado: Boolean(usuario),
+    recuperando, terminarRecuperacion,
+  }
 }

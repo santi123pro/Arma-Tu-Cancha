@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { canchasDeSede, crearPartido, partidosBuscandoJugadores } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
+import Cargando from '../componentes/Cargando'
 
 const MODALIDADES = ['Fútbol 5', 'Fútbol 6', 'Fútbol 7', 'Fútbol 8', 'Fútbol 11']
 
@@ -218,7 +219,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
         <h2 className="landing-title">Partidos buscando jugadores</h2>
 
         {cargando ? (
-          <p className="partidos-aviso">Cargando partidos…</p>
+          <Cargando texto="Cargando partidos" />
         ) : errorLista ? (
           <div className="partidos-aviso">
             <p className="partidos-error">{errorLista}</p>

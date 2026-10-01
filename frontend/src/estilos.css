@@ -1333,6 +1333,29 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 .login-submit { width: 100%; padding: 13px; font-size: 15px; border-radius: 10px; margin-top: 10px; }
 .login-pie { text-align: center; font-size: 13px; margin-top: 20px; }
 
+/* Recuperar contraseña */
+.recuperar-nota { font-size: 12px; color: var(--gray-600); margin: 0; }
+.recuperar-error { color: #b91c1c; }
+.recuperar-enviado {
+  text-align: center;
+  gap: 12px;
+  align-items: center;
+  animation: aparecer .25s ease;
+}
+.recuperar-enviado h3 { color: var(--navy); font-size: 20px; margin: 0; }
+.recuperar-enviado p { color: var(--gray-600); font-size: 14px; line-height: 1.6; margin: 0; }
+.recuperar-enviado .login-link { align-self: center; }
+.recuperar-icono {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  font-size: 30px;
+  border-radius: 50%;
+  background: rgba(34,197,94,.12);
+  animation: pulso 2s ease-in-out infinite;
+}
+
 /* Responsive portada v2 + login */
 @media (max-width: 960px) {
   .flujo-pasos { grid-template-columns: 1fr; max-width: 520px; }
@@ -1394,6 +1417,99 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   background: rgba(56,189,248,.08);
   color: var(--sky);
   transform: translateY(-2px);
+}
+
+/* ── Botones de todo el proyecto (mismo estilo de la portada) ── */
+
+/* Botones sólidos: brillo que los cruza, se elevan y brillan con su color */
+.btn-cta-primary,
+.btn-logout,
+.btn-peligro,
+.btn-reserva-cancelar {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-cta-primary::after,
+.btn-logout::after,
+.btn-peligro::after,
+.btn-reserva-cancelar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+  z-index: -1;
+  pointer-events: none;
+}
+.btn-cta-primary:not(:disabled):hover::after,
+.btn-logout:hover::after,
+.btn-peligro:not(:disabled):hover::after,
+.btn-reserva-cancelar:not(:disabled):hover::after { left: 130%; }
+
+.btn-cta-primary:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(34,197,94,.38);
+}
+.btn-logout:hover,
+.btn-peligro:not(:disabled):hover,
+.btn-reserva-cancelar:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(239,68,68,.35);
+}
+
+/* Botones claros o de borde: se elevan un poco y toman color */
+.btn-cta-secondary,
+.btn-cta-outline,
+.btn-elegir-dia,
+.btn-torneo-cancelar,
+.btn-chico,
+.btn-panel-admin {
+  transition: background var(--transition), color var(--transition), border-color var(--transition),
+              transform var(--transition), box-shadow var(--transition);
+}
+.btn-cta-secondary:not(:disabled):hover,
+.btn-cta-outline:not(:disabled):hover,
+.btn-panel-admin:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(56,189,248,.18);
+}
+.btn-elegir-dia:not(:disabled):hover,
+.btn-torneo-cancelar:not(:disabled):hover,
+.btn-chico:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15,23,42,.1);
+}
+
+/* Al hundir el clic, el botón baja y se encoge un poco */
+button:not(:disabled):active {
+  transform: translateY(0) scale(.96);
+  box-shadow: none;
+  transition-duration: .08s;
+}
+
+/* Onda que sale desde donde se hizo clic (la crea lib/efectoOnda.js) */
+.onda-contenedor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.onda {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .28;
+  transform: scale(0);
+  animation: onda .55s ease-out forwards;
+}
+@keyframes onda {
+  to { transform: scale(1); opacity: 0; }
 }
 
 /* Anillo de foco visible al navegar con teclado */
@@ -1984,6 +2100,33 @@ button:focus-visible,
 .torneo-aviso-jugador strong { display: block; color: var(--navy); margin-bottom: 6px; }
 .torneo-aviso-jugador p { font-size: 13px; }
 
+/* ═══════════════════════════════════════════════════════
+   Mis reservas (reusa el diseño de la página de partidos)
+   ═══════════════════════════════════════════════════════ */
+.btn-ir-reservas {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 8px 20px rgba(56,189,248,.3);
+}
+.btn-ir-reservas:hover {
+  background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
+  box-shadow: 0 12px 26px rgba(56,189,248,.4);
+}
+.pagina-reservas .partidos-hero-titulo span { color: var(--sky); }
+.pagina-reservas .partidos-bloque:first-child { border-top-color: var(--sky); }
+.pagina-reservas .tarjeta-cancha::before { background: linear-gradient(90deg, var(--sky), var(--green)); }
+/* Las próximas van en una sola columna dentro del bloque angosto */
+.pagina-reservas .partidos-bloque:first-child .grid-partidos { grid-template-columns: minmax(0, 1fr); }
+.reserva-pasada { opacity: .72; }
+.reserva-codigo { font-size: 12px !important; color: var(--gray-600); }
+.reserva-codigo strong { font-family: ui-monospace, monospace; color: var(--navy); letter-spacing: .5px; }
+.btn-reserva-cancelar {
+  background: var(--red);
+  color: #fff;
+  border-radius: 10px;
+}
+.btn-reserva-cancelar:hover { background: #dc2626; }
+.btn-reserva-cancelar:disabled { opacity: .6; cursor: not-allowed; }
+
 @media (max-width: 640px) {
   .sede-barra { flex-direction: column; align-items: stretch; }
   .sede-acciones { justify-content: stretch; }
@@ -2299,4 +2442,106 @@ button:focus-visible,
   .admin-oculto-movil { display: none; }
   .admin-nuevo { grid-template-columns: minmax(0, 1fr); }
   .btn-panel-admin { margin: 8px 0 0; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Pantalla de carga: jugador pateando el balón
+   (componentes/Cargando.jsx)
+   ═══════════════════════════════════════════════════════ */
+.cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  animation: aparecer .25s ease;
+}
+.cargando-grande  { padding: 70px 20px; min-height: 50vh; }
+.cargando-mediano { padding: 24px 16px; }
+.cargando-chico   { padding: 6px 0; flex-direction: row; gap: 10px; }
+
+.cargando-escena { width: 220px; height: auto; overflow: visible; }
+.cargando-mediano .cargando-escena { width: 160px; }
+.cargando-chico .cargando-escena { width: 72px; }
+
+.cargando-texto { margin: 0; font-size: 14px; font-weight: 600; color: var(--gray-600); }
+.cargando-grande .cargando-texto { font-size: 16px; }
+.cargando-chico .cargando-texto { font-size: 13px; font-weight: 500; }
+.cargando-texto::after {
+  content: '';
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: cargando-puntos 1.6s steps(4, end) infinite;
+}
+
+/* Dibujo */
+.cargando-piso { stroke: var(--gray-200); stroke-width: 3; stroke-linecap: round; }
+.cargando-jugador line { stroke: var(--navy2); stroke-width: 5; stroke-linecap: round; }
+.cargando-zapato { fill: var(--navy); }
+.cargando-short { fill: var(--navy); }
+.cargando-camiseta { fill: var(--green); }
+.cargando-numero { fill: #fff; font-size: 9px; font-weight: 800; text-anchor: middle; font-family: var(--font); }
+.cargando-cabeza { fill: #f1c27d; }
+.cargando-pelo { fill: var(--navy); }
+.cargando-balon-fondo { fill: #fff; stroke: var(--navy); stroke-width: 1.6; }
+.cargando-balon-parche { fill: var(--navy); }
+.cargando-sombra-balon { fill: rgba(15,23,42,.15); }
+
+/* Movimiento: todo dura 1.6 s y va sincronizado */
+.cargando-jugador { animation: cargando-cuerpo 1.6s ease-in-out infinite; transform-origin: 50px 104px; }
+.cargando-pierna-patea { animation: cargando-patada 1.6s ease-in-out infinite; transform-origin: 53px 72px; }
+.cargando-brazo-adelante { animation: cargando-brazo 1.6s ease-in-out infinite; transform-origin: 52px 48px; }
+.cargando-brazo-atras { animation: cargando-brazo 1.6s ease-in-out infinite reverse; transform-origin: 50px 48px; }
+.cargando-vuelo { animation: cargando-vuelo 1.6s linear infinite; }
+.cargando-balon { animation: cargando-giro .5s linear infinite; transform-box: fill-box; transform-origin: center; }
+.cargando-sombra-balon { animation: cargando-sombra 1.6s linear infinite; transform-box: fill-box; transform-origin: center; }
+
+@keyframes cargando-patada {
+  0%, 100% { transform: rotate(0deg); }
+  15%      { transform: rotate(32deg); }   /* toma impulso hacia atrás */
+  28%      { transform: rotate(-58deg); }  /* ¡patea! */
+  45%      { transform: rotate(-10deg); }
+}
+@keyframes cargando-brazo {
+  0%, 100% { transform: rotate(0deg); }
+  15%      { transform: rotate(-25deg); }
+  28%      { transform: rotate(30deg); }
+}
+@keyframes cargando-cuerpo {
+  0%, 100% { transform: rotate(0deg); }
+  15%      { transform: rotate(4deg); }
+  28%      { transform: rotate(-5deg); }
+}
+/* El balón sale al momento de la patada, hace un arco, rebota y
+   reaparece a los pies del jugador para la siguiente. */
+@keyframes cargando-vuelo {
+  0%       { transform: translate(0, 0); opacity: 0; }
+  8%, 27%  { transform: translate(0, 0); opacity: 1; animation-timing-function: ease-out; }
+  50%      { transform: translate(55px, -58px); animation-timing-function: ease-in; }
+  72%      { transform: translate(100px, 0); animation-timing-function: ease-out; }
+  82%      { transform: translate(112px, -14px); animation-timing-function: ease-in; }
+  91%      { transform: translate(120px, 0); opacity: 1; }
+  100%     { transform: translate(124px, 0); opacity: 0; }
+}
+@keyframes cargando-sombra {
+  0%, 27%  { transform: translateX(0) scale(1); opacity: 1; }
+  50%      { transform: translateX(55px) scale(.4); opacity: .4; }
+  72%      { transform: translateX(100px) scale(1); opacity: 1; }
+  82%      { transform: translateX(112px) scale(.75); }
+  91%      { transform: translateX(120px) scale(1); opacity: 1; }
+  100%     { transform: translateX(124px) scale(1); opacity: 0; }
+}
+@keyframes cargando-giro { to { transform: rotate(360deg); } }
+@keyframes cargando-puntos {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+}
+
+/* Con "reducir movimiento" el jugador se queda quieto con el balón al pie */
+@media (prefers-reduced-motion: reduce) {
+  .cargando *, .cargando-texto::after { animation: none !important; }
 }

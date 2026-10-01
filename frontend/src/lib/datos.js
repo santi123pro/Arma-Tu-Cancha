@@ -1,4 +1,4 @@
-import { supabase, consultar, traducirError } from './supabase'
+import { supabase, consultar, traducirError, MARCA_RECUPERAR } from './supabase'
 
 // ---------------------------------------------------------------------
 // Capa de datos.
@@ -37,6 +37,40 @@ export async function iniciarSesion(correo, password) {
 
 export async function cerrarSesion() {
   await supabase.auth.signOut()
+}
+
+// A donde vuelve el enlace del correo. Esta URL debe estar en
+// Authentication → URL Configuration → Redirect URLs de Supabase.
+function urlRecuperacion() {
+  return `${window.location.origin}${window.location.pathname}?${MARCA_RECUPERAR}=1`
+}
+
+export async function recuperarPorCorreo(correo) {
+  const { error } = await supabase.auth.resetPasswordForEmail(correo.trim(), {
+    redirectTo: urlRecuperacion(),
+  })
+  return { datos: null, error: traducirError(error) }
+}
+
+// Con el teléfono no se puede desde el navegador: la Edge Function busca
+// el correo de la cuenta y le manda el mismo enlace (migración 0008).
+export async function recuperarPorTelefono(telefono) {
+  const { data, error } = await supabase.functions.invoke('recuperar-por-telefono', {
+    body: { telefono, redirectTo: urlRecuperacion() },
+  })
+  if (error) {
+    // Los 4xx traen el mensaje en el cuerpo de la respuesta.
+    const cuerpo = await error.context?.json?.().catch(() => null)
+    return { datos: null, error: cuerpo?.error ?? 'No pudimos enviar el enlace. Intenta más tarde.' }
+  }
+  return { datos: data, error: null }
+}
+
+// Solo funciona con la sesión que abre el enlace del correo (o con
+// cualquier sesión activa).
+export async function cambiarClave(nueva) {
+  const { data, error } = await supabase.auth.updateUser({ password: nueva })
+  return { datos: data, error: traducirError(error) }
 }
 
 export async function miPerfil() {
@@ -179,6 +213,24 @@ export function misReservas() {
       .select('id, codigo, fecha, hora_inicio, hora_fin, cliente_nombre, precio_total, estado, canchas(nombre, sedes(nombre))')
       .order('fecha', { ascending: false })
       .limit(100)
+  )
+}
+
+// Reservas del jugador en una sede. Se filtra por usuario_id aunque RLS
+// ya lo haga: a un administrador RLS le devuelve todas las de su sede, y
+// aquí solo queremos las que hizo él mismo.
+export async function misReservasEnSede(sedeId) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { datos: null, error: 'Inicia sesión para ver tus reservas.' }
+
+  return consultar(
+    supabase
+      .from('reservas')
+      .select('id, codigo, fecha, hora_inicio, hora_fin, precio_total, estado, canchas!inner ( nombre, tipo, sede_id )')
+      .eq('usuario_id', user.id)
+      .eq('canchas.sede_id', sedeId)
+      .order('fecha', { ascending: false })
+      .order('hora_inicio', { ascending: false })
   )
 }
 

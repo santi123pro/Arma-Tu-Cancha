@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { contenidoAdmin, eliminarPartido, eliminarTorneo } from '../../lib/datos'
 import { useToast } from '../Toast'
+import Cargando from '../Cargando'
 
 const ESTADOS = {
   abierto: 'Abierto', completo: 'Completo', jugado: 'Jugado', cancelado: 'Cancelado',
@@ -72,7 +73,7 @@ export default function Contenido() {
   }
 
   if (error) return <p className="partidos-aviso partidos-error">{error}</p>
-  if (!datos) return <p className="partidos-aviso">Cargando…</p>
+  if (!datos) return <Cargando />
 
   // Sedes a partir de lo que hay cargado.
   const nombresSede = new Map()

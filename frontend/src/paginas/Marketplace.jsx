@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarSedes } from '../lib/datos'
 import TarjetaSede from '../componentes/TarjetaSede'
+import Cargando from '../componentes/Cargando'
 
 export default function Marketplace({ onElegirSede }) {
   const [sedes, setSedes] = useState([])
@@ -16,7 +17,7 @@ export default function Marketplace({ onElegirSede }) {
   }, [])
 
   if (cargando) {
-    return <Mensaje>Cargando establecimientos…</Mensaje>
+    return <Cargando tamano="grande" texto="Cargando establecimientos" />
   }
 
   if (error) {

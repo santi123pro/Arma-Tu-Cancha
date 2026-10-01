@@ -3,6 +3,8 @@ import { detalleSede } from '../lib/datos'
 import { fotoSede } from '../lib/imagenes'
 import Partidos from './Partidos'
 import Torneos from './Torneos'
+import MisReservas from './MisReservas'
+import Cargando from '../componentes/Cargando'
 
 // Textos del banner segun la pestaña. Ambas comparten el mismo diseño.
 const TIPOS = {
@@ -24,9 +26,17 @@ const TIPOS = {
     otro: '⚽ Ver partidos',
     Contenido: Torneos,
   },
+  reservas: {
+    etiqueta: 'Mis reservas',
+    titulo: 'Tus canchas,',
+    resaltado: 'tus horarios.',
+    desc: (sede) =>
+      `Aquí ves las canchas que reservaste en ${sede}: las próximas, las que ya jugaste y las canceladas.`,
+    Contenido: MisReservas,
+  },
 }
 
-// Pagina propia para partidos o torneos de una sede.
+// Pagina propia para partidos, torneos o las reservas del jugador en una sede.
 export default function PaginaPartidos({ slug, tipo = 'partidos', onVolver, onCambiar }) {
   const [sede, setSede] = useState(null)
   const [cargando, setCargando] = useState(true)
@@ -44,7 +54,7 @@ export default function PaginaPartidos({ slug, tipo = 'partidos', onVolver, onCa
   }, [slug])
 
   if (cargando) {
-    return <p style={{ textAlign: 'center', padding: 60, color: '#64748b' }}>Cargando…</p>
+    return <Cargando tamano="grande" />
   }
 
   if (error || !sede) {
@@ -75,7 +85,7 @@ export default function PaginaPartidos({ slug, tipo = 'partidos', onVolver, onCa
             <button type="button" className="partidos-hero-volver" onClick={onVolver}>
               ← Volver a {sede.nombre}
             </button>
-            {onCambiar && (
+            {onCambiar && t.otro && (
               <button type="button" className="partidos-hero-volver partidos-hero-otro" onClick={onCambiar}>
                 {t.otro} →
               </button>
