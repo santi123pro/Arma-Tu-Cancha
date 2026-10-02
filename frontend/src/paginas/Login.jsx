@@ -301,7 +301,7 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
       />
 
       <button type="submit" className="btn-cta-primary login-submit" disabled={enviando}>
-        {enviando ? 'Creando cuenta…' : 'Crear mi cuenta gratis'}
+        {enviando ? 'Creando cuenta…' : 'Crear mi cuenta'}
       </button>
     </form>
   )
@@ -314,7 +314,7 @@ const TEXTOS = {
   },
   registro: {
     titulo: 'Únete al equipo',
-    subtitulo: 'Crea tu cuenta gratis en menos de un minuto.',
+    subtitulo: 'Crea tu cuenta en menos de un minuto.',
   },
   recuperar: {
     titulo: '¿Olvidaste tu contraseña?',
