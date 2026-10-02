@@ -18,7 +18,7 @@ const UBICACIONES = {
   'bernabeu': {
     lat: 3.47358,
     lng: -76.51945,
-    nombre: 'Bernabeu',
+    nombre: 'Bernabéu',
     direccion: 'Cra. 5 Nte. #52-26',
     color: '#c9a227',
   },
@@ -211,7 +211,7 @@ export default function MapaSedes({ sedes = [], onVerSede }) {
                     {(p.apertura || p.canchas != null) && (
                       <span className="popup-chips">
                         {p.apertura && p.cierre && <em>🕒 {p.apertura} – {p.cierre}</em>}
-                        {p.canchas != null && <em>{p.canchas} canchas</em>}
+                        {p.canchas != null && <em>{p.canchas} {p.canchas === 1 ? 'cancha' : 'canchas'}</em>}
                       </span>
                     )}
                     <div className="popup-botones">

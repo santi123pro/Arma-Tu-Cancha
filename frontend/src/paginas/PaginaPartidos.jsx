@@ -14,7 +14,7 @@ const TIPOS = {
     titulo: '¿Te faltan jugadores?',
     resaltado: 'Arma el partido.',
     desc: (sede) =>
-      `Publica tu partido y que se anoten los que quieran, o únete a uno que esté buscando gente en ${sede}.`,
+      `Publica tu partido para que otros jugadores se unan, o súmate a uno que esté buscando jugadores en ${sede}.`,
     otro: '🏆 Ver torneos',
     Contenido: Partidos,
   },
@@ -23,7 +23,7 @@ const TIPOS = {
     titulo: 'Que ruede el balón,',
     resaltado: 'que gane el mejor.',
     desc: (sede) =>
-      `Inscribe a tu equipo en los torneos de ${sede}, sigue los cupos y pelea por el premio.`,
+      `Inscribe a tu equipo en los torneos de ${sede}, consulta los cupos disponibles y compite por el premio.`,
     otro: '⚽ Ver partidos',
     Contenido: Torneos,
   },
@@ -32,7 +32,7 @@ const TIPOS = {
     titulo: 'Tus canchas,',
     resaltado: 'tus horarios.',
     desc: (sede) =>
-      `Aquí ves las canchas que reservaste en ${sede}: las próximas, las que ya jugaste y las canceladas.`,
+      `Consulta las canchas que reservaste en ${sede}: las próximas, las que ya jugaste y las canceladas.`,
     Contenido: MisReservas,
   },
 }

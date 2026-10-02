@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { hoyLocal } from '../lib/formato'
-import { canchasDeSede, crearPartido, partidosBuscandoJugadores, salirDePartido, unirseAPartido } from '../lib/datos'
+import {
+  canchasDeSede, crearPartido, disponibilidad, partidosBuscandoJugadores, salirDePartido, unirseAPartido,
+} from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
 import Cargando from '../componentes/Cargando'
@@ -39,6 +41,18 @@ function fechaLegible(fecha, hora) {
   return `${dia} · ${reloj}`
 }
 
+// '15:00:00' → '3:00 PM', igual que en la reserva de canchas.
+function hora12(hora) {
+  const [h, m] = hora.split(':').map(Number)
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`
+}
+
+// Hora actual 'HH:MM:SS' del reloj local, para descartar franjas pasadas.
+function horaActual() {
+  const d = new Date()
+  return [d.getHours(), d.getMinutes(), d.getSeconds()].map((n) => String(n).padStart(2, '0')).join(':')
+}
+
 function etiquetaNivel(valor) {
   return NIVELES.find((n) => n.valor === valor)?.etiqueta ?? valor
 }
@@ -64,12 +78,35 @@ export default function Partidos({ sedeId, sedeNombre }) {
   // la que estuviera elegida, porque ya no pertenece a esta sede.
   useEffect(() => {
     let vigente = true
-    setForm((f) => ({ ...f, canchaId: '' }))
+    setForm((f) => ({ ...f, canchaId: '', hora: '' }))
     canchasDeSede(sedeId).then(({ datos }) => {
       if (vigente) setCanchas(datos ?? [])
     })
     return () => { vigente = false }
   }, [sedeId])
+
+  // Horas de inicio: las mismas franjas de una hora que ofrece la reserva
+  // de esa cancha (de la apertura al cierre de la sede). No se filtran las
+  // reservadas, porque quien publica el partido suele ser quien reservó.
+  // clave = cancha|fecha de la consulta que trajo esas franjas.
+  const [franjas, setFranjas] = useState({ clave: null, lista: [] })
+  const claveFranjas = form.canchaId && form.fecha ? `${form.canchaId}|${form.fecha}` : null
+
+  useEffect(() => {
+    if (!claveFranjas) return
+    let vigente = true
+    const [canchaId, fecha] = claveFranjas.split('|')
+    disponibilidad(Number(canchaId), fecha).then(({ datos }) => {
+      if (vigente) setFranjas({ clave: claveFranjas, lista: datos ?? [] })
+    })
+    return () => { vigente = false }
+  }, [claveFranjas])
+
+  const cargandoFranjas = claveFranjas !== null && franjas.clave !== claveFranjas
+  const ahora = horaActual()
+  const horasDisponibles = cargandoFranjas || !claveFranjas
+    ? []
+    : franjas.lista.filter((f) => form.fecha !== hoy || f.hora_inicio > ahora)
 
   useEffect(() => {
     let vigente = true
@@ -85,7 +122,12 @@ export default function Partidos({ sedeId, sedeNombre }) {
   }, [sedeId, hoy, recarga])
 
   function cambiar(campo) {
-    return (e) => setForm((f) => ({ ...f, [campo]: e.target.value }))
+    return (e) => setForm((f) => ({
+      ...f,
+      [campo]: e.target.value,
+      // Otra cancha u otra fecha tienen otras franjas: la hora elegida ya no vale.
+      ...(campo === 'canchaId' || campo === 'fecha' ? { hora: '' } : {}),
+    }))
   }
 
   async function publicar(e) {
@@ -96,7 +138,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
     const cupos = Number(form.cupos)
     if (!form.canchaId) return setErrorForm('Selecciona la cancha.')
     if (!form.fecha || form.fecha < hoy) return setErrorForm('Elige una fecha de hoy en adelante.')
-    if (!form.hora) return setErrorForm('Indica la hora de inicio.')
+    if (!form.hora) return setErrorForm('Selecciona la hora de inicio.')
     if (!Number.isInteger(cupos) || cupos < 1 || cupos > 22) {
       return setErrorForm('Los cupos deben estar entre 1 y 22.')
     }
@@ -131,7 +173,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
     const { error } = await unirseAPartido(p.id, p.posicion_requerida)
     setOcupado(null)
     if (error) return toast(error, 'error')
-    toast('¡Listo! Quedaste anotado en el partido.', 'success')
+    toast('¡Listo! Ya tienes un cupo en el partido.', 'success')
     setRecarga((n) => n + 1)
   }
 
@@ -141,7 +183,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
     const { error } = await salirDePartido(p.id)
     setOcupado(null)
     if (error) return toast(error, 'error')
-    toast('Te saliste del partido.')
+    toast('Saliste del partido.')
     setRecarga((n) => n + 1)
   }
 
@@ -155,12 +197,12 @@ export default function Partidos({ sedeId, sedeNombre }) {
       <div className="partidos-bloque">
         <div className="landing-header-flex partidos-encabezado">
           <div>
-            <span className="sub-tag">Publicar Partido Abierto</span>
-            <h2 className="landing-title">Arma tu Partido</h2>
+            <span className="sub-tag">Publicar partido abierto</span>
+            <h2 className="landing-title">Arma tu partido</h2>
           </div>
           {sedeNombre && (
             <p className="landing-desc-side">
-              ¿Te faltan jugadores? Publica tu partido en {sedeNombre} y que se anoten los que quieran.
+              ¿Te faltan jugadores? Publica tu partido en {sedeNombre} y deja que otros jugadores se unan.
             </p>
           )}
         </div>
@@ -186,7 +228,27 @@ export default function Partidos({ sedeId, sedeNombre }) {
 
             <label>
               Hora de inicio
-              <input type="time" className="input-moderno" value={form.hora} onChange={cambiar('hora')} />
+              <select
+                className="input-moderno"
+                value={form.hora}
+                onChange={cambiar('hora')}
+                disabled={!form.canchaId || !form.fecha || cargandoFranjas || horasDisponibles.length === 0}
+              >
+                <option value="">
+                  {!form.canchaId || !form.fecha
+                    ? 'Elige primero la cancha y la fecha'
+                    : cargandoFranjas
+                      ? 'Cargando horarios…'
+                      : horasDisponibles.length === 0
+                        ? 'No hay horarios disponibles'
+                        : 'Selecciona la hora'}
+                </option>
+                {horasDisponibles.map((f) => (
+                  <option key={f.hora_inicio} value={f.hora_inicio}>
+                    {hora12(f.hora_inicio)} – {hora12(f.hora_fin)}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label>
@@ -204,7 +266,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
             </label>
 
             <label>
-              Buscando
+              Posición buscada
               <select className="input-moderno" value={form.posicion} onChange={cambiar('posicion')}>
                 <option value="">Cualquier posición</option>
                 {POSICIONES.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -224,7 +286,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
             )}
 
             <button type="submit" className="btn-cta-primary form-partido-completo" disabled={publicando}>
-              {publicando ? 'Publicando...' : 'Publicar Partido Ahora'}
+              {publicando ? 'Publicando…' : 'Publicar partido'}
             </button>
           </form>
         )}
@@ -244,7 +306,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
             </button>
           </div>
         ) : visibles.length === 0 ? (
-          <p className="partidos-aviso">Ahora mismo no hay partidos buscando jugadores.</p>
+          <p className="partidos-aviso">Por ahora no hay partidos buscando jugadores.</p>
         ) : (
           <div className="grid-canchas grid-partidos">
             {visibles.map((p) => (
@@ -253,7 +315,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
                 <p className="partido-fecha">{fechaLegible(p.fecha, p.hora_inicio)}</p>
                 <p><strong>Modalidad:</strong> {p.modalidad}</p>
                 <p><strong>Nivel:</strong> {etiquetaNivel(p.nivel)}</p>
-                <p><strong>Buscan:</strong> {p.posicion_requerida ?? 'Cualquier posición'}</p>
+                <p><strong>Posición buscada:</strong> {p.posicion_requerida ?? 'Cualquier posición'}</p>
                 <div className="partido-cupos">
                   <p><span>{p.cupos_disponibles}</span> de {p.cupos_totales} cupos libres</p>
                   <div className="partido-barra">
@@ -265,13 +327,13 @@ export default function Partidos({ sedeId, sedeNombre }) {
                 ) : estoyEn(p) ? (
                   <>
                     <p className="torneo-nota">
-                      ✅ {p.creador_id === usuario?.id ? 'Publicaste este partido y estás anotado.' : 'Ya estás anotado.'}
+                      ✅ {p.creador_id === usuario?.id ? 'Publicaste este partido y ya tienes tu cupo.' : 'Ya tienes un cupo en este partido.'}
                     </p>
                     <button
                       type="button" className="btn-torneo-cancelar"
                       onClick={() => salirDelPartido(p)} disabled={ocupado === p.id}
                     >
-                      {ocupado === p.id ? 'Saliendo…' : 'Salirme del partido'}
+                      {ocupado === p.id ? 'Saliendo…' : 'Salir del partido'}
                     </button>
                   </>
                 ) : (
@@ -279,7 +341,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
                     type="button" className="btn-cta-primary"
                     onClick={() => unirseAlPartido(p)} disabled={ocupado === p.id}
                   >
-                    {ocupado === p.id ? 'Uniéndote…' : 'Unirse al partido'}
+                    {ocupado === p.id ? 'Uniéndote…' : 'Unirme al partido'}
                   </button>
                 )}
               </article>

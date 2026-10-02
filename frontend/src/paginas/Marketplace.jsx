@@ -30,7 +30,7 @@ export default function Marketplace({ soloSedeId = null, onElegirSede }) {
       <Mensaje>
         Todavía no hay sedes publicadas.
         <br />
-        <small>Vuelve en un rato o escríbenos si administras una cancha.</small>
+        <small>Vuelve pronto o escríbenos si administras una sede.</small>
       </Mensaje>
     )
   }
@@ -41,7 +41,7 @@ export default function Marketplace({ soloSedeId = null, onElegirSede }) {
         ¡Qué bueno verte! Elige dónde vas a jugar hoy ⚽
       </h2>
       <p style={{ color: '#64748b', marginBottom: 30 }}>
-        Selecciona la sede a la que quieres entrar.
+        Selecciona una sede para ver sus canchas y horarios disponibles.
       </p>
 
       <div className="lista-sedes">

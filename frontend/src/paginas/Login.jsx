@@ -7,7 +7,7 @@ import fotoFondo from '../../imagenes/cancha_1_wembley.jpeg'
 const BENEFICIOS = [
   { icono: '⚡', texto: 'Disponibilidad en tiempo real, sin llamadas' },
   { icono: '👥', texto: 'Completa tu equipo con partidos abiertos' },
-  { icono: '🏆', texto: 'Organiza torneos con tus amigos' },
+  { icono: '🏆', texto: 'Inscribe a tu equipo en torneos' },
 ]
 
 function Campo({ etiqueta, children }) {
@@ -70,7 +70,7 @@ function FormEntrar({ onAutenticado, onOlvide }) {
       return
     }
 
-    toast('Sesión iniciada')
+    toast('Sesión iniciada.')
     if (onAutenticado) onAutenticado(data.user)
   }
 
@@ -95,7 +95,7 @@ function FormEntrar({ onAutenticado, onOlvide }) {
       </button>
 
       <button type="submit" className="btn-cta-primary login-submit" disabled={enviando}>
-        {enviando ? 'Entrando…' : 'Entrar a la cancha'}
+        {enviando ? 'Iniciando sesión…' : 'Iniciar sesión'}
       </button>
     </form>
   )
@@ -116,7 +116,7 @@ function FormRecuperar({ correoInicial, onVolver }) {
     if (enviando) return
 
     if (via === 'telefono' && telefono.replace(/\D/g, '').length < 7) {
-      toast('Escribe un número de teléfono válido', 'error')
+      toast('Escribe un número de teléfono válido.', 'error')
       return
     }
 
@@ -141,9 +141,9 @@ function FormRecuperar({ correoInicial, onVolver }) {
         <p>
           {via === 'correo'
             ? <>Si <strong>{correo.trim()}</strong> tiene una cuenta, te llegará un enlace para crear una contraseña nueva.</>
-            : <>Si ese número está registrado, enviamos un enlace al correo de la cuenta para crear una contraseña nueva.</>}
+            : <>Si ese número está registrado, te enviaremos un enlace al correo asociado a la cuenta para crear una contraseña nueva.</>}
         </p>
-        <p className="recuperar-nota">¿No lo ves? Revisa la carpeta de spam. El enlace vence en una hora.</p>
+        <p className="recuperar-nota">¿No lo encuentras? Revisa la carpeta de correo no deseado. El enlace vence en una hora.</p>
         <button type="button" className="btn-cta-primary login-submit" onClick={onVolver}>
           Volver a iniciar sesión
         </button>
@@ -220,7 +220,7 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
     if (enviando) return
 
     if (clave.length < 8) {
-      toast('La contraseña necesita al menos 8 caracteres', 'error')
+      toast('La contraseña debe tener al menos 8 caracteres.', 'error')
       return
     }
 
@@ -246,10 +246,10 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
     }
 
     if (data.session) {
-      toast('Cuenta creada. Ya estás dentro')
+      toast('Tu cuenta se creó correctamente.')
       if (onAutenticado) onAutenticado(data.user)
     } else {
-      toast('Cuenta creada. Revisa tu correo para confirmarla')
+      toast('Cuenta creada. Revisa tu correo para confirmarla.')
       onCuentaPendiente()
     }
   }
@@ -318,7 +318,7 @@ const TEXTOS = {
   },
   recuperar: {
     titulo: '¿Olvidaste tu contraseña?',
-    subtitulo: 'Le pasa a todo el mundo. Dinos tu correo o tu teléfono y te ayudamos a crear una nueva.',
+    subtitulo: 'Indícanos tu correo o tu teléfono y te ayudaremos a crear una nueva.',
   },
 }
 
@@ -366,7 +366,7 @@ export default function Login({ modoInicial = 'entrar', sedePendiente, onAutenti
             <>
               <FormRecuperar correoInicial={correoOlvido} onVolver={() => setModo('entrar')} />
               <p className="login-pie">
-                ¿Te acordaste?{' '}
+                ¿Recordaste tu contraseña?{' '}
                 <button type="button" className="login-link" onClick={() => setModo('entrar')}>
                   Inicia sesión
                 </button>
@@ -375,7 +375,7 @@ export default function Login({ modoInicial = 'entrar', sedePendiente, onAutenti
           ) : (
             <>
               {sedePendiente && (
-                <p className="login-aviso">Inicia sesión para ver las canchas de esa sede ⚽</p>
+                <p className="login-aviso">Inicia sesión para ver las canchas de la sede que elegiste ⚽</p>
               )}
 
               <div className={`login-tabs ${modo === 'registro' ? 'login-tabs-der' : ''}`}>

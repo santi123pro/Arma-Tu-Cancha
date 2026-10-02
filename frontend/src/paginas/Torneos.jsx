@@ -79,8 +79,8 @@ function TarjetaTorneo({ torneo, autenticado, onInscrito }) {
 
       <div className="torneo-datos">
         <span>⚽ {torneo.modalidad}</span>
-        {torneo.fecha_inicio && <span>📅 Inicia {fechaCorta(torneo.fecha_inicio)}</span>}
-        {torneo.cierre_inscripcion && <span>⏳ Cierre {fechaCorta(torneo.cierre_inscripcion)}</span>}
+        {torneo.fecha_inicio && <span>📅 Inicia el {fechaCorta(torneo.fecha_inicio)}</span>}
+        {torneo.cierre_inscripcion && <span>⏳ Inscripciones hasta el {fechaCorta(torneo.cierre_inscripcion)}</span>}
       </div>
 
       {torneo.premio && <p className="torneo-premio">🏆 {torneo.premio}</p>}
@@ -162,13 +162,13 @@ export default function Torneos({ sedeId, sedeNombre }) {
     setErrorForm(null)
 
     const cupos = Number(form.cupos)
-    if (!form.nombre.trim()) return setErrorForm('Ponle un nombre al torneo.')
+    if (!form.nombre.trim()) return setErrorForm('Escribe el nombre del torneo.')
     if (!Number.isInteger(cupos) || cupos < 4 || cupos > 12) {
       return setErrorForm('El torneo debe tener entre 4 y 12 equipos.')
     }
     if (form.fechaInicio && form.fechaInicio < hoy) return setErrorForm('La fecha de inicio ya pasó.')
     if (form.cierre && form.fechaInicio && form.cierre > form.fechaInicio) {
-      return setErrorForm('El cierre de inscripciones debe ser antes del inicio.')
+      return setErrorForm('El cierre de inscripciones debe ser anterior a la fecha de inicio.')
     }
 
     setPublicando(true)
@@ -203,11 +203,11 @@ export default function Torneos({ sedeId, sedeNombre }) {
         <div className="landing-header-flex partidos-encabezado">
           <div>
             <span className="sub-tag">Organizar torneo</span>
-            <h2 className="landing-title">Crea tu Torneo</h2>
+            <h2 className="landing-title">Crea tu torneo</h2>
           </div>
           {sedeNombre && (
             <p className="landing-desc-side">
-              Define cupos, fechas y premio. Los equipos se inscriben desde aquí mismo en {sedeNombre}.
+              Define los cupos, las fechas y el premio. Los equipos se inscriben directamente aquí, en {sedeNombre}.
             </p>
           )}
         </div>
@@ -219,7 +219,7 @@ export default function Torneos({ sedeId, sedeNombre }) {
             <strong>🏆 Los torneos los organiza la sede</strong>
             <p>
               Solo el administrador de {sedeNombre ?? 'la sede'} puede crear torneos.
-              Tú puedes inscribir tu equipo en cualquiera que tenga cupos en la lista.
+              Puedes inscribir tu equipo en cualquier torneo de la lista que tenga cupos disponibles.
             </p>
           </div>
         ) : (
@@ -290,7 +290,7 @@ export default function Torneos({ sedeId, sedeNombre }) {
             )}
 
             <button type="submit" className="btn-cta-primary form-partido-completo" disabled={publicando}>
-              {publicando ? 'Creando...' : 'Crear Torneo'}
+              {publicando ? 'Creando…' : 'Crear torneo'}
             </button>
           </form>
         )}

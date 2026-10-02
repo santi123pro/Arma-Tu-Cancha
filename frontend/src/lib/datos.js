@@ -62,7 +62,7 @@ export async function recuperarPorTelefono(telefono) {
   if (error) {
     // Los 4xx traen el mensaje en el cuerpo de la respuesta.
     const cuerpo = await error.context?.json?.().catch(() => null)
-    return { datos: null, error: cuerpo?.error ?? 'No pudimos enviar el enlace. Intenta más tarde.' }
+    return { datos: null, error: cuerpo?.error ?? 'No fue posible enviar el enlace. Intenta más tarde.' }
   }
   return { datos: data, error: null }
 }
@@ -328,7 +328,7 @@ export async function unirseAPartido(partidoId, posicion = null) {
 
 export async function salirDePartido(partidoId) {
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { datos: null, error: 'Inicia sesión para salirte.' }
+  if (!user) return { datos: null, error: 'Inicia sesión para salir del partido.' }
   return consultar(
     supabase.from('partido_jugadores')
       .delete().eq('partido_id', partidoId).eq('usuario_id', user.id)
@@ -422,7 +422,7 @@ export function zonasMuertas(dias = 60) {
 async function eliminarFila(tabla, id) {
   const { datos, error } = await consultar(supabase.from(tabla).delete().eq('id', id).select('id'))
   if (error) return { datos: null, error }
-  if (!datos?.length) return { datos: null, error: 'No se pudo eliminar: no existe o no tienes permiso.' }
+  if (!datos?.length) return { datos: null, error: 'No se pudo eliminar: el registro no existe o no tienes permiso.' }
   return { datos: datos[0], error: null }
 }
 

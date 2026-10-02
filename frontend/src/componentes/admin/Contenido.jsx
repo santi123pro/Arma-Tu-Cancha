@@ -5,7 +5,7 @@ import Cargando from '../Cargando'
 
 const ESTADOS = {
   abierto: 'Abierto', completo: 'Completo', jugado: 'Jugado', cancelado: 'Cancelado',
-  inscripciones: 'Inscripciones', cerrado: 'Cupos llenos', en_curso: 'En curso', finalizado: 'Finalizado',
+  inscripciones: 'Inscripciones abiertas', cerrado: 'Cupos completos', en_curso: 'En curso', finalizado: 'Finalizado',
 }
 
 function fecha(valor) {
@@ -67,7 +67,7 @@ export default function Contenido() {
       toast(error, 'error')
       return false
     }
-    toast(`${nombre} eliminado`)
+    toast(`${nombre} eliminado.`)
     setRecarga((n) => n + 1)
     return true
   }
@@ -110,7 +110,7 @@ export default function Contenido() {
             <p>Al eliminar un torneo se borran también sus equipos inscritos.</p>
           </header>
           {torneos.length === 0 ? (
-            <p className="viz-vacio">No hay torneos.</p>
+            <p className="viz-vacio">No hay torneos registrados.</p>
           ) : (
             <ul className="admin-lista">
               {torneos.map((t) => (
@@ -135,7 +135,7 @@ export default function Contenido() {
             <p>Al eliminar un partido se borran también los jugadores anotados.</p>
           </header>
           {partidos.length === 0 ? (
-            <p className="viz-vacio">No hay partidos.</p>
+            <p className="viz-vacio">No hay partidos registrados.</p>
           ) : (
             <ul className="admin-lista">
               {partidos.map((p) => (

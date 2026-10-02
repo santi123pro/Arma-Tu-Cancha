@@ -11,10 +11,14 @@ const RANGOS = [
 
 const ESTADOS_PARTIDO = { abierto: 'Abierto', completo: 'Completo', jugado: 'Jugado', cancelado: 'Cancelado' }
 const ESTADOS_TORNEO = {
-  inscripciones: 'Inscripciones', cerrado: 'Cupos llenos', en_curso: 'En curso',
+  inscripciones: 'Inscripciones abiertas', cerrado: 'Cupos completos', en_curso: 'En curso',
   finalizado: 'Finalizado', cancelado: 'Cancelado',
 }
-const ROLES = { jugador: 'Jugadores', admin_sede: 'Admins de sede', superadmin: 'Superadmins' }
+const ROLES = {
+  jugador: 'Jugadores',
+  admin_sede: 'Administradores de sede',
+  superadmin: 'Administradores generales',
+}
 
 // Fecha local YYYY-MM-DD, n días atrás.
 function haceDias(n) {

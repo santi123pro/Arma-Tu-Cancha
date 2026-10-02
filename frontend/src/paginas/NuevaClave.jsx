@@ -18,11 +18,11 @@ export default function NuevaClave({ autenticado, onListo, onPedirOtro }) {
     if (enviando) return
 
     if (clave.length < 8) {
-      toast('La contraseña necesita al menos 8 caracteres', 'error')
+      toast('La contraseña debe tener al menos 8 caracteres.', 'error')
       return
     }
     if (clave !== repetir) {
-      toast('Las dos contraseñas no coinciden', 'error')
+      toast('Las contraseñas no coinciden.', 'error')
       return
     }
 
@@ -35,7 +35,7 @@ export default function NuevaClave({ autenticado, onListo, onPedirOtro }) {
       return
     }
 
-    toast('¡Listo! Tu contraseña quedó cambiada 🔐')
+    toast('Tu contraseña se actualizó correctamente. 🔐')
     onListo()
   }
 
@@ -57,16 +57,16 @@ export default function NuevaClave({ autenticado, onListo, onPedirOtro }) {
           {!autenticado ? (
             <div className="login-form recuperar-enviado" role="alert">
               <span className="recuperar-icono">⏰</span>
-              <h3>El enlace ya no sirve</h3>
-              <p>Puede que haya vencido (dura una hora) o que ya lo hayas usado. Pide uno nuevo.</p>
+              <h3>El enlace ya no es válido</h3>
+              <p>Es posible que haya vencido (es válido durante una hora) o que ya se haya usado. Solicita uno nuevo.</p>
               <button type="button" className="btn-cta-primary login-submit" onClick={onPedirOtro}>
-                Pedir otro enlace
+                Solicitar un nuevo enlace
               </button>
             </div>
           ) : (
             <>
               <h2 className="login-titulo">Crea tu nueva contraseña</h2>
-              <p className="login-subtitulo">Usa al menos 8 caracteres. Después entrarás directo.</p>
+              <p className="login-subtitulo">Usa al menos 8 caracteres. Al guardarla, iniciarás sesión automáticamente.</p>
 
               <form onSubmit={guardar} className="login-form">
                 <CampoClave
@@ -81,7 +81,7 @@ export default function NuevaClave({ autenticado, onListo, onPedirOtro }) {
                   etiqueta="Repite la contraseña"
                   valor={repetir}
                   onCambio={setRepetir}
-                  placeholder="Escríbela otra vez"
+                  placeholder="Escríbela de nuevo"
                   minLength={8}
                   autoComplete="new-password"
                 />

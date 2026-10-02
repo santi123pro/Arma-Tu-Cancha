@@ -120,7 +120,7 @@ export default function CanchaCard({ cancha, sede }) {
               <dt>Cancha</dt><dd>{cancha.nombre}</dd>
               <dt>Fecha</dt><dd>{fechaCorta(comprobante.fecha)}</dd>
               <dt>Horario</dt>
-              <dd>{hora12(comprobante.hora_inicio)} - {hora12(comprobante.hora_fin)}</dd>
+              <dd>{hora12(comprobante.hora_inicio)} – {hora12(comprobante.hora_fin)}</dd>
               <dt>Código de reserva</dt>
               <dd className="cancha-card-codigo">{comprobante.codigo}</dd>
             </dl>
@@ -131,7 +131,7 @@ export default function CanchaCard({ cancha, sede }) {
         ) : (
           <>
             <p className="cancha-card-fecha">
-              Horarios del {fecha === hoy ? 'día de hoy' : fechaCorta(fecha)}
+              {fecha === hoy ? 'Horarios de hoy' : `Horarios del ${fechaCorta(fecha)}`}
             </p>
 
             {cargando ? (
@@ -142,7 +142,7 @@ export default function CanchaCard({ cancha, sede }) {
               </p>
             ) : franjas.every((f) => !f.disponible) ? (
               <p className="cancha-card-estado">
-                Todas las franjas de este día están ocupadas. Prueba otro día.
+                Todos los horarios de este día están ocupados. Prueba con otra fecha.
               </p>
             ) : (
               <div className="cancha-card-franjas">
@@ -170,7 +170,7 @@ export default function CanchaCard({ cancha, sede }) {
                 className="btn-elegir-dia"
                 onClick={() => setVerFecha((v) => !v)}
               >
-                📅 Elegir día específico
+                📅 Elegir otra fecha
               </button>
 
               {verFecha && (

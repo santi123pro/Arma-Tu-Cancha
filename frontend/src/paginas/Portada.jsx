@@ -9,19 +9,19 @@ const PASOS = [
     num: '01',
     icono: '📍',
     titulo: 'Elige tu sede',
-    texto: 'Mira las sedes de la ciudad, sus canchas y lo que ofrece cada una.',
+    texto: 'Explora las sedes de la ciudad, sus canchas y lo que ofrece cada una.',
   },
   {
     num: '02',
     icono: '🗓️',
     titulo: 'Reserva tu hora',
-    texto: 'La disponibilidad se ve en tiempo real. Si la franja aparece libre, es libre.',
+    texto: 'Consulta la disponibilidad en tiempo real. Si un horario aparece libre, está disponible para ti.',
   },
   {
     num: '03',
     icono: '⚽',
     titulo: 'Arma el equipo',
-    texto: '¿Te faltan jugadores? Publica el partido abierto y que se anoten los que quieran.',
+    texto: '¿Te faltan jugadores? Publica un partido abierto y deja que otros se unan.',
   },
 ]
 
@@ -70,7 +70,7 @@ function SeccionHero({ sedes, cargando, onIrLogin, onVerSede }) {
 
         <p className="hero-desc">
           Reserva canchas sintéticas en Cali, completa tu equipo cuando falten
-          jugadores y organiza torneos. Todo en un solo lugar.
+          jugadores y participa en torneos. Todo en un solo lugar.
         </p>
 
         <div className="hero-botones">
@@ -128,7 +128,7 @@ function SeccionFlujo({ onIrLogin }) {
           Tres pasos y <span className="texto-resaltado">estás jugando</span>
         </h2>
         <p className="landing-desc-side">
-          Sin llamadas, sin mensajes de WhatsApp para preguntar si hay cupo. Todo
+          Sin llamadas ni mensajes de WhatsApp para preguntar si hay cupo. Todo
           queda registrado en la plataforma.
         </p>
       </div>
@@ -146,7 +146,7 @@ function SeccionFlujo({ onIrLogin }) {
 
       <div className="flujo-cta">
         <div>
-          <h3>¿Listo para el primer pitazo?</h3>
+          <h3>¿Todo listo para el primer pitazo?</h3>
           <p>Crea tu cuenta gratis y reserva en menos de un minuto.</p>
         </div>
         <button type="button" className="btn-cta-primary btn-grande" onClick={onIrLogin}>
@@ -166,7 +166,7 @@ function SeccionMapa({ sedes, onVerSede }) {
           <h2 className="landing-title-white">¿Dónde jugamos?</h2>
         </div>
         <p className="landing-desc-side-light">
-          Las sedes están en el norte y sur Cali. Elige una de la lista o toca un
+          Nuestras sedes están en el norte de Cali. Elige una de la lista o toca un
           marcador para ver sus canchas y cómo llegar.
         </p>
       </div>

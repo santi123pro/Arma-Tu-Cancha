@@ -44,7 +44,7 @@ export const supabase = createClient(url, clave, {
 // Las pantallas comparan contra este texto para saber que la franja se
 // ocupó entre que se consultó la disponibilidad y se pulsó "Reservar".
 export const ERROR_FRANJA_OCUPADA =
-  'Esta franja acaba de ser reservada por otro usuario. Actualiza la disponibilidad e intenta con otro horario.'
+  'Otro usuario acaba de reservar este horario. Elige uno diferente.'
 
 const POR_RESTRICCION = {
   reservas_sin_solape: ERROR_FRANJA_OCUPADA,
@@ -55,11 +55,11 @@ const POR_RESTRICCION = {
   partidos_sin_solape:
     'Ya hay un partido publicado en esa cancha, ese día y a esa hora. Elige otro horario.',
   partido_jugador_unico:
-    'Ya estás anotado en este partido.',
+    'Ya tienes un cupo en este partido.',
   canchas_nombre_unico_por_sede:
     'Esa sede ya tiene una cancha con ese nombre.',
   sedes_slug_key:
-    'Ya existe un establecimiento registrado con ese nombre.',
+    'Ya existe una sede registrada con ese nombre.',
   partidos_cupos_coherentes:
     'Ese partido ya no tiene cupos disponibles.',
   torneos_cupos_rango:
@@ -71,12 +71,12 @@ const POR_RESTRICCION = {
 const POR_MENSAJE_AUTH = [
   ['Invalid login credentials',  'Correo o contraseña incorrectos.'],
   ['User already registered',    'Ya existe una cuenta con ese correo. Inicia sesión.'],
-  ['Email not confirmed',        'Confirma tu correo antes de entrar. Revisa tu bandeja.'],
+  ['Email not confirmed',        'Confirma tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.'],
   ['Password should be at least','La contraseña debe tener al menos 8 caracteres.'],
-  ['For security purposes',      'Espera unos segundos antes de volver a intentar.'],
-  ['New password should be different', 'La contraseña nueva debe ser distinta a la anterior.'],
-  ['rate limit exceeded',        'Se enviaron demasiados correos. Espera un rato e intenta de nuevo.'],
-  ['Auth session missing',       'El enlace ya no es válido. Pide uno nuevo.'],
+  ['For security purposes',      'Espera unos segundos antes de volver a intentarlo.'],
+  ['New password should be different', 'La contraseña nueva debe ser distinta de la anterior.'],
+  ['rate limit exceeded',        'Se enviaron demasiados correos. Espera unos minutos e inténtalo de nuevo.'],
+  ['Auth session missing',       'El enlace ya no es válido. Solicita uno nuevo.'],
 ]
 
 export function traducirError(error) {
@@ -96,12 +96,12 @@ export function traducirError(error) {
   }
 
   if (error.code === '23503') {
-    return 'Estás usando un registro que no existe o fue eliminado.'
+    return 'El registro que intentas usar no existe o fue eliminado.'
   }
 
   // RLS rechazó la operación.
   if (error.code === '42501' || error.code === 'PGRST301') {
-    return 'Tu cuenta no tiene permiso para hacer esto.'
+    return 'No tienes permiso para realizar esta acción.'
   }
 
   // Errores de autenticación.
@@ -111,11 +111,11 @@ export function traducirError(error) {
 
   // Sin conexión.
   if (error.message?.includes('Failed to fetch')) {
-    return 'No pudimos conectar con el servidor. Revisa tu conexión.'
+    return 'No fue posible conectar con el servidor. Revisa tu conexión a internet.'
   }
 
   console.error('[supabase]', error)
-  return error.message || 'Ocurrió un problema inesperado.'
+  return error.message || 'Ocurrió un error inesperado. Intenta de nuevo.'
 }
 
 // ---------------------------------------------------------------------

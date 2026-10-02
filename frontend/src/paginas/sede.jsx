@@ -107,7 +107,7 @@ export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVe
             <Stat n={canchas.length} l="Canchas" />
             <Stat
               n={canchas.length ? `$${Math.min(...canchas.map((c) => c.precio_hora)).toLocaleString('es-CO')}` : '—'}
-              l="Desde / hora"
+              l="Desde (por hora)"
             />
             <Stat
               n={`${sede.hora_apertura?.slice(0, 5)}–${sede.hora_cierre?.slice(0, 5)}`}

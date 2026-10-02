@@ -9,7 +9,7 @@ import Cargando from '../Cargando'
 const ROLES = [
   { valor: 'jugador', texto: 'Jugador' },
   { valor: 'admin_sede', texto: 'Administrador de sede' },
-  { valor: 'superadmin', texto: 'Superadmin' },
+  { valor: 'superadmin', texto: 'Administrador general' },
 ]
 
 const FORM_VACIO = { nombre: '', correo: '', telefono: '', clave: '', rol: 'jugador', sedeId: '' }
@@ -37,7 +37,7 @@ function FormNuevo({ sedes, onCreado, onCancelar }) {
     e.preventDefault()
     if (enviando) return
     setError(null)
-    if (form.rol === 'admin_sede' && !form.sedeId) return setError('Elige la sede que va a administrar.')
+    if (form.rol === 'admin_sede' && !form.sedeId) return setError('Elige la sede que administrará.')
 
     setEnviando(true)
     const { error } = await adminCrearUsuario({
@@ -54,7 +54,7 @@ function FormNuevo({ sedes, onCreado, onCancelar }) {
       setError(error)
       return
     }
-    toast(`Usuario ${form.correo} creado`)
+    toast(`Usuario ${form.correo} creado.`)
     onCreado()
   }
 
@@ -116,7 +116,7 @@ function FilaUsuario({ u, sedes, esYo, onCambio }) {
 
   async function guardar() {
     if (rol === 'admin_sede' && !sedeId) {
-      toast('Elige la sede que va a administrar', 'error')
+      toast('Elige la sede que administrará.', 'error')
       return
     }
     setGuardando(true)
@@ -126,7 +126,7 @@ function FilaUsuario({ u, sedes, esYo, onCambio }) {
       toast(error, 'error')
       return
     }
-    toast(`Rol de ${u.nombre} actualizado`)
+    toast(`Rol de ${u.nombre} actualizado.`)
     onCambio()
   }
 
@@ -139,7 +139,7 @@ function FilaUsuario({ u, sedes, esYo, onCambio }) {
       setConfirmar(false)
       return
     }
-    toast(`${u.nombre} fue eliminado`)
+    toast(`Usuario ${u.nombre} eliminado.`)
     onCambio()
   }
 
@@ -160,7 +160,7 @@ function FilaUsuario({ u, sedes, esYo, onCambio }) {
         </select>
         {rol === 'admin_sede' && (
           <select className="input-moderno admin-select" value={sedeId} onChange={(e) => setSedeId(e.target.value)}>
-            <option value="">Elige sede</option>
+            <option value="">Elige una sede</option>
             {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
           </select>
         )}

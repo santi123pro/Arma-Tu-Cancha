@@ -13,6 +13,12 @@ import TodasMisReservas from './paginas/TodasMisReservas'
 import NuevaClave from './paginas/NuevaClave'
 import Cargando from './componentes/Cargando'
 
+const NOMBRES_ROL = {
+  jugador: 'Jugador',
+  admin_sede: 'Administrador de sede',
+  superadmin: 'Administrador general',
+}
+
 function Contenido() {
   const { perfil, cargando, autenticado, esAdmin, recuperando, terminarRecuperacion } = useSesion()
   const toast = useToast()
@@ -101,7 +107,7 @@ function Contenido() {
                   color: '#0f172a', padding: '2px 7px', borderRadius: 4,
                   fontWeight: 700, textTransform: 'uppercase', marginLeft: 6,
                 }}>
-                  {perfil?.rol ?? 'jugador'}
+                  {NOMBRES_ROL[perfil?.rol] ?? 'Jugador'}
                 </span>
               </span>
               <button
@@ -117,11 +123,11 @@ function Contenido() {
                   className={'btn-panel-admin' + (vista === 'admin' ? ' activo' : '')}
                   onClick={() => irA('admin')}
                 >
-                  📊 {esSuperadmin ? 'Panel admin' : 'Métricas de mi sede'}
+                  📊 {esSuperadmin ? 'Panel de administración' : 'Métricas de mi sede'}
                 </button>
               )}
               <button onClick={salir} className="btn-logout" style={{ marginLeft: 12 }}>
-                Cerrar Sesión
+                Cerrar sesión
               </button>
             </div>
           ) : vista !== 'portada' ? (

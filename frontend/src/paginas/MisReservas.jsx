@@ -87,7 +87,7 @@ function TarjetaReserva({ reserva, conSede, onCancelada }) {
       </div>
 
       <p className="reserva-codigo">
-        Código <strong>{reserva.codigo}</strong>
+        Código de reserva: <strong>{reserva.codigo}</strong>
       </p>
 
       {!proxima ? null : !puedeCancelar ? (
@@ -97,7 +97,7 @@ function TarjetaReserva({ reserva, conSede, onCancelada }) {
       ) : confirmando ? (
         <div className="torneo-inscribir-botones">
           <button type="button" className="btn-torneo-cancelar" onClick={() => setConfirmando(false)}>
-            No, mantener
+            No, conservarla
           </button>
           <button type="button" className="btn-reserva-cancelar" onClick={cancelar} disabled={enviando}>
             {enviando ? 'Cancelando…' : 'Sí, cancelar'}
