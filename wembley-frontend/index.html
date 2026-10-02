@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wembley - Complejo Deportivo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Contenedor de Notificaciones Toast -->
+    <div id="toast-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
+    <!-- Encabezado General -->
+    <header class="header-wembley">
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo Wembley" class="logo-img" onerror="this.style.display='none'">
+            <div>
+                <h1>Wembley ⚽</h1>
+                <p class="info-contacto">📍 Calle 58 Norte #58, Cali | 📞 +57 316 2528100</p>
+            </div>
+        </div>
+
+        <div id="auth-container" class="auth-box-header">
+            <div id="user-info" style="display: none;">
+                <span id="saludo-usuario"></span>
+                <button onclick="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
+            </div>
+            <div id="auth-forms">
+                <button onclick="scrollALogin()" class="btn-cta-outline" style="background: transparent; color: white; border: 1px solid #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold;">🔑 Iniciar Sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= VISTA 1: PORTADA PÚBLICA ================= -->
+    <div id="vista-portada">
+        <!-- SECCIÓN HERO -->
+        <section id="hero-bienvenida" class="hero-section">
+            <div class="hero-content">
+                <span class="hero-badge">⚽ COMPLEJO DEPORTIVO WEMBLEY NORTE</span>
+                <h1 class="hero-title">Menos coordinación,<br>más <span>partido.</span></h1>
+                <p class="hero-desc">La experiencia se concentra en lo que necesitas antes de pisar la cancha: reserva de espacios, armar partidos abiertos y gestión de torneos en Cali sin llamadas perdidas.</p>
+                <div class="hero-botones">
+                    <button onclick="scrollALogin()" class="btn-cta-primary">Empezar ahora</button>
+                    <a href="https://www.facebook.com/wembleynortecali/" target="_blank" class="btn-cta-secondary">Ver Facebook 🌐</a>
+                </div>
+            </div>
+            <div class="hero-card-preview">
+                <div class="preview-header">
+                    <span>Wembley - Panel Operativo</span>
+                    <span class="badge-activo">🟢 ACTIVO</span>
+                </div>
+                <div class="preview-body">
+                    <div class="preview-row">
+                        <strong>Cancha Sintética Norte</strong>
+                        <span style="color: #27ae60; font-weight: bold;">Disponible</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 1: FLUJO DE RESERVA -->
+        <section class="seccion-landing-light">
+            <div class="landing-header-flex">
+                <div>
+                    <span class="sub-tag">FLUJO DE RESERVA</span>
+                    <h2 class="landing-title">Reserva clara aunque el<br>pago se confirme a mano.</h2>
+                </div>
+                <p class="landing-desc-side">El jugador sabe qué hacer después de apartar: guardar su código, seguir instrucciones de pago y subir el soporte cuando esté listo.</p>
+            </div>
+            <div class="landing-grid-3">
+                <div class="landing-card">
+                    <div class="card-num">01</div>
+                    <h3>El jugador aparta el horario.</h3>
+                    <p>Ingresa nombre, correo y teléfono. El sistema bloquea el cupo y entrega un código de reserva.</p>
+                </div>
+                <div class="landing-card">
+                    <div class="card-num">02</div>
+                    <h3>Sube el comprobante.</h3>
+                    <p>La reserva muestra las instrucciones de la sede y permite adjuntar el soporte de depósito o saldo.</p>
+                </div>
+                <div class="landing-card">
+                    <div class="card-num">03</div>
+                    <h3>Recibe confirmación.</h3>
+                    <p>Cuando la sede revisa el soporte, el jugador conserva una reserva trazable con estado y código.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: CONFIANZA OPERATIVA -->
+        <section class="seccion-landing-dark">
+            <div class="landing-header-flex">
+                <div>
+                    <span class="sub-tag-green">CONFIANZA OPERATIVA</span>
+                    <h2 class="landing-title-white">Elementos mínimos<br>para reservar sin fricción.</h2>
+                </div>
+                <p class="landing-desc-side-light">Sin métricas inventadas: solo las piezas que explican el producto y reducen fricción para quien está organizando el partido.</p>
+            </div>
+            <div class="landing-grid-3">
+                <div class="landing-card-dark">
+                    <div class="card-icon">🛡️</div>
+                    <h3>Reserva recuperable</h3>
+                    <p>El jugador puede volver a su reserva con correo y código, útil cuando debe subir el soporte más tarde.</p>
+                </div>
+                <div class="landing-card-dark">
+                    <div class="card-icon">⏱️</div>
+                    <h3>Inventario protegido</h3>
+                    <p>Los holds reducen dobles reservas y permiten liberar horarios si el pago no llega a tiempo.</p>
+                </div>
+                <div class="landing-card-dark">
+                    <div class="card-icon">📁</div>
+                    <h3>Revisión privada</h3>
+                    <p>Los comprobantes quedan asociados al código de reserva, no perdidos entre capturas y mensajes.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: UBICACIÓN Y MAPA -->
+        <section class="seccion-mapa-container">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <span class="sub-tag">UBICACIÓN OFICIAL</span>
+                <h2 class="landing-title" style="font-size: 32px;">¿Dónde jugamos?</h2>
+                <p style="color: #64748b; font-size: 14px;">📍 Calle 58 Norte #58, Cali, Valle del Cauca</p>
+            </div>
+            <div class="mapa-wrapper">
+                <iframe 
+                    width="100%" 
+                    height="400" 
+                    style="border:0; border-radius: 12px;" 
+                    loading="lazy" 
+                    allowfullscreen 
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=-76.535%2C3.475%2C-76.515%2C3.495&amp;layer=mapnik&amp;marker=3.485%2C-76.525">
+                </iframe>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE LOGIN Y REGISTRO -->
+        <section id="seccion-auth-principal" class="auth-landing-container" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; padding: 60px 20px;">
+            <!-- Tarjeta 1: Iniciar Sesión -->
+            <div class="auth-card-landing" style="flex: 1; min-width: 300px; max-width: 380px;">
+                <h2>🔑 Iniciar Sesión</h2>
+                <p>Accede con tus credenciales registradas.</p>
+                <input type="email" id="correo" placeholder="Correo electrónico" class="input-moderno">
+                <input type="password" id="password" placeholder="Contraseña" class="input-moderno">
+                <button onclick="iniciarSesion()" class="btn-cta-primary" style="margin-top: 15px; width: 100%;">Entrar al Sistema</button>
+            </div>
+
+            <!-- Tarjeta 2: Registrarse -->
+            <div class="auth-card-landing" style="flex: 1; min-width: 300px; max-width: 380px;">
+                <h2>📝 Crear Cuenta Nueva</h2>
+                <p>Regístrate para armar partidos y torneos.</p>
+                <input type="text" id="reg-nombre" placeholder="Nombre completo (ej: Santiago)" class="input-moderno">
+                <input type="email" id="reg-correo" placeholder="Correo electrónico" class="input-moderno">
+                <input type="password" id="reg-clave" placeholder="Contraseña segura" class="input-moderno">
+                <button onclick="registrarUsuarioNuevo()" class="btn-cta-secondary" style="margin-top: 15px; width: 100%; background: #2980b9; border: none; color: white;">Registrarse Ahora</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= VISTA 2: MARKETPLACE (SELECCIÓN DE SEDES) ================= -->
+    <div id="vista-marketplace" style="display: none; padding: 40px 20px; text-align: center; max-width: 1000px; margin: 0 auto;">
+        <h2 style="font-size: 28px; color: #0f172a; margin-bottom: 10px;">¡Bienvenido, elige dónde vas a romperla hoy! ⚽</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">Selecciona el complejo deportivo al que quieres ingresar.</p>
+        
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+            <!-- Sede Wembley -->
+            <div onclick="abrirSede('Wembley')" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; width: 280px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <h3 style="color: #2563eb; font-size: 22px;">🏟️ Wembley</h3>
+                <p style="font-size: 13px; color: #475569;">La sede principal, el clásico de clásicos.</p>
+                <button class="btn-cta-primary" style="margin-top: 15px; width: 100%;">Entrar</button>
+            </div>
+
+            <!-- Sede La Bombonera -->
+            <div onclick="abrirSede('La Bombonera')" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; width: 280px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <h3 style="color: #eab308; font-size: 22px;">🔥 La Bombonera</h3>
+                <p style="font-size: 13px; color: #475569;">Pura pasión y juego al límite.</p>
+                <button class="btn-cta-primary" style="margin-top: 15px; width: 100%;">Entrar</button>
+            </div>
+
+            <!-- Sede Bernabéu -->
+            <div onclick="abrirSede('Bernabéu')" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; width: 280px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <h3 style="color: #64748b; font-size: 22px;">👑 Bernabéu</h3>
+                <p style="font-size: 13px; color: #475569;">Elegancia y toque de primera.</p>
+                <button class="btn-cta-primary" style="margin-top: 15px; width: 100%;">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= VISTA 3: PRESENTACIÓN DE LA SEDE (LOBBY) ================= -->
+    <div id="vista-presentacion-sede" style="display: none; padding: 20px; max-width: 900px; margin: 40px auto; text-align: center;">
+        <button onclick="volverAlMarketplace()" style="background: transparent; border: none; color: #64748b; cursor: pointer; font-weight: bold; margin-bottom: 20px; font-size: 14px;">⬅ Volver a los complejos</button>
+        
+        <div style="background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden;">
+            <div id="sede-banner" style="height: 180px; background: #2563eb; display: flex; align-items: center; justify-content: center; color: white;">
+                <h1 id="sede-titulo" style="font-size: 42px; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Nombre Sede</h1>
+            </div>
+            
+            <div style="padding: 40px 30px;">
+                <p id="sede-descripcion" style="font-size: 16px; color: #475569; margin-bottom: 25px; line-height: 1.6; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    Descripción de la sede...
+                </p>
+                
+                <div id="sede-caracteristicas" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap;"></div>
+
+                <div style="border-top: 2px dashed #e2e8f0; padding-top: 30px;">
+                    <h3 style="color: #0f172a; margin-bottom: 15px; font-size: 20px;">¿Todo listo para pisar la cancha?</h3>
+                    <button onclick="activarJuegaYa()" style="background: #27ae60; color: white; padding: 16px 50px; font-size: 22px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);">
+                        ⚡ JUEGA YA
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= VISTA 4: PANEL INTERNO DEL USUARIO ================= -->
+    <main id="seccion-canchas" style="display: none; padding: 20px;">
+        <nav class="nav-tabs" id="barra-pestanas">
+            <button class="tab-btn active" onclick="cambiarTab('reservas')">🏟️ Reservas</button>
+            <button class="tab-btn" onclick="cambiarTab('partidos')">⚽ Partidos</button>
+            <button class="tab-btn" onclick="cambiarTab('torneos')">🏆 Torneos</button>
+            <button class="tab-btn" id="btn-tab-dashboard" onclick="cambiarTab('dashboard')" style="display: none; background: #0f172a; color: #38bdf8;">📊 Dashboard Analítico</button>
+        </nav>
+
+        <!-- PESTAÑA 1: RESERVAS -->
+        <div id="tab-reservas" class="tab-content active">
+            <section style="margin-top: 20px;">
+                <h2>Canchas Disponibles para Reservar</h2>
+                <div id="contenedor-canchas" class="grid-canchas"></div>
+            </section>
+        </div>
+
+        <!-- PESTAÑA 2: PARTIDOS ABIERTOS -->
+        <div id="tab-partidos" class="tab-content" style="display: none;">
+            <section style="margin-top: 20px;">
+                <h2 style="text-align: center; color: #0f172a; margin-bottom: 20px;">⚽ Arma tu Partido (Partidos Abiertos)</h2>
+                
+                <div class="auth-box" style="max-width: 520px; margin: 0 auto 30px auto; background: white; padding: 30px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+                        <span style="font-size: 22px;">⚡</span>
+                        <div>
+                            <h3 style="margin: 0; color: #0f172a; font-size: 18px;">Publicar Partido Abierto</h3>
+                            <p style="margin: 2px 0 0 0; color: #64748b; font-size: 12px;">Organiza un encuentro y deja que otros jugadores se unan.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="grid-column: span 2;">
+                            <label style="display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">🏟️ ID de la Cancha</label>
+                            <input type="number" id="p-cancha" placeholder="Ej: 1, 2, 3..." class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">📅 Fecha del Partido</label>
+                            <input type="date" id="p-fecha" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">⏰ Hora</label>
+                            <input type="text" id="p-hora" placeholder="Ej: 8:00 PM" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">⚽ Modalidad</label>
+                            <input type="text" id="p-modalidad" placeholder="Ej: Fútbol 5" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">⭐ Nivel Requerido</label>
+                            <input type="text" id="p-nivel" placeholder="Ej: Intermedio" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">👤 Buscando (Opcional)</label>
+                            <input type="text" id="p-posicion" placeholder="Ej: Arquero / Defensor" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">👥 Cupos Totales</label>
+                            <input type="number" id="p-cupos" placeholder="Ej: 10" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                    </div>
+
+                    <button id="btn-crear-partido" class="btn-cta-primary" style="margin-top: 22px; width: 100%; padding: 12px; font-size: 14px; font-weight: bold; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        🚀 Publicar Partido Ahora
+                    </button>
+                </div>
+
+                <h3 style="text-align: center; color: #2c3e50; margin-top: 30px;">Partidos buscando jugadores:</h3>
+                <div id="contenedor-partidos" class="grid-canchas"></div>
+            </section>
+        </div>
+
+        <!-- PESTAÑA 3: TORNEOS -->
+        <div id="tab-torneos" class="tab-content" style="display: none;">
+            <section style="margin-top: 20px; margin-bottom: 50px;">
+                <h2 style="text-align: center; color: #0f172a; margin-bottom: 25px;">🏆 Campeonatos y Torneos</h2>
+                
+                <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap; margin-bottom: 35px; align-items: stretch;">
+                    <!-- Tarjeta 1: Crear Nuevo Torneo -->
+                    <div class="auth-box" style="flex: 1; min-width: 320px; max-width: 400px; background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+                                <span style="font-size: 20px;">⚡</span>
+                                <div>
+                                    <h3 style="margin: 0; color: #0f172a; font-size: 16px;">Crear Nuevo Torneo</h3>
+                                    <p style="margin: 2px 0 0 0; color: #64748b; font-size: 11px;">Configura un campeonato oficial.</p>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-size: 11px; font-weight: bold; color: #334155; margin-bottom: 4px;">🏷️ Nombre del Torneo</label>
+                                <input type="text" id="t-nombre" placeholder="Ej: Copa Relámpago Norte" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-size: 11px; font-weight: bold; color: #334155; margin-bottom: 4px;">📝 Descripción / Reglas</label>
+                                <input type="text" id="t-desc" placeholder="Ej: Fase de grupos y eliminación" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-size: 11px; font-weight: bold; color: #334155; margin-bottom: 4px;">⚽ Modalidad</label>
+                                <input type="text" id="t-mod" placeholder="Ej: Fútbol 5" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 11px; font-weight: bold; color: #334155; margin-bottom: 4px;">👥 Cupos Totales de Equipos</label>
+                                <input type="number" id="t-cupos-totales" placeholder="Ej: 8" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        <button id="btn-crear-torneo" class="btn-cta-primary" style="width: 100%; padding: 10px; font-size: 13px; font-weight: bold; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            🏆 Publicar Torneo
+                        </button>
+                    </div>
+
+                    <!-- Tarjeta 2: Inscribir Equipo al Torneo -->
+                    <div class="auth-box" style="flex: 1; min-width: 320px; max-width: 400px; background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+                                <span style="font-size: 20px;">🤝</span>
+                                <div>
+                                    <h3 style="margin: 0; color: #0f172a; font-size: 16px;">Inscribir Equipo al Torneo</h3>
+                                    <p style="margin: 2px 0 0 0; color: #64748b; font-size: 11px;">Anota tu equipo en un torneo activo.</p>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-size: 11px; font-weight: bold; color: #334155; margin-bottom: 4px;">🎯 Seleccionar Torneo</label>
+                                <select id="t-id" class="input-moderno" style="width: 100%; box-sizing: border-box; background: white;">
+                                    <option value="">Selecciona un torneo activo...</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 11px; font-weight: bold; color: #334155; margin-bottom: 4px;">🛡️ Nombre del Equipo</label>
+                                <input type="text" id="t-equipo" placeholder="Ej: Los Galácticos FC" class="input-moderno" style="width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        <button id="btn-inscribir-torneo" class="btn-cta-secondary" style="width: 100%; padding: 10px; font-size: 13px; font-weight: bold; background: #e67e22; border: none; color: white; border-radius: 8px; cursor: pointer;">
+                            📝 Inscribir Equipo Ahora
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="text-align: center; color: #2c3e50; margin-top: 30px;">Torneos Activos:</h3>
+                <div id="contenedor-torneos" class="grid-canchas"></div>
+            </section>
+        </div>
+
+        <!-- PESTAÑA 4: DASHBOARD ANALÍTICO -->
+        <div id="tab-dashboard" class="tab-content" style="display: none;">
+            <section style="margin-top: 20px; padding: 10px;">
+                <h2 style="color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <span>📊</span> Panel de Control y Analítica del Negocio
+                </h2>
+                
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 15px;">Haz clic en cualquier tarjeta de métrica para inspeccionar los registros detallados:</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                    <div onclick="mostrarDetalleDashboard('reservas')" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 5px solid #2563eb; cursor: pointer;">
+                        <span style="font-size: 11px; color: #64748b; font-weight: bold; text-transform: uppercase;">Reservas Activas</span>
+                        <h3 id="stat-reservas" style="margin: 8px 0 0 0; font-size: 26px; color: #0f172a;">0</h3>
+                        <span style="font-size: 11px; color: #2563eb; font-weight: bold;">Ver detalle ➔</span>
+                    </div>
+                    <div onclick="mostrarDetalleDashboard('torneos')" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 5px solid #eab308; cursor: pointer;">
+                        <span style="font-size: 11px; color: #64748b; font-weight: bold; text-transform: uppercase;">Torneos Activos</span>
+                        <h3 id="stat-torneos" style="margin: 8px 0 0 0; font-size: 26px; color: #0f172a;">0</h3>
+                        <span style="font-size: 11px; color: #eab308; font-weight: bold;">Ver detalle ➔</span>
+                    </div>
+                    <div onclick="mostrarDetalleDashboard('partidos')" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 5px solid #27ae60; cursor: pointer;">
+                        <span style="font-size: 11px; color: #64748b; font-weight: bold; text-transform: uppercase;">Partidos Abiertos</span>
+                        <h3 id="stat-partidos" style="margin: 8px 0 0 0; font-size: 26px; color: #0f172a;">0</h3>
+                        <span style="font-size: 11px; color: #27ae60; font-weight: bold;">Ver detalle ➔</span>
+                    </div>
+                    <div onclick="mostrarDetalleDashboard('usuarios')" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 5px solid #a855f7; cursor: pointer;">
+                        <span style="font-size: 11px; color: #64748b; font-weight: bold; text-transform: uppercase;">Usuarios del Sistema</span>
+                        <h3 id="stat-usuarios" style="margin: 8px 0 0 0; font-size: 26px; color: #0f172a;">0</h3>
+                        <span style="font-size: 11px; color: #a855f7; font-weight: bold;">Ver detalle ➔</span>
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow-x: auto;">
+                    <div id="dashboard-titulo-seccion" style="font-size: 16px; font-weight: bold; color: #1e293b; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+                        📋 Gestión de Reservas Actuales
+                    </div>
+                    <div id="dashboard-contenido-dinamico"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal Profesional para Reservas -->
+    <div id="modal-reserva" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;">
+        <div style="background: white; padding: 25px; border-radius: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: left;">
+            <h3 style="margin-top: 0; color: #1e293b;">📅 Confirmar Reserva</h3>
+            <p id="modal-cancha-nombre" style="font-size: 13px; color: #64748b; margin-bottom: 15px;"></p>
+            <label style="font-size: 12px; font-weight: bold; color: #475569;">Fecha:</label>
+            <input type="date" id="reserva-fecha" class="input-moderno" style="margin: 5px 0 12px 0;">
+            <label style="font-size: 12px; font-weight: bold; color: #475569;">Hora:</label>
+            <input type="text" id="reserva-hora" placeholder="Ej: 8:00 PM" class="input-moderno" style="margin: 5px 0 12px 0;">
+            <label style="font-size: 12px; font-weight: bold; color: #475569;">A nombre de:</label>
+            <input type="text" id="reserva-cliente" placeholder="Tu nombre" class="input-moderno" style="margin: 5px 0 20px 0;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="cerrarModalReserva()" style="background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold;">Cancelar</button>
+                <button id="btn-enviar-reserva" class="btn-cta-primary" style="padding: 8px 14px;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cambiarTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).style.display = 'block';
+            event.currentTarget.classList.add('active');
+        }
+
+        function scrollALogin() {
+            document.getElementById('seccion-auth-principal').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

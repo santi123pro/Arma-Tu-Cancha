@@ -1,0 +1,458 @@
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: #f4f7f6; 
+    margin: 0; 
+    padding: 20px; 
+}
+h1, h2 { text-align: center; color: #2c3e50; }
+.grid-canchas { 
+    display: flex; 
+    gap: 20px; 
+    justify-content: center; 
+    flex-wrap: wrap; 
+    margin-top: 30px;
+}
+.tarjeta-cancha { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+    width: 250px; 
+    text-align: center; 
+}
+button { 
+    background: #27ae60; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: bold;
+    width: 100%;
+}
+button:hover { background: #219150; }
+
+header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.auth-box { background: #fff; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; }
+.auth-box input { display: block; margin: 5px 0; padding: 6px; width: 180px; border: 1px solid #ccc; border-radius: 4px; }
+.btn-logout { background: #e74c3c !important; width: auto !important; padding: 5px 10px !important; }
+
+/* Estilos generales para el encabezado de Wembley */
+.header-wembley {
+    background: #0f172a;
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    border-bottom: 4px solid #27ae60;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: white;
+    padding: 2px;
+}
+
+.header-wembley h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #f8fafc;
+}
+
+.info-contacto {
+    margin: 5px 0 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.info-contacto a {
+    color: #38bdf8;
+    text-decoration: none;
+}
+
+.info-contacto a:hover {
+    text-decoration: underline;
+}
+
+.auth-box-header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.auth-box-header input {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+}
+
+.auth-box-header button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #27ae60;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* Estilo de la barra de navegación por pestañas (Viñetas) */
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 25px 0;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 15px;
+}
+
+.tab-btn {
+    background: #e2e8f0;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: #cbd5e1;
+}
+
+.tab-btn.active {
+    background: #27ae60;
+    color: white;
+    box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+}
+/* Estilos Landing Page tipo Tumo adaptado a Wembley */
+.hero-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 60px 8%;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero-badge {
+    background: rgba(39, 174, 96, 0.15);
+    color: #27ae60;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.hero-title {
+    font-size: 48px;
+    line-height: 1.1;
+    margin: 20px 0;
+    font-weight: 800;
+}
+
+.hero-title span {
+    color: #38bdf8;
+}
+
+.hero-desc {
+    color: #94a3b8;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.hero-botones {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-cta-primary {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s;
+}
+
+.btn-cta-primary:hover {
+    background: #219150;
+}
+
+.btn-cta-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid #475569;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: border-color 0.2s;
+}
+
+.btn-cta-secondary:hover {
+    border-color: #38bdf8;
+}
+
+/* Tarjeta flotante de vista previa (Mockup derecha) */
+.hero-card-preview {
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 25px;
+    border-radius: 16px;
+    width: 350px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
+
+.badge-activo {
+    background: rgba(39, 174, 96, 0.2);
+    color: #27ae60;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.preview-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #f8fafc;
+}
+
+/* Contenedor de Autenticación Landing */
+.auth-landing-container {
+    padding: 50px 20px;
+    background: #f8fafc;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-card-landing {
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+.auth-card-landing h2 {
+    margin-top: 0;
+    color: #1e293b;
+}
+
+.auth-card-landing p {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.input-moderno {
+    width: 100%;
+    padding: 10px 14px;
+    margin: 8px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+/* Estilos para secciones Landing minimalistas */
+.seccion-landing-light {
+    padding: 70px 8%;
+    background: #ffffff;
+}
+
+.seccion-landing-dark {
+    padding: 70px 8%;
+    background: #0f172a;
+    color: white;
+}
+
+.landing-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 45px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.sub-tag {
+    color: #27ae60;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.sub-tag-green {
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.landing-title {
+    font-size: 38px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.15;
+    margin-top: 10px;
+}
+
+.landing-title-white {
+    font-size: 38px;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.15;
+    margin-top: 10px;
+}
+
+.landing-desc-side {
+    max-width: 380px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.landing-desc-side-light {
+    max-width: 380px;
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.landing-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* Tarjetas Claras */
+.landing-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    transition: transform 0.2s ease;
+}
+
+.landing-card:hover {
+    transform: translateY(-4px);
+}
+
+.card-num {
+    background: #bef264;
+    color: #1a2e05;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.landing-card h3 {
+    font-size: 18px;
+    color: #0f172a;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.landing-card p {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Tarjetas Oscuras (Confianza Operativa) */
+.landing-card-dark {
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.card-icon {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.landing-card-dark h3 {
+    font-size: 18px;
+    color: #f8fafc;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.landing-card-dark p {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Contenedor del Mapa */
+.seccion-mapa-container {
+    padding: 60px 8%;
+    background: #ffffff;
+}
+
+.mapa-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
