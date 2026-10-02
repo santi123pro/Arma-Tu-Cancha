@@ -217,7 +217,7 @@ function FormRecuperar({ correoInicial, onVolver }) {
   )
 }
 
-function FormRegistro({ onAutenticado, onCuentaPendiente }) {
+function FormRegistro({ onRegistrado, onCuentaPendiente }) {
   const toast = useToast()
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
@@ -260,8 +260,8 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
     }
 
     if (data.session) {
-      toast('Tu cuenta se creó correctamente.')
-      if (onAutenticado) onAutenticado(data.user)
+      // Cuenta lista al instante: la pantalla de bienvenida da las gracias.
+      onRegistrado(nombre.trim())
     } else {
       // La pantalla de "Gracias" explica que debe confirmar el correo.
       onCuentaPendiente(correo.trim())
@@ -343,7 +343,9 @@ const TEXTOS = {
   },
 }
 
-export default function Login({ modoInicial = 'entrar', sedePendiente, onAutenticado, onRegistroPendiente, onVolver }) {
+export default function Login({
+  modoInicial = 'entrar', sedePendiente, onAutenticado, onRegistrado, onRegistroPendiente, onVolver,
+}) {
   const [modo, setModo] = useState(modoInicial)
   // Correo que ya había escrito al pulsar "¿Olvidaste tu contraseña?".
   const [correoOlvido, setCorreoOlvido] = useState('')
@@ -421,7 +423,7 @@ export default function Login({ modoInicial = 'entrar', sedePendiente, onAutenti
                 <FormEntrar onAutenticado={onAutenticado} onOlvide={irARecuperar} />
               ) : (
                 <FormRegistro
-                  onAutenticado={onAutenticado}
+                  onRegistrado={(nombre) => (onRegistrado ? onRegistrado(nombre) : onAutenticado?.())}
                   onCuentaPendiente={(correo) => (onRegistroPendiente ? onRegistroPendiente(correo) : setModo('entrar'))}
                 />
               )}

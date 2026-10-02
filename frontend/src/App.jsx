@@ -52,6 +52,7 @@ const TITULOS = {
   login: 'Iniciar sesión',
   recuperar: 'Recuperar contraseña',
   gracias: '¡Gracias por registrarte!',
+  bienvenida: '¡Bienvenido!',
   marketplace: 'Elige tu sede',
   'mis-reservas': 'Mis reservas',
   admin: 'Panel de administración',
@@ -80,8 +81,9 @@ function Contenido() {
   const [vista, setVista] = useState(vistaDesdeUrl)
   // Sede que el visitante toco antes de iniciar sesion.
   const [sedePendiente, setSedePendiente] = useState(null)
-  // Correo con el que se registró, para la pantalla de "Gracias".
+  // Correo y nombre con los que se registró, para la pantalla de "Gracias".
   const [correoRegistro, setCorreoRegistro] = useState('')
+  const [nombreRegistro, setNombreRegistro] = useState('')
 
   // Botón "atrás" del navegador o del celular: vuelve a la pantalla
   // anterior de la app en vez de salir de la página.
@@ -119,6 +121,12 @@ function Contenido() {
     irA('gracias')
   }
 
+  // La cuenta quedó activa al instante (Supabase sin confirmar correo).
+  function registrado(nombre) {
+    setNombreRegistro(nombre)
+    irA('bienvenida')
+  }
+
   function verSedeSinSesion(slug) {
     setSedePendiente(slug)
     irA('login')
@@ -152,7 +160,7 @@ function Contenido() {
   const puedeVerPanel = esSuperadmin || esAdminSede
   let vistaPrivada = SOLO_SIN_SESION.includes(vista) ? 'marketplace' : vista
   if (vistaPrivada === 'admin' && !puedeVerPanel) vistaPrivada = 'marketplace'
-  const esVistaFija = ['marketplace', 'admin', 'mis-reservas'].includes(vistaPrivada)
+  const esVistaFija = ['marketplace', 'admin', 'mis-reservas', 'bienvenida'].includes(vistaPrivada)
   // El admin de sede solo entra a la sede que administra.
   const slugPedido = vistaPrivada.replace(/^(partidos|torneos|reservas)\//, '')
   if (esAdminSede && !esVistaFija && slugPedido !== perfil.sedes?.slug) vistaPrivada = 'marketplace'
@@ -244,12 +252,21 @@ function Contenido() {
               seguimos mostrando el login hasta entonces. */}
           {!autenticado && vista !== 'portada' && vista !== 'gracias' && (
             <Login
-              key={vista}
+              key={vista === 'recuperar' ? 'recuperar' : 'entrar'}
               modoInicial={vista === 'recuperar' ? 'recuperar' : 'entrar'}
               sedePendiente={sedePendiente}
               onAutenticado={alAutenticarse}
+              onRegistrado={registrado}
               onRegistroPendiente={registroPendiente}
               onVolver={() => irA('portada')}
+            />
+          )}
+
+          {autenticado && vistaPrivada === 'bienvenida' && (
+            <Gracias
+              lista
+              nombre={nombreRegistro || perfil?.nombre}
+              onContinuar={alAutenticarse}
             />
           )}
 
