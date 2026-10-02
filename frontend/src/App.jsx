@@ -34,13 +34,37 @@ const SUELTAS = [...CON_URL, 'no-encontrada']
 // Pantallas sin sesión que, con sesión, llevan a las sedes.
 const SOLO_SIN_SESION = ['portada', 'login', 'recuperar', 'gracias']
 
-// '/Arma-Tu-Cancha/privacidad' → 'privacidad'. Una dirección que no
-// existe → 'no-encontrada'.
+// Cada pantalla tiene su URL, así se puede recargar o compartir el enlace.
+// GitHub Pages las abre todas gracias a 404.html (copia de index.html).
+//   portada       → /                  marketplace      → /sedes
+//   login         → /entrar            'wembley'        → /sede/wembley
+//   recuperar     → /recuperar-clave   'partidos/wembley' → /sede/wembley/partidos
+//   privacidad    → /privacidad/       (igual: mis-reservas, admin, gracias, bienvenida)
+const RUTA_FIJA = { portada: '', login: 'entrar', recuperar: 'recuperar-clave', marketplace: 'sedes' }
+const VISTAS_CON_NOMBRE = ['mis-reservas', 'admin', 'gracias', 'bienvenida', 'no-encontrada']
+
+function rutaDe(vista) {
+  if (vista in RUTA_FIJA) return BASE + RUTA_FIJA[vista]
+  if (CON_URL.includes(vista)) return BASE + vista + '/'
+  if (VISTAS_CON_NOMBRE.includes(vista)) return BASE + vista
+  const [, seccion, slug] = vista.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
+  return BASE + (seccion ? `sede/${slug}/${seccion}` : `sede/${vista}`)
+}
+
+// Lo contrario: '/Arma-Tu-Cancha/sede/wembley/partidos' → 'partidos/wembley'.
+// Una dirección que no existe → 'no-encontrada'.
 function vistaDesdeUrl() {
   const ruta = window.location.pathname
-  if (ruta === BASE || ruta + '/' === BASE || ruta === BASE + 'index.html') return 'portada'
-  const resto = ruta.startsWith(BASE) ? ruta.slice(BASE.length).replace(/\/$/, '') : ''
-  return CON_URL.includes(resto) ? resto : 'no-encontrada'
+  if (ruta + '/' === BASE) return 'portada'
+  if (!ruta.startsWith(BASE)) return 'no-encontrada'
+  const resto = ruta.slice(BASE.length).replace(/\/$/, '').replace(/^index\.html$/, '')
+
+  const fija = Object.keys(RUTA_FIJA).find((v) => RUTA_FIJA[v] === resto)
+  if (fija) return fija
+  if (CON_URL.includes(resto) || VISTAS_CON_NOMBRE.includes(resto)) return resto
+  const [, slug, seccion] = resto.match(/^sede\/([a-z0-9-]+)(?:\/(partidos|torneos|reservas))?$/) ?? []
+  if (slug) return seccion ? `${seccion}/${slug}` : slug
+  return 'no-encontrada'
 }
 
 // 'la-bombonera' → 'La Bombonera'
@@ -89,7 +113,7 @@ function Contenido() {
   // anterior de la app en vez de salir de la página.
   useEffect(() => {
     window.history.replaceState({ vista }, '', window.location.href)
-    const alVolver = (e) => setVista(e.state?.vista ?? vistaDesdeUrl())
+    const alVolver = () => setVista(vistaDesdeUrl())
     window.addEventListener('popstate', alVolver)
     return () => window.removeEventListener('popstate', alVolver)
     // Solo al montar: el estado inicial del historial es la primera vista.
@@ -102,8 +126,16 @@ function Contenido() {
     if (cargando) return
     const titulo = tituloDe(vistaVisible)
     document.title = titulo
-    registrarVisita('/' + (vistaVisible === 'portada' ? '' : vistaVisible), titulo)
+    registrarVisita(rutaDe(vistaVisible).slice(BASE.length - 1), titulo)
   }, [vistaVisible, cargando])
+
+  // Con sesión, las pantallas de inicio y login muestran las sedes: la URL
+  // también debe decir /sedes. (Sin tocar el enlace de recuperar clave.)
+  useEffect(() => {
+    if (!cargando && autenticado && !recuperando && SOLO_SIN_SESION.includes(vista)) {
+      window.history.replaceState({ vista: 'marketplace' }, '', rutaDe('marketplace'))
+    }
+  }, [cargando, autenticado, recuperando, vista])
 
   if (cargando) {
     return <Cargando tamano="grande" texto="Calentando en la banca" />
@@ -111,8 +143,11 @@ function Contenido() {
 
   function irA(destino) {
     setVista(destino)
-    const url = BASE + (CON_URL.includes(destino) ? destino + '/' : '')
-    if (destino !== vista) window.history.pushState({ vista: destino }, '', url)
+    const url = rutaDe(destino)
+    // Si la URL ya es esa (por ejemplo, tras iniciar sesión), no se repite
+    // en el historial: así "atrás" no se queda en la misma pantalla.
+    if (window.location.pathname === url) window.history.replaceState({ vista: destino }, '', url)
+    else window.history.pushState({ vista: destino }, '', url)
     window.scrollTo({ top: 0 })
   }
 
@@ -132,8 +167,10 @@ function Contenido() {
     irA('login')
   }
 
+  // Si abrió el enlace de una pantalla privada sin sesión (por ejemplo
+  // /sede/wembley), al entrar se queda en esa pantalla.
   function alAutenticarse() {
-    irA(sedePendiente ?? 'marketplace')
+    irA(sedePendiente ?? (SOLO_SIN_SESION.includes(vista) ? 'marketplace' : vista))
     setSedePendiente(null)
   }
 

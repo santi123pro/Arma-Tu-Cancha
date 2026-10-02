@@ -42,8 +42,10 @@ export async function cerrarSesion() {
 
 // A donde vuelve el enlace del correo. Esta URL debe estar en
 // Authentication → URL Configuration → Redirect URLs de Supabase.
+// Siempre la raíz de la app (no la pantalla actual), que es la que está
+// registrada en Supabase.
 function urlRecuperacion() {
-  return `${window.location.origin}${window.location.pathname}?${MARCA_RECUPERAR}=1`
+  return `${window.location.origin}${import.meta.env.BASE_URL}?${MARCA_RECUPERAR}=1`
 }
 
 export async function recuperarPorCorreo(correo) {
