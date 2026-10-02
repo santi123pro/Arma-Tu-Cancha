@@ -60,7 +60,7 @@ function SeccionHero({ sedes, cargando, onIrLogin, onVerSede }) {
   return (
     <section className="hero-section">
       <div className="hero-content">
-        <span className="hero-badge">Cali · Fútbol 6</span>
+        <span className="hero-badge">Cali · Canchas sintéticas</span>
 
         <h1 className="hero-title">
           Menos coordinación,
@@ -88,7 +88,7 @@ function SeccionHero({ sedes, cargando, onIrLogin, onVerSede }) {
             <strong>{cargando ? '–' : sedes.reduce((n, s) => n + (s.canchas?.length ?? 0), 0)}</strong>
             <span>canchas</span>
           </div>
-          <div><strong>24/7</strong><span>reservas online</span></div>
+          <div><strong>0</strong><span>llamadas</span></div>
         </div>
       </div>
 

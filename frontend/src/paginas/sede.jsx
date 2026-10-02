@@ -58,7 +58,7 @@ export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVe
     <div className={temaSede(sede)} style={{ maxWidth: 1180, margin: '0 auto', padding: '28px 20px' }}>
       <div className="sede-barra">
         <button type="button" className="sede-volver" onClick={onVolver}>
-          ← Volver a los complejos
+          ← Volver a las sedes
         </button>
         <div className="sede-acciones">
           <button type="button" className="btn-cta-primary btn-ir-partidos btn-ir-reservas" onClick={onVerReservas}>

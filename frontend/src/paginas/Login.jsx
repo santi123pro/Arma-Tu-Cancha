@@ -318,7 +318,7 @@ const TEXTOS = {
   },
   recuperar: {
     titulo: '¿Olvidaste tu contraseña?',
-    subtitulo: 'Tranquilo, pasa. Dinos tu correo o tu teléfono y te ayudamos a crear una nueva.',
+    subtitulo: 'Le pasa a todo el mundo. Dinos tu correo o tu teléfono y te ayudamos a crear una nueva.',
   },
 }
 
@@ -336,7 +336,7 @@ export default function Login({ modoInicial = 'entrar', sedePendiente, onAutenti
     <main className="login-pagina">
       <section className="login-panel" style={{ backgroundImage: `url(${fotoFondo})` }}>
         <div className="login-panel-contenido">
-          <span className="hero-badge">Cali · Fútbol 6</span>
+          <span className="hero-badge">Cali · Canchas sintéticas</span>
           <h2 className="login-panel-titulo">
             Tu próximo partido
             <br />

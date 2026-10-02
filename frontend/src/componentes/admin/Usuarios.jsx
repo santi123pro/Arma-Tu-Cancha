@@ -8,7 +8,7 @@ import Cargando from '../Cargando'
 
 const ROLES = [
   { valor: 'jugador', texto: 'Jugador' },
-  { valor: 'admin_sede', texto: 'Admin de sede' },
+  { valor: 'admin_sede', texto: 'Administrador de sede' },
   { valor: 'superadmin', texto: 'Superadmin' },
 ]
 

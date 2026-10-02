@@ -72,7 +72,7 @@ const POR_MENSAJE_AUTH = [
   ['Invalid login credentials',  'Correo o contraseña incorrectos.'],
   ['User already registered',    'Ya existe una cuenta con ese correo. Inicia sesión.'],
   ['Email not confirmed',        'Confirma tu correo antes de entrar. Revisa tu bandeja.'],
-  ['Password should be at least','La contraseña debe tener al menos 6 caracteres.'],
+  ['Password should be at least','La contraseña debe tener al menos 8 caracteres.'],
   ['For security purposes',      'Espera unos segundos antes de volver a intentar.'],
   ['New password should be different', 'La contraseña nueva debe ser distinta a la anterior.'],
   ['rate limit exceeded',        'Se enviaron demasiados correos. Espera un rato e intenta de nuevo.'],

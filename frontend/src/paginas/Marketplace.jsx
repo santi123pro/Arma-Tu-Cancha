@@ -18,7 +18,7 @@ export default function Marketplace({ soloSedeId = null, onElegirSede }) {
   }, [soloSedeId])
 
   if (cargando) {
-    return <Cargando tamano="grande" texto="Cargando establecimientos" />
+    return <Cargando tamano="grande" texto="Cargando sedes" />
   }
 
   if (error) {
@@ -28,9 +28,9 @@ export default function Marketplace({ soloSedeId = null, onElegirSede }) {
   if (!sedes.length) {
     return (
       <Mensaje>
-        Todavía no hay establecimientos registrados.
+        Todavía no hay sedes publicadas.
         <br />
-        <small>¿Cargaste el archivo seed.sql en Supabase?</small>
+        <small>Vuelve en un rato o escríbenos si administras una cancha.</small>
       </Mensaje>
     )
   }
@@ -38,10 +38,10 @@ export default function Marketplace({ soloSedeId = null, onElegirSede }) {
   return (
     <div style={{ padding: '40px 20px', textAlign: 'center', maxWidth: 1000, margin: '0 auto' }}>
       <h2 style={{ fontSize: 28, color: '#0f172a', marginBottom: 10 }}>
-        ¡Bienvenido, elige dónde vas a romperla hoy! ⚽
+        ¡Qué bueno verte! Elige dónde vas a jugar hoy ⚽
       </h2>
       <p style={{ color: '#64748b', marginBottom: 30 }}>
-        Selecciona el complejo deportivo al que quieres ingresar.
+        Selecciona la sede a la que quieres entrar.
       </p>
 
       <div className="lista-sedes">
