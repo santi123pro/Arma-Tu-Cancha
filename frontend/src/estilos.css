@@ -2572,59 +2572,33 @@ button:focus-visible,
 
 /* ═══════════════════════════════════════════════════════
    Temas por sede (solo colores). La clase la pone temaSede().
-   Se redefinen las variables generales dentro de la sede, así
-   botones, acentos, cupos y banners toman su paleta.
+   El color de la sede (--tema) va en los detalles: encabezado,
+   etiquetas, cupos y la franja de la tarjeta. Los botones se
+   quedan con el verde general de la página.
    ═══════════════════════════════════════════════════════ */
-.tema-bombonera {                 /* amarillo y azul, como su escudo */
-  --green: #facc15;  --green-d: #eab308;
-  --navy:  #0b2a6b;  --navy2: #123a8c;
-  --sede-color: #1d4ed8;
-  --tema-texto: #0b2a6b;
-}
-.tema-bernabeu {                  /* dorado y blanco, con negro carbón */
-  --green: #c9a227;  --green-d: #a8841a;
-  --navy:  #1c1917;  --navy2: #292524;
-  --sede-color: #c9a227;
-  --tema-texto: #1c1917;
-}
-.tema-wembley {                   /* naranja y negro */
-  --green: #f97316;  --green-d: #ea580c;
-  --navy:  #0a0a0a;  --navy2: #171717;
-  --sede-color: #f97316;
-  --tema-texto: #0a0a0a;
-}
+.tema-bombonera { --tema: #facc15; --tema-d: #eab308; --tema-oscuro: #0b2a6b; --sede-color: #1d4ed8; } /* amarillo y azul */
+.tema-bernabeu  { --tema: #c9a227; --tema-d: #a8841a; --tema-oscuro: #1c1917; --sede-color: #c9a227; } /* dorado y blanco */
+.tema-wembley   { --tema: #f97316; --tema-d: #ea580c; --tema-oscuro: #0a0a0a; --sede-color: #f97316; } /* naranja y negro */
 
-.tema-sede .btn-cta-primary { color: var(--tema-texto); font-weight: 700; }
-.tema-sede .btn-cta-primary:hover { color: var(--tema-texto); }
 .tema-sede .hero-badge {
-  background: color-mix(in srgb, var(--green) 22%, transparent);
-  color: var(--green);
+  background: color-mix(in srgb, var(--tema) 22%, transparent);
+  color: var(--tema);
 }
-.tema-sede .partidos-hero-titulo span { color: var(--green); }
+.tema-sede .partidos-hero-titulo span { color: var(--tema); }
 .tema-sede .sede-hero-con-foto {
   background:
     radial-gradient(ellipse 70% 90% at 50% 100%,
       color-mix(in srgb, var(--sede-color) 45%, transparent), transparent 70%),
-    var(--navy);
+    var(--tema-oscuro);
 }
-.tema-sede .sede-hero-etiqueta { color: var(--green); }
-.tema-sede .partido-cupos span { color: var(--green-d); }
-.tema-sede .partido-barra i { background: var(--green); }
+.tema-sede .sede-hero-etiqueta { color: var(--tema); }
+.tema-sede .partido-cupos span { color: var(--tema-d); }
+.tema-sede .partido-barra i { background: var(--tema); }
 
-/* Tarjeta del listado: franja superior y botón con el color de la sede */
-.tarjeta-sede.tema-sede { border-top: 4px solid var(--green); }
+/* Tarjeta del listado: franja superior con el color de la sede */
+.tarjeta-sede.tema-sede { border-top: 4px solid var(--tema); }
 .tarjeta-sede.tema-sede:hover {
-  box-shadow: 0 12px 30px color-mix(in srgb, var(--green) 25%, transparent);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--tema) 25%, transparent);
   transform: translateY(-2px);
 }
 .tarjeta-sede { transition: box-shadow var(--transition), transform var(--transition); }
-.tarjeta-sede.tema-sede h3 { color: var(--navy); }
-
-/* Los botones de Partidos, Torneos y Mis reservas no toman el tema:
-   se quedan con sus colores de siempre (verde, naranja y azul). */
-.tema-sede .btn-ir-partidos { background: #22c55e; color: #fff; font-weight: 600; }
-.tema-sede .btn-ir-partidos:hover { background: #16a34a; color: #fff; }
-.tema-sede .btn-ir-torneos { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-.tema-sede .btn-ir-torneos:hover { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
-.tema-sede .btn-ir-reservas { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); }
-.tema-sede .btn-ir-reservas:hover { background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%); }
