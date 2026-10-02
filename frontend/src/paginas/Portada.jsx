@@ -166,7 +166,7 @@ function SeccionMapa({ sedes, onVerSede }) {
           <h2 className="landing-title-white">¿Dónde jugamos?</h2>
         </div>
         <p className="landing-desc-side-light">
-          Las sedes están en Cali. Elige una de la lista o toca un
+          Las sedes están en el norte y sur Cali. Elige una de la lista o toca un
           marcador para ver sus canchas y cómo llegar.
         </p>
       </div>

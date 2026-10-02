@@ -2603,12 +2603,10 @@ button:focus-visible,
 }
 .tarjeta-sede { transition: box-shadow var(--transition), transform var(--transition); }
 
-<<<<<<< HEAD
 /* ── Tarjeta de torneo ──────────────────────────────────────────────
    Modificador de .tarjeta-cancha. Estaba en el JSX pero sin definir. */
 .tarjeta-torneo { border-top: 3px solid var(--amber); }
 .tarjeta-torneo h3 { display: flex; align-items: center; gap: 8px; }
-=======
 /* ═══════════════════════════════════════════════════════
    Balonazo: celebración al crear un partido o torneo
    (lib/balonazo.js). El balón llega al 60 % de la animación.
@@ -2675,4 +2673,3 @@ button:focus-visible,
   74% { transform: translate(4px, 4px); }
   78% { transform: translate(-2px, 1px); }
 }
->>>>>>> f8da4edfc26d35de0342d35e97a76f0ebd0b95ad
