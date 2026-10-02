@@ -1,0 +1,47 @@
+# Ejecuta las pruebas de las reglas de negocio en cada push y pull request.
+# Usa un PostgreSQL 16 temporal que simula lo que Supabase trae.
+# No toca el proyecto real de Supabase.
+
+name: Pruebas de la base de datos
+
+on:
+  push:
+    paths: ['supabase/**', '.github/workflows/pruebas-base-de-datos.yml']
+  pull_request:
+    paths: ['supabase/**']
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: supabase/pruebas
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Crear la base de pruebas
+        run: bash aplicar.sh
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+      - run: npm install
+
+      - name: Probar reglas, RLS y funciones
+        run: npm test
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pruebas

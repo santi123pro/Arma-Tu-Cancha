@@ -1,0 +1,66 @@
+# Publica frontend/ en GitHub Pages cada vez que hay cambios en main.
+# Requisitos (una sola vez):
+#   Settings > Pages > Build and deployment > Source: GitHub Actions
+#   Settings > Secrets and variables > Actions > Variables:
+#     VITE_SUPABASE_URL
+#     VITE_SUPABASE_PUBLISHABLE_KEY
+#   Son "Variables" y no "Secrets" porque terminan dentro del JavaScript
+#   publicado: son publicas por diseno. La clave SECRETA nunca va aqui.
+
+name: Desplegar frontend
+
+on:
+  push:
+    branches: [main]
+    paths: ['frontend/**', '.github/workflows/desplegar-frontend.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Compilar
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      # GitHub Pages no sabe de rutas de React: /mis-reservas no existe como
+      # archivo. Con 404.html igual a index.html, React Router toma el control.
+      - name: Rutas de una sola pagina
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: frontend/dist
+
+      - id: despliegue
+        uses: actions/deploy-pages@v4
