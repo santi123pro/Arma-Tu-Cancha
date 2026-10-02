@@ -4,6 +4,7 @@ import { crearTorneo, inscribirEquipo, listarTorneos } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
 import Cargando from '../componentes/Cargando'
+import EquiposTorneo from '../componentes/EquiposTorneo'
 import { balonazo } from '../lib/balonazo'
 
 const MODALIDADES = ['Fútbol 5', 'Fútbol 6', 'Fútbol 7', 'Fútbol 8', 'Fútbol 11']
@@ -35,7 +36,7 @@ function fechaCorta(fecha) {
   return new Date(a, m - 1, d).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
-function TarjetaTorneo({ torneo, autenticado, onInscrito }) {
+function TarjetaTorneo({ torneo, autenticado, administra, onInscrito }) {
   const toast = useToast()
   const [abierto, setAbierto] = useState(false)
   const [equipo, setEquipo] = useState('')
@@ -92,6 +93,8 @@ function TarjetaTorneo({ torneo, autenticado, onInscrito }) {
         </div>
       </div>
 
+      {administra && <EquiposTorneo torneo={torneo} />}
+
       {!puedeInscribir ? null : !autenticado ? (
         <p className="torneo-nota">Inicia sesión para inscribir tu equipo.</p>
       ) : abierto ? (
@@ -123,7 +126,9 @@ function TarjetaTorneo({ torneo, autenticado, onInscrito }) {
 }
 
 export default function Torneos({ sedeId, sedeNombre }) {
-  const { autenticado, esAdmin } = useSesion()
+  const { autenticado, esAdmin, perfil } = useSesion()
+  // Ve los equipos con sus datos quien administra esta sede.
+  const administra = perfil?.rol === 'superadmin' || (perfil?.rol === 'admin_sede' && perfil?.sede_id === sedeId)
   const toast = useToast()
   const hoy = hoyLocal()
 
@@ -314,7 +319,13 @@ export default function Torneos({ sedeId, sedeNombre }) {
         ) : (
           <div className="grid-canchas grid-partidos">
             {torneos.map((t) => (
-              <TarjetaTorneo key={t.id} torneo={t} autenticado={autenticado} onInscrito={recargar} />
+              <TarjetaTorneo
+                key={t.id}
+                torneo={t}
+                autenticado={autenticado}
+                administra={administra}
+                onInscrito={recargar}
+              />
             ))}
           </div>
         )}

@@ -381,6 +381,12 @@ export function crearTorneo(datos) {
   )
 }
 
+// Equipos inscritos con el contacto de su capitán (migración 0013).
+// Solo para quien administra la sede del torneo.
+export function equiposTorneo(torneoId) {
+  return consultar(supabase.rpc('equipos_torneo', { p_torneo_id: torneoId }))
+}
+
 export async function inscribirEquipo(torneoId, nombreEquipo) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { datos: null, error: 'Inicia sesión para inscribir tu equipo.' }

@@ -3225,3 +3225,51 @@ button:focus-visible,
 .pagina-aliados .partidos-bloque .landing-title { font-size: 24px; margin-top: 0; }
 .pagina-aliados .partidos-bloque .aliados-subtitulo { margin-top: 18px; }
 .pagina-aliados .aliados-beneficios { max-width: 880px; margin-left: auto; margin-right: auto; }
+
+/* ═══════════════════════════════════════════════════════
+   Equipos inscritos en un torneo (componentes/EquiposTorneo.jsx)
+   Solo lo ve el administrador de la sede.
+   ═══════════════════════════════════════════════════════ */
+.equipos-panel { border-color: rgba(245,158,11,.35); background: #fffbeb; }
+.pagina-partidos .tarjeta-cancha .equipos-alternar,
+.tarjeta-cancha .equipos-alternar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 2px 0;
+  background: none;
+  border-radius: 6px;
+  color: var(--navy3);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  text-align: left;
+}
+.equipos-alternar:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.equipos-alternar em {
+  font-style: normal;
+  font-size: 11px;
+  min-width: 20px;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+}
+.equipos-flecha { font-size: 9px; color: var(--gray-400); }
+.equipos-panel .contactos-lista,
+.equipos-panel .contactos-vacio { margin-top: 10px; }
+.equipos-panel .contacto-avatar { background: linear-gradient(135deg, var(--amber), #d97706); }
+
+.contacto-datos .contacto-subtitulo { color: var(--navy3); font-weight: 600; }
+.contacto-datos .contacto-correo {
+  color: var(--gray-400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.contacto-correo-boton { background: #fef3c7; color: #b45309; }

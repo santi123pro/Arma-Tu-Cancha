@@ -18,42 +18,62 @@ function iniciales(nombre) {
   return (nombre ?? '?').split(' ').filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('')
 }
 
-function Persona({ contacto, detalle, mensaje }) {
-  const { nombre, telefono } = contacto
+// Una persona con sus botones de contacto. También la usan los torneos:
+// ahí `titulo` es el nombre del equipo y `subtitulo` el del capitán.
+export function Persona({ contacto, detalle, mensaje, titulo, subtitulo }) {
+  const { nombre, telefono, correo } = contacto
   return (
     <li className="contacto">
-      <span className="contacto-avatar" aria-hidden="true">{iniciales(nombre)}</span>
+      <span className="contacto-avatar" aria-hidden="true">{iniciales(titulo ?? nombre)}</span>
       <span className="contacto-datos">
-        <strong>{nombre}</strong>
+        <strong>{titulo ?? nombre}</strong>
+        {subtitulo && <small className="contacto-subtitulo">{subtitulo}</small>}
         <small>
           {telefono ? telefonoLegible(telefono) : 'Sin celular registrado'}
           {detalle && <> · {detalle}</>}
         </small>
+        {correo && <small className="contacto-correo">{correo}</small>}
       </span>
-      {telefono && (
+      {(telefono || correo) && (
         <span className="contacto-acciones">
-          <a
-            className="contacto-boton contacto-whatsapp"
-            href={`https://wa.me/${numeroWhatsApp(telefono)}?text=${encodeURIComponent(mensaje)}`}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Escribir a ${nombre} por WhatsApp`}
-            title="WhatsApp"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3Z" />
-            </svg>
-          </a>
-          <a
-            className="contacto-boton contacto-llamar"
-            href={`tel:${telefono.replace(/[^\d+]/g, '')}`}
-            aria-label={`Llamar a ${nombre}`}
-            title="Llamar"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1Z" />
-            </svg>
-          </a>
+          {correo && (
+            <a
+              className="contacto-boton contacto-correo-boton"
+              href={`mailto:${correo}`}
+              aria-label={`Enviar un correo a ${nombre}`}
+              title="Correo"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v.4l8 5 8-5V7H4Zm16 2.7-7.5 4.7a1 1 0 0 1-1 0L4 9.7V17h16V9.7Z" />
+              </svg>
+            </a>
+          )}
+          {telefono && (
+            <>
+              <a
+                className="contacto-boton contacto-whatsapp"
+                href={`https://wa.me/${numeroWhatsApp(telefono)}?text=${encodeURIComponent(mensaje)}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Escribir a ${nombre} por WhatsApp`}
+                title="WhatsApp"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3Z" />
+                </svg>
+              </a>
+              <a
+                className="contacto-boton contacto-llamar"
+                href={`tel:${telefono.replace(/[^\d+]/g, '')}`}
+                aria-label={`Llamar a ${nombre}`}
+                title="Llamar"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1Z" />
+                </svg>
+              </a>
+            </>
+          )}
         </span>
       )}
     </li>
