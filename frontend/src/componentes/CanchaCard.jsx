@@ -106,6 +106,7 @@ export default function CanchaCard({ cancha, sede }) {
         url={fotoCancha(sede, cancha)}
         color={sede.color_hex}
         texto={sede.nombre}
+        alt={`${cancha.nombre} de ${sede.nombre}, ${cancha.tipo}`}
       />
 
       <div className="cancha-card-cuerpo">

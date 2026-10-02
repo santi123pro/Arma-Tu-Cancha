@@ -2,12 +2,14 @@ import { useState } from 'react'
 import Analitica from '../componentes/admin/Analitica'
 import Usuarios from '../componentes/admin/Usuarios'
 import Contenido from '../componentes/admin/Contenido'
+import Solicitudes from '../componentes/admin/Solicitudes'
 
 // soloSede: pestañas que también ve el admin de sede.
 const PESTANAS = [
   { id: 'analitica', icono: '📊', texto: 'Analítica', Componente: Analitica, soloSede: true },
   { id: 'usuarios', icono: '👥', texto: 'Usuarios', Componente: Usuarios },
   { id: 'contenido', icono: '🏆', texto: 'Partidos y torneos', Componente: Contenido },
+  { id: 'solicitudes', icono: '🤝', texto: 'Solicitudes', Componente: Solicitudes },
 ]
 
 // Sin sedeId: superadmin, ve todo. Con sedeId: admin de sede, solo su analítica.

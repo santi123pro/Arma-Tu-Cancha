@@ -2996,3 +2996,232 @@ button:focus-visible,
   background: linear-gradient(90deg, var(--green), var(--green-d));
   transition: width .6s ease;
 }
+
+/* ═══════════════════════════════════════════════════════
+   Páginas legales, 404, "Gracias" y pie de página
+   ═══════════════════════════════════════════════════════ */
+.pagina-legal { padding: 32px 20px 56px; background: var(--gray-50); }
+.legal-tarjeta {
+  max-width: 820px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 32px 40px 40px;
+  line-height: 1.7;
+  color: var(--gray-700);
+}
+.legal-tarjeta h1 { color: var(--navy); font-size: 30px; margin: 14px 0 4px; }
+.legal-fecha { font-size: 13px; color: var(--gray-400); margin-bottom: 22px; }
+.legal-tarjeta h2 { color: var(--navy); font-size: 18px; margin: 28px 0 8px; }
+.legal-tarjeta p { margin-bottom: 10px; font-size: 15px; }
+.legal-tarjeta ul { padding-left: 22px; margin-bottom: 10px; font-size: 15px; }
+.legal-tarjeta li { margin-bottom: 6px; }
+.legal-tarjeta a { color: var(--green-d); }
+
+.pagina-estado {
+  min-height: 62vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+  background: var(--gray-50);
+}
+.estado-tarjeta {
+  max-width: 520px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 40px 32px;
+}
+.estado-tarjeta h1 { color: var(--navy); font-size: 24px; margin-bottom: 10px; line-height: 1.3; }
+.estado-tarjeta p { color: var(--gray-600); line-height: 1.6; margin-bottom: 14px; }
+.estado-tarjeta .btn-cta-primary { margin-top: 8px; }
+.estado-numero {
+  font-size: 88px !important;
+  font-weight: 800;
+  color: var(--navy) !important;
+  line-height: 1;
+  margin-bottom: 12px !important;
+}
+.estado-numero span { display: inline-block; font-size: 72px; animation: estado-rebote 1.4s ease-in-out infinite; }
+.estado-icono { font-size: 56px; margin-bottom: 8px !important; }
+.estado-nota { font-size: 13px; color: var(--gray-400) !important; }
+@keyframes estado-rebote {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50%      { transform: translateY(-14px) rotate(180deg); }
+}
+
+.login-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 6px 0 0;
+}
+.login-legal { font-size: 12px; color: var(--gray-600); line-height: 1.5; margin: 8px 0 0; }
+.login-legal a { color: var(--green-d); font-weight: 600; }
+
+.pie-pagina { background: var(--navy); color: #cbd5e1; padding: 36px 20px 18px; margin-top: 40px; }
+.pie-contenido {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.pie-marca { color: #fff; font-size: 17px; }
+.pie-contenido p { font-size: 13px; margin-top: 6px; color: #94a3b8; }
+.pie-contacto { display: flex; flex-direction: column; gap: 8px; font-style: normal; font-size: 14px; }
+.pie-contacto a, .pie-contacto span { color: #cbd5e1; text-decoration: none; }
+.pie-contacto a:hover { color: var(--green); }
+.pie-enlaces { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.pie-enlaces button {
+  background: none;
+  padding: 0;
+  color: #cbd5e1;
+  font-size: 14px;
+  text-align: left;
+}
+.pie-enlaces button:hover { color: var(--green); text-decoration: underline; }
+.pie-derechos {
+  max-width: 1180px;
+  margin: 26px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148,163,184,.2);
+  font-size: 12px;
+  color: var(--gray-400);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .pie-contenido { grid-template-columns: minmax(0, 1fr); gap: 18px; text-align: center; }
+  .pie-contacto, .pie-enlaces { align-items: center; }
+  .pie-enlaces button { text-align: center; }
+}
+@media (max-width: 640px) {
+  .legal-tarjeta { padding: 24px 18px 28px; border-radius: 16px; }
+  .legal-tarjeta h1 { font-size: 24px; }
+  .estado-tarjeta { padding: 30px 20px; }
+  .estado-numero { font-size: 64px !important; }
+  .estado-numero span { font-size: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .estado-numero span { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Trabaja con nosotros (/aliados) y solicitudes en el panel
+   ═══════════════════════════════════════════════════════ */
+.pagina-aliados .partidos-hero { --sede-color: #22c55e; }
+.aliados-beneficios {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.aliados-beneficio {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.aliados-beneficio span { font-size: 26px; }
+.aliados-beneficio h3 { color: var(--navy); font-size: 16px; margin: 8px 0 4px; }
+.aliados-beneficio p { color: var(--gray-600); font-size: 13px; line-height: 1.5; margin: 0; }
+
+.aliados-subtitulo { margin-top: 18px; }
+.aliados-subtitulo small { font-size: 14px; font-weight: 500; color: var(--gray-400); }
+.aliados-horario { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.aliados-tipos { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.aliados-tipos legend { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+.form-partido .aliados-chip {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.aliados-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.form-partido .aliados-chip.activo { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green-d); }
+.aliados-chip:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
+.aliados-mensaje { resize: vertical; min-height: 96px; font-family: inherit; }
+.aliados-trampa { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-partido .aliados-acepta {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+.aliados-acepta input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--green); flex-shrink: 0; }
+.aliados-acepta a { color: var(--green-d); font-weight: 600; }
+
+.pie-aliados {
+  max-width: 1180px;
+  margin: 0 auto 30px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(34,197,94,.18), rgba(56,189,248,.12));
+  border: 1px solid rgba(34,197,94,.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.pie-aliados strong { color: #fff; font-size: 18px; }
+.pie-aliados p { color: #cbd5e1; font-size: 14px; margin-top: 4px; }
+.pie-aliados .btn-cta-primary { white-space: nowrap; }
+
+.solicitudes-lista { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.solicitud-cabeza { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.solicitud-cabeza h3 { margin: 0; }
+.solicitud-cabeza p { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.solicitud-datos {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 6px 12px;
+  font-size: 14px;
+  margin: 14px 0;
+}
+.solicitud-datos dt { color: var(--gray-400); font-weight: 600; font-size: 12px; padding-top: 2px; }
+.solicitud-datos dd { color: var(--gray-700); margin: 0; overflow-wrap: anywhere; }
+.solicitud-datos a { color: var(--green-d); }
+.solicitud-mensaje { white-space: pre-wrap; }
+.solicitud-seguimiento {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 12px;
+}
+
+@media (max-width: 960px) {
+  .aliados-beneficios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .solicitudes-lista { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .aliados-beneficios { grid-template-columns: minmax(0, 1fr); }
+  .pie-aliados { flex-direction: column; align-items: stretch; text-align: center; }
+  .solicitud-seguimiento { grid-template-columns: minmax(0, 1fr); }
+}
+/* /aliados: una sola columna centrada (las páginas de partidos usan dos). */
+.pagina-aliados .seccion-partidos { display: block; max-width: 880px; margin: 0 auto; }
+.pagina-aliados .partidos-bloque:first-child { position: static; }
+.pagina-aliados .partidos-bloque .landing-title { font-size: 24px; margin-top: 0; }
+.pagina-aliados .partidos-bloque .aliados-subtitulo { margin-top: 18px; }
+.pagina-aliados .aliados-beneficios { max-width: 880px; margin-left: auto; margin-right: auto; }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase, traducirError } from '../lib/supabase'
 import { useToast } from '../componentes/Toast'
 import { recuperarPorCorreo, recuperarPorTelefono } from '../lib/datos'
-import fotoFondo from '../../imagenes/cancha_1_wembley.jpeg'
+import fotoFondo from '../../imagenes/cancha_1_wembley.webp'
 
 const BENEFICIOS = [
   { icono: '⚡', texto: 'Disponibilidad en tiempo real, sin llamadas' },
@@ -47,15 +47,22 @@ export function CampoClave({ etiqueta, valor, onCambio, placeholder, minLength, 
   )
 }
 
+// Error visible dentro del formulario (además del aviso flotante).
+function ErrorForm({ texto }) {
+  return texto ? <p className="login-error" role="alert">⚠️ {texto}</p> : null
+}
+
 function FormEntrar({ onAutenticado, onOlvide }) {
   const toast = useToast()
   const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState(null)
   const [correo, setCorreo] = useState('')
   const [clave, setClave] = useState('')
 
   async function iniciarSesion(e) {
     e.preventDefault()
     if (enviando) return
+    setError(null)
     setEnviando(true)
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -66,6 +73,7 @@ function FormEntrar({ onAutenticado, onOlvide }) {
     setEnviando(false)
 
     if (error) {
+      setError(traducirError(error))
       toast(traducirError(error), 'error')
       return
     }
@@ -93,6 +101,8 @@ function FormEntrar({ onAutenticado, onOlvide }) {
       <button type="button" className="login-link" onClick={() => onOlvide(correo.trim())}>
         ¿Olvidaste tu contraseña?
       </button>
+
+      <ErrorForm texto={error} />
 
       <button type="submit" className="btn-cta-primary login-submit" disabled={enviando}>
         {enviando ? 'Iniciando sesión…' : 'Iniciar sesión'}
@@ -207,9 +217,10 @@ function FormRecuperar({ correoInicial, onVolver }) {
   )
 }
 
-function FormRegistro({ onAutenticado, onCuentaPendiente }) {
+function FormRegistro({ onRegistrado, onCuentaPendiente }) {
   const toast = useToast()
   const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState(null)
   const [nombre, setNombre] = useState('')
   const [telefono, setTelefono] = useState('')
   const [correo, setCorreo] = useState('')
@@ -218,8 +229,10 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
   async function registrarse(e) {
     e.preventDefault()
     if (enviando) return
+    setError(null)
 
     if (clave.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.')
       toast('La contraseña debe tener al menos 8 caracteres.', 'error')
       return
     }
@@ -241,16 +254,17 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
     setEnviando(false)
 
     if (error) {
+      setError(traducirError(error))
       toast(traducirError(error), 'error')
       return
     }
 
     if (data.session) {
-      toast('Tu cuenta se creó correctamente.')
-      if (onAutenticado) onAutenticado(data.user)
+      // Cuenta lista al instante: la pantalla de bienvenida da las gracias.
+      onRegistrado(nombre.trim())
     } else {
-      toast('Cuenta creada. Revisa tu correo para confirmarla.')
-      onCuentaPendiente()
+      // La pantalla de "Gracias" explica que debe confirmar el correo.
+      onCuentaPendiente(correo.trim())
     }
   }
 
@@ -300,6 +314,13 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
         minLength={8}
       />
 
+      <ErrorForm texto={error} />
+
+      <p className="login-legal">
+        Al crear tu cuenta aceptas los <a href="terminos/" target="_blank" rel="noreferrer">Términos y condiciones</a> y
+        la <a href="privacidad/" target="_blank" rel="noreferrer">Política de Privacidad</a>.
+      </p>
+
       <button type="submit" className="btn-cta-primary login-submit" disabled={enviando}>
         {enviando ? 'Creando cuenta…' : 'Crear mi cuenta'}
       </button>
@@ -322,7 +343,9 @@ const TEXTOS = {
   },
 }
 
-export default function Login({ modoInicial = 'entrar', sedePendiente, onAutenticado, onVolver }) {
+export default function Login({
+  modoInicial = 'entrar', sedePendiente, onAutenticado, onRegistrado, onRegistroPendiente, onVolver,
+}) {
   const [modo, setModo] = useState(modoInicial)
   // Correo que ya había escrito al pulsar "¿Olvidaste tu contraseña?".
   const [correoOlvido, setCorreoOlvido] = useState('')
@@ -399,7 +422,10 @@ export default function Login({ modoInicial = 'entrar', sedePendiente, onAutenti
               {modo === 'entrar' ? (
                 <FormEntrar onAutenticado={onAutenticado} onOlvide={irARecuperar} />
               ) : (
-                <FormRegistro onAutenticado={onAutenticado} onCuentaPendiente={() => setModo('entrar')} />
+                <FormRegistro
+                  onRegistrado={(nombre) => (onRegistrado ? onRegistrado(nombre) : onAutenticado?.())}
+                  onCuentaPendiente={(correo) => (onRegistroPendiente ? onRegistroPendiente(correo) : setModo('entrar'))}
+                />
               )}
 
               <p className="login-pie">

@@ -1,5 +1,6 @@
 import { hoyLocal } from './formato'
 import { supabase, consultar, traducirError, MARCA_RECUPERAR } from './supabase'
+import { CORREO_SOLICITUDES } from './sitio'
 
 // ---------------------------------------------------------------------
 // Capa de datos.
@@ -42,8 +43,10 @@ export async function cerrarSesion() {
 
 // A donde vuelve el enlace del correo. Esta URL debe estar en
 // Authentication → URL Configuration → Redirect URLs de Supabase.
+// Siempre la raíz de la app (no la pantalla actual), que es la que está
+// registrada en Supabase.
 function urlRecuperacion() {
-  return `${window.location.origin}${window.location.pathname}?${MARCA_RECUPERAR}=1`
+  return `${window.location.origin}${import.meta.env.BASE_URL}?${MARCA_RECUPERAR}=1`
 }
 
 export async function recuperarPorCorreo(correo) {
@@ -512,5 +515,54 @@ export function analiticaSede(desde, hasta, sedeId = null) {
 export function metricasMiSede(desde, hasta) {
   return consultar(
     supabase.rpc('metricas_mi_sede', { p_desde: desde, p_hasta: hasta })
+  )
+}
+
+// =====================================================================
+// SOLICITUDES DE ESTABLECIMIENTOS   (migración 0012, "Trabaja con nosotros")
+// =====================================================================
+
+// Guarda la solicitud en Supabase y, si hay correo configurado, avisa por
+// correo. Lo importante es que quede guardada: si el correo falla, la
+// solicitud igual aparece en el panel del superadmin.
+export async function enviarSolicitudSede(datos) {
+  const { error } = await consultar(supabase.from('solicitudes_sedes').insert(datos))
+  if (error) return { datos: null, error }
+
+  if (CORREO_SOLICITUDES) {
+    fetch(`https://formsubmit.co/ajax/${CORREO_SOLICITUDES}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        _subject: `Nueva solicitud de sede: ${datos.establecimiento}`,
+        _template: 'table',
+        _captcha: 'false',
+        Establecimiento: datos.establecimiento,
+        Contacto: `${datos.contacto_nombre}${datos.contacto_cargo ? ` (${datos.contacto_cargo})` : ''}`,
+        Correo: datos.correo,
+        Telefono: datos.telefono,
+        Ciudad: datos.ciudad,
+        Direccion: datos.direccion,
+        Canchas: `${datos.num_canchas}${datos.tipos_cancha ? ` · ${datos.tipos_cancha}` : ''}`,
+        Horario: datos.hora_apertura && datos.hora_cierre ? `${datos.hora_apertura} – ${datos.hora_cierre}` : '—',
+        'Razon social': datos.razon_social ?? '—',
+        NIT: datos.nit ?? '—',
+        Mensaje: datos.mensaje ?? '—',
+      }),
+    }).catch(() => { /* La solicitud ya quedó guardada en Supabase. */ })
+  }
+
+  return { datos: true, error: null }
+}
+
+export function listarSolicitudesSede() {
+  return consultar(
+    supabase.from('solicitudes_sedes').select('*').order('creado_at', { ascending: false })
+  )
+}
+
+export function actualizarSolicitudSede(id, cambios) {
+  return consultar(
+    supabase.from('solicitudes_sedes').update(cambios).eq('id', id).select().single()
   )
 }
