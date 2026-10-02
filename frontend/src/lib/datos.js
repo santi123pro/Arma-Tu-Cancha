@@ -500,6 +500,14 @@ export function metricasGlobales(desde, hasta) {
   )
 }
 
+// Analítica al detalle de una sede (migración 0012). Al admin de sede el
+// servidor le fija la suya e ignora sedeId; el superadmin elige cualquiera.
+export function analiticaSede(desde, hasta, sedeId = null) {
+  return consultar(
+    supabase.rpc('analitica_sede', { p_desde: desde, p_hasta: hasta, p_sede_id: sedeId })
+  )
+}
+
 // Las del admin de sede (migración 0009). La sede la pone el servidor.
 export function metricasMiSede(desde, hasta) {
   return consultar(

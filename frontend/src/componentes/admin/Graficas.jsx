@@ -251,13 +251,28 @@ export function Leyenda({ elementos, vertical = false }) {
   )
 }
 
+// Cambio entre dos periodos: { clase, texto } o null si no hay con qué comparar.
+function cambio(actual, anterior) {
+  if (anterior == null) return null
+  if (!anterior) return actual > 0 ? { clase: 'sube', texto: 'Nuevo en este periodo' } : null
+  const pct = Math.round(((actual - anterior) / anterior) * 100)
+  if (pct === 0) return { clase: 'igual', texto: '= igual que el periodo anterior' }
+  return {
+    clase: pct > 0 ? 'sube' : 'baja',
+    texto: `${pct > 0 ? '▲' : '▼'} ${Math.abs(pct)} % vs. periodo anterior`,
+  }
+}
+
 // Tarjeta de cifra: etiqueta, valor y una línea de contexto.
-export function Cifra({ etiqueta, valor, detalle, icono }) {
+// Con `actual` y `anterior` muestra además si subió o bajó.
+export function Cifra({ etiqueta, valor, detalle, icono, actual, anterior }) {
+  const tendencia = cambio(actual, anterior)
   return (
     <div className="viz-cifra">
       <span className="viz-cifra-etiqueta">{icono} {etiqueta}</span>
       <strong className="viz-cifra-valor">{valor}</strong>
       {detalle && <span className="viz-cifra-detalle">{detalle}</span>}
+      {tendencia && <span className={'viz-cifra-tendencia ' + tendencia.clase}>{tendencia.texto}</span>}
     </div>
   )
 }
