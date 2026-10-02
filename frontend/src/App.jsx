@@ -16,6 +16,7 @@ import PiePagina from './componentes/PiePagina'
 import { Privacidad, Terminos } from './paginas/Legal'
 import NoEncontrada from './paginas/NoEncontrada'
 import Gracias from './paginas/Gracias'
+import Aliados from './paginas/Aliados'
 import { CONTACTO } from './lib/sitio'
 import { registrarVisita } from './lib/analiticas'
 
@@ -28,7 +29,7 @@ const NOMBRES_ROL = {
 // '/Arma-Tu-Cancha/' en GitHub Pages, '/' en local.
 const BASE = import.meta.env.BASE_URL
 // Pantallas con dirección propia (están en sitemap.xml).
-const CON_URL = ['privacidad', 'terminos']
+const CON_URL = ['privacidad', 'terminos', 'aliados']
 // Pantallas que se ven igual con o sin sesión.
 const SUELTAS = [...CON_URL, 'no-encontrada']
 // Pantallas sin sesión que, con sesión, llevan a las sedes.
@@ -82,6 +83,7 @@ const TITULOS = {
   admin: 'Panel de administración',
   privacidad: 'Política de Privacidad',
   terminos: 'Términos y condiciones',
+  aliados: 'Trabaja con nosotros',
   'no-encontrada': 'Página no encontrada',
 }
 const SECCIONES = { partidos: 'Partidos abiertos', torneos: 'Torneos', reservas: 'Mis reservas' }
@@ -273,6 +275,7 @@ function Contenido() {
         <>
           {vista === 'privacidad' && <Privacidad onVolver={() => irA(autenticado ? 'marketplace' : 'portada')} />}
           {vista === 'terminos' && <Terminos onVolver={() => irA(autenticado ? 'marketplace' : 'portada')} />}
+          {vista === 'aliados' && <Aliados onIr={(v) => irA(v === 'portada' && autenticado ? 'marketplace' : v)} />}
           {vista === 'no-encontrada' && <NoEncontrada onInicio={() => irA(autenticado ? 'marketplace' : 'portada')} />}
         </>
       ) : (

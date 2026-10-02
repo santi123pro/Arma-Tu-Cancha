@@ -6,6 +6,16 @@ export default function PiePagina({ onIr }) {
 
   return (
     <footer className="pie-pagina">
+      <div className="pie-aliados">
+        <div>
+          <strong>¿Tienes una cancha? 🏟️</strong>
+          <p>Súmala a Arma Tu Cancha y recibe reservas sin llamadas.</p>
+        </div>
+        <button type="button" className="btn-cta-primary" onClick={() => onIr('aliados')}>
+          Trabaja con nosotros →
+        </button>
+      </div>
+
       <div className="pie-contenido">
         <div>
           <strong className="pie-marca">Arma Tu Cancha ⚽</strong>
@@ -21,6 +31,7 @@ export default function PiePagina({ onIr }) {
         <nav className="pie-enlaces" aria-label="Información legal">
           <button type="button" onClick={() => onIr('privacidad')}>Política de Privacidad</button>
           <button type="button" onClick={() => onIr('terminos')}>Términos y condiciones</button>
+          <button type="button" onClick={() => onIr('aliados')}>Trabaja con nosotros</button>
         </nav>
       </div>
       <p className="pie-derechos">© {new Date().getFullYear()} {CONTACTO.responsable}. Todos los derechos reservados.</p>

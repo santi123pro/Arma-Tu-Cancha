@@ -50,6 +50,7 @@ export function Privacidad({ onVolver }) {
         <li><strong>Datos de tu cuenta:</strong> nombre, correo, teléfono (opcional) y contraseña. La contraseña se guarda cifrada y nadie del equipo puede verla.</li>
         <li><strong>Reservas:</strong> cancha, fecha, horario, valor y código de cada reserva.</li>
         <li><strong>Partidos y torneos:</strong> los partidos que publicas o a los que te unes y los equipos que inscribes.</li>
+        <li><strong>Solicitudes de establecimientos:</strong> si llenas el formulario “Trabaja con nosotros”, los datos de contacto y del negocio que nos envías. Solo los usamos para estudiar la solicitud y contactarte.</li>
         <li><strong>Datos técnicos:</strong> para mantener tu sesión abierta, el navegador guarda un identificador de sesión en su almacenamiento local. No usamos cookies de publicidad ni de rastreo.</li>
       </ul>
 

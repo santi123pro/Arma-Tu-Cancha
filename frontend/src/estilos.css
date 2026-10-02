@@ -3021,3 +3021,113 @@ button:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .estado-numero span { animation: none; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   Trabaja con nosotros (/aliados) y solicitudes en el panel
+   ═══════════════════════════════════════════════════════ */
+.pagina-aliados .partidos-hero { --sede-color: #22c55e; }
+.aliados-beneficios {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.aliados-beneficio {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.aliados-beneficio span { font-size: 26px; }
+.aliados-beneficio h3 { color: var(--navy); font-size: 16px; margin: 8px 0 4px; }
+.aliados-beneficio p { color: var(--gray-600); font-size: 13px; line-height: 1.5; margin: 0; }
+
+.aliados-subtitulo { margin-top: 18px; }
+.aliados-subtitulo small { font-size: 14px; font-weight: 500; color: var(--gray-400); }
+.aliados-horario { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.aliados-tipos { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.aliados-tipos legend { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+.form-partido .aliados-chip {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.aliados-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.form-partido .aliados-chip.activo { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green-d); }
+.aliados-chip:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
+.aliados-mensaje { resize: vertical; min-height: 96px; font-family: inherit; }
+.aliados-trampa { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-partido .aliados-acepta {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+.aliados-acepta input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--green); flex-shrink: 0; }
+.aliados-acepta a { color: var(--green-d); font-weight: 600; }
+
+.pie-aliados {
+  max-width: 1180px;
+  margin: 0 auto 30px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(34,197,94,.18), rgba(56,189,248,.12));
+  border: 1px solid rgba(34,197,94,.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.pie-aliados strong { color: #fff; font-size: 18px; }
+.pie-aliados p { color: #cbd5e1; font-size: 14px; margin-top: 4px; }
+.pie-aliados .btn-cta-primary { white-space: nowrap; }
+
+.solicitudes-lista { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.solicitud-cabeza { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.solicitud-cabeza h3 { margin: 0; }
+.solicitud-cabeza p { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.solicitud-datos {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 6px 12px;
+  font-size: 14px;
+  margin: 14px 0;
+}
+.solicitud-datos dt { color: var(--gray-400); font-weight: 600; font-size: 12px; padding-top: 2px; }
+.solicitud-datos dd { color: var(--gray-700); margin: 0; overflow-wrap: anywhere; }
+.solicitud-datos a { color: var(--green-d); }
+.solicitud-mensaje { white-space: pre-wrap; }
+.solicitud-seguimiento {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 12px;
+}
+
+@media (max-width: 960px) {
+  .aliados-beneficios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .solicitudes-lista { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .aliados-beneficios { grid-template-columns: minmax(0, 1fr); }
+  .pie-aliados { flex-direction: column; align-items: stretch; text-align: center; }
+  .solicitud-seguimiento { grid-template-columns: minmax(0, 1fr); }
+}
+/* /aliados: una sola columna centrada (las páginas de partidos usan dos). */
+.pagina-aliados .seccion-partidos { display: block; max-width: 880px; margin: 0 auto; }
+.pagina-aliados .partidos-bloque:first-child { position: static; }
+.pagina-aliados .partidos-bloque .landing-title { font-size: 24px; margin-top: 0; }
+.pagina-aliados .partidos-bloque .aliados-subtitulo { margin-top: 18px; }
+.pagina-aliados .aliados-beneficios { max-width: 880px; margin-left: auto; margin-right: auto; }
