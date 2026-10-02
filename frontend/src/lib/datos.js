@@ -335,6 +335,13 @@ export async function salirDePartido(partidoId) {
   )
 }
 
+// Contactos de los partidos donde participo (migración 0011). Al
+// organizador le llegan los jugadores anotados; al jugador, solo el
+// organizador. La regla la aplica la función en el servidor.
+export function contactosMisPartidos() {
+  return consultar(supabase.rpc('contactos_mis_partidos'))
+}
+
 // =====================================================================
 // TORNEOS   (antes routes/torneos.js)
 // =====================================================================

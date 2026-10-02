@@ -2673,3 +2673,232 @@ button:focus-visible,
   74% { transform: translate(4px, 4px); }
   78% { transform: translate(-2px, 1px); }
 }
+
+/* ═══════════════════════════════════════════════════════
+   Selector de hora del partido (componentes/SelectorHora.jsx)
+   Franja horizontal con scroll en vez de un desplegable.
+   ═══════════════════════════════════════════════════════ */
+.campo-hora { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.campo-hora-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.pagina-partidos .campo-hora-cabeza { font-size: 12px; color: var(--navy3); }
+.campo-hora-cabeza small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-d);
+  background: #dcfce7;
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.selector-hora {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  background: #fff;
+}
+.selector-hora:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+
+.selector-hora-flecha {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gray-100);
+  color: var(--navy);
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 0 3px;
+}
+.selector-hora-flecha:not(:disabled):hover { background: #dcfce7; color: var(--green-d); }
+.selector-hora-flecha:disabled { opacity: .3; }
+
+/* Las sombras de los bordes avisan que hay más horas a los lados. */
+.selector-hora-marco { position: relative; min-width: 0; }
+.selector-hora-marco::before,
+.selector-hora-marco::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease;
+  z-index: 1;
+}
+.selector-hora-marco::before { left: 0;  background: linear-gradient(90deg, #fff, rgba(255,255,255,0)); }
+.selector-hora-marco::after  { right: 0; background: linear-gradient(270deg, #fff, rgba(255,255,255,0)); }
+.selector-hora-marco.con-sombra-inicio::before,
+.selector-hora-marco.con-sombra-fin::after { opacity: 1; }
+
+.selector-hora-pista {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 2px;
+}
+.selector-hora-pista::-webkit-scrollbar { display: none; }
+
+.selector-hora-opcion {
+  flex: 0 0 auto;
+  min-width: 70px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--gray-50);
+  color: var(--navy);
+}
+.selector-hora-opcion strong { font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+.selector-hora-opcion span { font-size: 10px; font-weight: 700; color: var(--gray-400); letter-spacing: .06em; }
+.selector-hora-opcion:hover { border-color: var(--green); background: #f0fdf4; }
+.selector-hora-opcion:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.selector-hora-opcion.activa {
+  background: var(--green);
+  border-color: var(--green-d);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(34,197,94,.3);
+}
+.selector-hora-opcion.activa span { color: rgba(255,255,255,.85); }
+
+.selector-hora-aviso {
+  font-size: 13px;
+  color: var(--gray-400);
+  padding: 14px;
+  border: 1.5px dashed var(--gray-200);
+  border-radius: 12px;
+  text-align: center;
+  background: var(--gray-50);
+}
+
+@media (max-width: 640px) {
+  /* En el celular se desliza con el dedo; las flechas sobran. */
+  .selector-hora { grid-template-columns: minmax(0, 1fr); }
+  .selector-hora-flecha { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .selector-hora-pista { scroll-behavior: auto; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Contactos del partido (componentes/ContactosPartido.jsx)
+   El organizador ve a sus jugadores; el jugador, al organizador.
+   ═══════════════════════════════════════════════════════ */
+.partido-cabeza { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.partido-mio-etiqueta {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: var(--green-d);
+}
+.tarjeta-partido-mio { border-color: rgba(34,197,94,.45); }
+
+.contactos-panel {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+}
+.tarjeta-cancha .contactos-titulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--navy3);
+  margin-bottom: 8px;
+}
+.contactos-titulo span {
+  font-size: 11px;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  text-align: center;
+}
+.tarjeta-cancha .contactos-vacio { font-size: 12px; color: var(--gray-400); line-height: 1.5; }
+
+.contactos-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 232px;            /* unos cuatro jugadores; el resto con scroll */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.contacto {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--gray-100);
+}
+.contacto-avatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), var(--green-d));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+.contacto-datos { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.contacto-datos strong {
+  font-size: 13px;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.contacto-datos small { font-size: 12px; color: var(--gray-600); }
+.contacto-acciones { display: flex; gap: 6px; flex-shrink: 0; }
+.contacto-boton {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.contacto-boton svg { width: 17px; height: 17px; fill: currentColor; }
+.contacto-boton:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.contacto-boton:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.contacto-whatsapp { background: #dcfce7; color: #128c4a; }
+.contacto-llamar   { background: #e0f2fe; color: #0369a1; }
