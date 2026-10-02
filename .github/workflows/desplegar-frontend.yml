@@ -44,6 +44,16 @@ jobs:
 
       - run: npm ci
 
+      - name: Revisar variables de Supabase
+        run: |
+          if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::error::Faltan las Variables VITE_SUPABASE_URL o VITE_SUPABASE_PUBLISHABLE_KEY en Settings > Secrets and variables > Actions > Variables"
+            exit 1
+          fi
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
       - name: Compilar
         run: npm run build
         env:
