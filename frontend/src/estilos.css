@@ -2619,3 +2619,12 @@ button:focus-visible,
 }
 .tarjeta-sede { transition: box-shadow var(--transition), transform var(--transition); }
 .tarjeta-sede.tema-sede h3 { color: var(--navy); }
+
+/* Los botones de Partidos, Torneos y Mis reservas no toman el tema:
+   se quedan con sus colores de siempre (verde, naranja y azul). */
+.tema-sede .btn-ir-partidos { background: #22c55e; color: #fff; font-weight: 600; }
+.tema-sede .btn-ir-partidos:hover { background: #16a34a; color: #fff; }
+.tema-sede .btn-ir-torneos { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.tema-sede .btn-ir-torneos:hover { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+.tema-sede .btn-ir-reservas { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); }
+.tema-sede .btn-ir-reservas:hover { background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%); }
