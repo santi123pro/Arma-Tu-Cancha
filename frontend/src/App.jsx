@@ -109,7 +109,7 @@ function Contenido() {
 
   function irA(destino) {
     setVista(destino)
-    const url = BASE + (CON_URL.includes(destino) ? destino : '')
+    const url = BASE + (CON_URL.includes(destino) ? destino + '/' : '')
     if (destino !== vista) window.history.pushState({ vista: destino }, '', url)
     window.scrollTo({ top: 0 })
   }

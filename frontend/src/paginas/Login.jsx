@@ -317,8 +317,8 @@ function FormRegistro({ onAutenticado, onCuentaPendiente }) {
       <ErrorForm texto={error} />
 
       <p className="login-legal">
-        Al crear tu cuenta aceptas los <a href="terminos" target="_blank" rel="noreferrer">Términos y condiciones</a> y
-        la <a href="privacidad" target="_blank" rel="noreferrer">Política de Privacidad</a>.
+        Al crear tu cuenta aceptas los <a href="terminos/" target="_blank" rel="noreferrer">Términos y condiciones</a> y
+        la <a href="privacidad/" target="_blank" rel="noreferrer">Política de Privacidad</a>.
       </p>
 
       <button type="submit" className="btn-cta-primary login-submit" disabled={enviando}>

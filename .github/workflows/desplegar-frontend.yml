@@ -64,7 +64,15 @@ jobs:
       # GitHub Pages no sabe de rutas de React: /mis-reservas no existe como
       # archivo. Con 404.html igual a index.html, React Router toma el control.
       - name: Rutas de una sola pagina
-        run: cp dist/index.html dist/404.html
+        run: |
+          cp dist/index.html dist/404.html
+          # Paginas con direccion propia (estan en sitemap.xml): una copia
+          # real para que respondan 200 y Google las indexe. Con 404.html
+          # tambien se ven, pero responden 404.
+          for ruta in privacidad terminos; do
+            mkdir -p dist/$ruta
+            cp dist/index.html dist/$ruta/index.html
+          done
 
       - uses: actions/configure-pages@v5
 
