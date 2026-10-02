@@ -1,5 +1,6 @@
 import ImagenSede from './ImagenSede'
 import { fotoSede } from '../lib/imagenes'
+import { temaSede } from '../lib/temas'
 
 // Tarjeta horizontal grande de una sede:
 // imagen arriba y, debajo, tres zonas (nombre + descripcion | Entrar | ubicacion).
@@ -9,7 +10,7 @@ export default function TarjetaSede({ sede, onEntrar }) {
   const cierre = sede.hora_cierre?.slice(0, 5)
 
   return (
-    <article className="tarjeta-sede">
+    <article className={'tarjeta-sede ' + temaSede(sede)}>
       <ImagenSede
         className="tarjeta-sede-imagen"
         url={fotoSede(sede) ?? sede.logo_url}

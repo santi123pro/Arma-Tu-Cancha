@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { detalleSede } from '../lib/datos'
 import { fotoSede } from '../lib/imagenes'
+import { temaSede } from '../lib/temas'
 import Partidos from './Partidos'
 import Torneos from './Torneos'
 import MisReservas from './MisReservas'
@@ -72,7 +73,7 @@ export default function PaginaPartidos({ slug, tipo = 'partidos', onVolver, onCa
   const foto = fotoSede(sede)
 
   return (
-    <main className={'pagina-partidos pagina-' + tipo}>
+    <main className={'pagina-partidos pagina-' + tipo + ' ' + temaSede(sede)}>
       <section
         className="partidos-hero"
         style={{

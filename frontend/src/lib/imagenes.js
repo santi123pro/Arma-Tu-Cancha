@@ -33,7 +33,7 @@ const clavesSede = [
   ),
 ]
 
-function claveSede(sede) {
+export function claveSede(sede) {
   const slug = sede?.slug?.toLowerCase() ?? ''
   return clavesSede.find((k) => slug.includes(k))
 }

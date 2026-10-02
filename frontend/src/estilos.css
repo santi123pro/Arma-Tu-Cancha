@@ -2473,7 +2473,7 @@ button:focus-visible,
   display: inline-block;
   width: 1.2em;
   text-align: left;
-  animation: cargando-puntos 1.6s steps(4, end) infinite;
+  animation: cargando-puntos 2s steps(4, end) infinite;
 }
 
 /* Dibujo */
@@ -2490,13 +2490,13 @@ button:focus-visible,
 .cargando-sombra-balon { fill: rgba(15,23,42,.15); }
 
 /* Movimiento: todo dura 1.6 s y va sincronizado */
-.cargando-jugador { animation: cargando-cuerpo 1.6s ease-in-out infinite; transform-origin: 50px 104px; }
-.cargando-pierna-patea { animation: cargando-patada 1.6s ease-in-out infinite; transform-origin: 53px 72px; }
-.cargando-brazo-adelante { animation: cargando-brazo 1.6s ease-in-out infinite; transform-origin: 52px 48px; }
-.cargando-brazo-atras { animation: cargando-brazo 1.6s ease-in-out infinite reverse; transform-origin: 50px 48px; }
-.cargando-vuelo { animation: cargando-vuelo 1.6s linear infinite; }
-.cargando-balon { animation: cargando-giro .5s linear infinite; transform-box: fill-box; transform-origin: center; }
-.cargando-sombra-balon { animation: cargando-sombra 1.6s linear infinite; transform-box: fill-box; transform-origin: center; }
+.cargando-jugador { animation: cargando-cuerpo 2s ease-in-out infinite; transform-origin: 50px 104px; }
+.cargando-pierna-patea { animation: cargando-patada 2s ease-in-out infinite; transform-origin: 53px 72px; }
+.cargando-brazo-adelante { animation: cargando-brazo 2s ease-in-out infinite; transform-origin: 52px 48px; }
+.cargando-brazo-atras { animation: cargando-brazo 2s ease-in-out infinite reverse; transform-origin: 50px 48px; }
+.cargando-vuelo { animation: cargando-vuelo 2s linear infinite; }
+.cargando-balon { animation: cargando-giro .62s linear infinite; transform-box: fill-box; transform-origin: center; }
+.cargando-sombra-balon { animation: cargando-sombra 2s linear infinite; transform-box: fill-box; transform-origin: center; }
 
 @keyframes cargando-patada {
   0%, 100% { transform: rotate(0deg); }
@@ -2569,3 +2569,53 @@ button:focus-visible,
 }
 
 .reserva-sede { color: var(--gray-600) !important; font-size: 13px; font-weight: 600; margin: 0; }
+
+/* ═══════════════════════════════════════════════════════
+   Temas por sede (solo colores). La clase la pone temaSede().
+   Se redefinen las variables generales dentro de la sede, así
+   botones, acentos, cupos y banners toman su paleta.
+   ═══════════════════════════════════════════════════════ */
+.tema-bombonera {                 /* amarillo y azul, como su escudo */
+  --green: #facc15;  --green-d: #eab308;
+  --navy:  #0b2a6b;  --navy2: #123a8c;
+  --sede-color: #1d4ed8;
+  --tema-texto: #0b2a6b;
+}
+.tema-bernabeu {                  /* dorado y blanco, con negro carbón */
+  --green: #c9a227;  --green-d: #a8841a;
+  --navy:  #1c1917;  --navy2: #292524;
+  --sede-color: #c9a227;
+  --tema-texto: #1c1917;
+}
+.tema-wembley {                   /* naranja y negro */
+  --green: #f97316;  --green-d: #ea580c;
+  --navy:  #0a0a0a;  --navy2: #171717;
+  --sede-color: #f97316;
+  --tema-texto: #0a0a0a;
+}
+
+.tema-sede .btn-cta-primary { color: var(--tema-texto); font-weight: 700; }
+.tema-sede .btn-cta-primary:hover { color: var(--tema-texto); }
+.tema-sede .hero-badge {
+  background: color-mix(in srgb, var(--green) 22%, transparent);
+  color: var(--green);
+}
+.tema-sede .partidos-hero-titulo span { color: var(--green); }
+.tema-sede .sede-hero-con-foto {
+  background:
+    radial-gradient(ellipse 70% 90% at 50% 100%,
+      color-mix(in srgb, var(--sede-color) 45%, transparent), transparent 70%),
+    var(--navy);
+}
+.tema-sede .sede-hero-etiqueta { color: var(--green); }
+.tema-sede .partido-cupos span { color: var(--green-d); }
+.tema-sede .partido-barra i { background: var(--green); }
+
+/* Tarjeta del listado: franja superior y botón con el color de la sede */
+.tarjeta-sede.tema-sede { border-top: 4px solid var(--green); }
+.tarjeta-sede.tema-sede:hover {
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--green) 25%, transparent);
+  transform: translateY(-2px);
+}
+.tarjeta-sede { transition: box-shadow var(--transition), transform var(--transition); }
+.tarjeta-sede.tema-sede h3 { color: var(--navy); }

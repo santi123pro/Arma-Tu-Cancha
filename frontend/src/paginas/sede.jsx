@@ -4,6 +4,7 @@ import CanchaCard from '../componentes/CanchaCard'
 import { fotoSede } from '../lib/imagenes'
 import Cargando from '../componentes/Cargando'
 import { MapaSede } from '../componentes/MapasSedes'
+import { temaSede } from '../lib/temas'
 
 export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVerReservas }) {
   const [sede, setSede] = useState(null)
@@ -54,7 +55,7 @@ export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVe
   const portada = fotoSede(sede)
 
   return (
-    <div style={{ maxWidth: 1180, margin: '0 auto', padding: '28px 20px' }}>
+    <div className={temaSede(sede)} style={{ maxWidth: 1180, margin: '0 auto', padding: '28px 20px' }}>
       <div className="sede-barra">
         <button type="button" className="sede-volver" onClick={onVolver}>
           ← Volver a los complejos

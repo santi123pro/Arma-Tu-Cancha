@@ -13,21 +13,21 @@ const UBICACIONES = {
     lng: -76.52410,
     nombre: 'Wembley Norte',
     direccion: 'Cl. 58 Nte. #58A-48, Urb. La Flora',
-    color: '#22c55e',
+    color: '#f97316',
   },
   'bernabeu': {
     lat: 3.47358,
     lng: -76.51945,
     nombre: 'Bernabeu',
     direccion: 'Cra. 5 Nte. #52-26',
-    color: '#38bdf8',
+    color: '#c9a227',
   },
   'la-bombonera': {
     lat: 3.47372,
     lng: -76.51968,
     nombre: 'La Bombonera',
     direccion: 'Cra. 5 Nte. #52N-25, Comuna 4',
-    color: '#eab308',
+    color: '#facc15',
   },
 }
 
@@ -246,7 +246,7 @@ export function MapaSede({ sede }) {
 
   const punto = { lat: u.lat, lng: u.lng }
   const nombre = sede.nombre || u.nombre
-  const color = sede.color_hex || u.color
+  const color = u.color
 
   return (
     <section className="mapa-sede">
