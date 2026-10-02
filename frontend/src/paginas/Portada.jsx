@@ -42,6 +42,7 @@ function FilaSede({ sede, onVer }) {
         url={fotoSede(sede) ?? sede.logo_url}
         color={sede.color_hex}
         texto={sede.nombre?.[0]}
+        alt=""
       />
       <span className="sede-fila-texto">
         <strong>{sede.nombre}</strong>

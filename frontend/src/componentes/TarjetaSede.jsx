@@ -16,6 +16,7 @@ export default function TarjetaSede({ sede, onEntrar }) {
         url={fotoSede(sede) ?? sede.logo_url}
         color={sede.color_hex}
         texto={sede.nombre}
+        alt={`Cancha de fútbol de la sede ${sede.nombre}`}
       />
 
       <div className="tarjeta-sede-info">

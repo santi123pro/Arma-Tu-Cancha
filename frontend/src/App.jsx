@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSesion } from './lib/useSesion'
 import { cerrarSesion } from './lib/datos'
 import { ToastProvider, useToast } from './componentes/Toast'
@@ -12,11 +12,61 @@ import PanelAdmin from './paginas/PanelAdmin'
 import TodasMisReservas from './paginas/TodasMisReservas'
 import NuevaClave from './paginas/NuevaClave'
 import Cargando from './componentes/Cargando'
+import PiePagina from './componentes/PiePagina'
+import { Privacidad, Terminos } from './paginas/Legal'
+import NoEncontrada from './paginas/NoEncontrada'
+import Gracias from './paginas/Gracias'
+import { CONTACTO } from './lib/sitio'
+import { registrarVisita } from './lib/analiticas'
 
 const NOMBRES_ROL = {
   jugador: 'Jugador',
   admin_sede: 'Administrador de sede',
   superadmin: 'Administrador general',
+}
+
+// '/Arma-Tu-Cancha/' en GitHub Pages, '/' en local.
+const BASE = import.meta.env.BASE_URL
+// Pantallas con dirección propia (están en sitemap.xml).
+const CON_URL = ['privacidad', 'terminos']
+// Pantallas que se ven igual con o sin sesión.
+const SUELTAS = [...CON_URL, 'no-encontrada']
+// Pantallas sin sesión que, con sesión, llevan a las sedes.
+const SOLO_SIN_SESION = ['portada', 'login', 'recuperar', 'gracias']
+
+// '/Arma-Tu-Cancha/privacidad' → 'privacidad'. Una dirección que no
+// existe → 'no-encontrada'.
+function vistaDesdeUrl() {
+  const ruta = window.location.pathname
+  if (ruta === BASE || ruta + '/' === BASE || ruta === BASE + 'index.html') return 'portada'
+  const resto = ruta.startsWith(BASE) ? ruta.slice(BASE.length).replace(/\/$/, '') : ''
+  return CON_URL.includes(resto) ? resto : 'no-encontrada'
+}
+
+// 'la-bombonera' → 'La Bombonera'
+function nombreDeSlug(slug) {
+  return slug.split('-').map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')
+}
+
+const TITULOS = {
+  login: 'Iniciar sesión',
+  recuperar: 'Recuperar contraseña',
+  gracias: '¡Gracias por registrarte!',
+  marketplace: 'Elige tu sede',
+  'mis-reservas': 'Mis reservas',
+  admin: 'Panel de administración',
+  privacidad: 'Política de Privacidad',
+  terminos: 'Términos y condiciones',
+  'no-encontrada': 'Página no encontrada',
+}
+const SECCIONES = { partidos: 'Partidos abiertos', torneos: 'Torneos', reservas: 'Mis reservas' }
+
+function tituloDe(vista) {
+  if (vista === 'portada') return 'Arma Tu Cancha — Reserva canchas de fútbol en Cali'
+  const [, seccion, slug] = vista.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
+  const pagina = TITULOS[vista]
+    ?? (seccion ? `${SECCIONES[seccion]} · ${nombreDeSlug(slug)}` : nombreDeSlug(vista))
+  return `${pagina} | Arma Tu Cancha`
 }
 
 function Contenido() {
@@ -27,9 +77,31 @@ function Contenido() {
   // Con sesion: 'marketplace', el slug de una sede, 'partidos/<slug>', 'torneos/<slug>',
   // 'reservas/<slug>', 'mis-reservas' (las de todas las sedes)
   // o 'admin' (superadmin, o admin de sede con solo las métricas de su sede).
-  const [vista, setVista] = useState('portada')
+  const [vista, setVista] = useState(vistaDesdeUrl)
   // Sede que el visitante toco antes de iniciar sesion.
   const [sedePendiente, setSedePendiente] = useState(null)
+  // Correo con el que se registró, para la pantalla de "Gracias".
+  const [correoRegistro, setCorreoRegistro] = useState('')
+
+  // Botón "atrás" del navegador o del celular: vuelve a la pantalla
+  // anterior de la app en vez de salir de la página.
+  useEffect(() => {
+    window.history.replaceState({ vista }, '', window.location.href)
+    const alVolver = (e) => setVista(e.state?.vista ?? vistaDesdeUrl())
+    window.addEventListener('popstate', alVolver)
+    return () => window.removeEventListener('popstate', alVolver)
+    // Solo al montar: el estado inicial del historial es la primera vista.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Título de la pestaña y visita para las analíticas.
+  const vistaVisible = autenticado && SOLO_SIN_SESION.includes(vista) ? 'marketplace' : vista
+  useEffect(() => {
+    if (cargando) return
+    const titulo = tituloDe(vistaVisible)
+    document.title = titulo
+    registrarVisita('/' + (vistaVisible === 'portada' ? '' : vistaVisible), titulo)
+  }, [vistaVisible, cargando])
 
   if (cargando) {
     return <Cargando tamano="grande" texto="Calentando en la banca" />
@@ -37,7 +109,14 @@ function Contenido() {
 
   function irA(destino) {
     setVista(destino)
+    const url = BASE + (CON_URL.includes(destino) ? destino : '')
+    if (destino !== vista) window.history.pushState({ vista: destino }, '', url)
     window.scrollTo({ top: 0 })
+  }
+
+  function registroPendiente(correo) {
+    setCorreoRegistro(correo)
+    irA('gracias')
   }
 
   function verSedeSinSesion(slug) {
@@ -71,7 +150,7 @@ function Contenido() {
   const esSuperadmin = perfil?.rol === 'superadmin'
   const esAdminSede = perfil?.rol === 'admin_sede' && perfil?.sede_id != null
   const puedeVerPanel = esSuperadmin || esAdminSede
-  let vistaPrivada = ['portada', 'login', 'recuperar'].includes(vista) ? 'marketplace' : vista
+  let vistaPrivada = SOLO_SIN_SESION.includes(vista) ? 'marketplace' : vista
   if (vistaPrivada === 'admin' && !puedeVerPanel) vistaPrivada = 'marketplace'
   const esVistaFija = ['marketplace', 'admin', 'mis-reservas'].includes(vistaPrivada)
   // El admin de sede solo entra a la sede que administra.
@@ -93,7 +172,7 @@ function Contenido() {
           <img src={logo} alt="Logo de Arma Tu Cancha" className="logo-img" />
           <div>
             <h1>Arma Tu Cancha ⚽</h1>
-            <p className="info-contacto">📞 +57 316 2528100</p>
+            <p className="info-contacto">📞 {CONTACTO.telefono}</p>
           </div>
         </button>
 
@@ -145,20 +224,31 @@ function Contenido() {
       {/* Llegó por el enlace de "olvidé mi contraseña": primero la clave nueva. */}
       {recuperando ? (
         <NuevaClave autenticado={autenticado} onListo={claveCambiada} onPedirOtro={pedirOtroEnlace} />
+      ) : SUELTAS.includes(vista) ? (
+        <>
+          {vista === 'privacidad' && <Privacidad onVolver={() => irA(autenticado ? 'marketplace' : 'portada')} />}
+          {vista === 'terminos' && <Terminos onVolver={() => irA(autenticado ? 'marketplace' : 'portada')} />}
+          {vista === 'no-encontrada' && <NoEncontrada onInicio={() => irA(autenticado ? 'marketplace' : 'portada')} />}
+        </>
       ) : (
         <>
+          {!autenticado && vista === 'gracias' && (
+            <Gracias correo={correoRegistro} onIrLogin={() => irA('login')} />
+          )}
+
           {!autenticado && vista === 'portada' && (
             <Portada onIrLogin={() => irA('login')} onVerSede={verSedeSinSesion} />
           )}
 
           {/* Tras entrar, la vista cambia un instante antes de que llegue la sesion:
               seguimos mostrando el login hasta entonces. */}
-          {!autenticado && vista !== 'portada' && (
+          {!autenticado && vista !== 'portada' && vista !== 'gracias' && (
             <Login
               key={vista}
               modoInicial={vista === 'recuperar' ? 'recuperar' : 'entrar'}
               sedePendiente={sedePendiente}
               onAutenticado={alAutenticarse}
+              onRegistroPendiente={registroPendiente}
               onVolver={() => irA('portada')}
             />
           )}
@@ -203,6 +293,8 @@ function Contenido() {
           )}
         </>
       )}
+
+      <PiePagina onIr={irA} />
     </>
   )
 }

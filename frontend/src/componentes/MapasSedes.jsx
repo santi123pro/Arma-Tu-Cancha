@@ -148,7 +148,7 @@ export default function MapaSedes({ sedes = [], onVerSede }) {
                 else setActiva(p.slug)
               }}
             >
-              <ImagenSede className="mapa-item-foto" url={p.foto} color={p.color} texto={p.nombre[0]} />
+              <ImagenSede className="mapa-item-foto" url={p.foto} color={p.color} texto={p.nombre[0]} alt={`Sede ${p.nombre}`} />
               <span className="mapa-item-texto">
                 <strong>{p.nombre}</strong>
                 <small>{p.direccion}</small>
@@ -204,7 +204,7 @@ export default function MapaSedes({ sedes = [], onVerSede }) {
                 eventHandlers={{ click: () => setActiva(p.slug) }}
               >
                 <Popup className="popup-sede" closeButton={false} minWidth={240} maxWidth={260}>
-                  <ImagenSede className="popup-foto" url={p.foto} color={p.color} texto={p.nombre} />
+                  <ImagenSede className="popup-foto" url={p.foto} color={p.color} texto={p.nombre} alt={`Sede ${p.nombre}`} />
                   <div className="popup-cuerpo">
                     <strong>{p.nombre}</strong>
                     <span>📍 {p.direccion}</span>

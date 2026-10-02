@@ -81,7 +81,7 @@ export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVe
           className={'sede-hero' + (portada ? ' sede-hero-con-foto' : '')}
           style={{ '--sede-color': sede.color_hex ?? '#2563eb' }}
         >
-          {portada && <img className="sede-hero-foto" src={portada} alt="" />}
+          {portada && <img className="sede-hero-foto" src={portada} alt={`Portada de la sede ${sede.nombre}`} />}
           <div className="sede-hero-texto">
             <p className="sede-hero-etiqueta">Reservar cancha</p>
             <h1>{sede.nombre}</h1>

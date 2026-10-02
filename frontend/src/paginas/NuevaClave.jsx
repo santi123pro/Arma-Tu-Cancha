@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { cambiarClave } from '../lib/datos'
 import { useToast } from '../componentes/Toast'
 import { CampoClave } from './Login'
-import fotoFondo from '../../imagenes/cancha_1_wembley.jpeg'
+import fotoFondo from '../../imagenes/cancha_1_wembley.webp'
 
 // Pantalla a la que llega el usuario desde el enlace del correo de
 // recuperación. El enlace ya abrió una sesión; aquí solo se cambia la clave.

@@ -3,12 +3,13 @@
 //
 // Las tablas no tienen columna de imagen: la foto se elige por el nombre
 // del archivo. Para agregar una, basta con guardarla con este formato:
-//   cancha_<número>_<sede>.jpeg   →  cancha_2_bombonera.jpeg
-//   logo_sede_<sede>.jpeg         →  logo_sede_wembley.jpeg
+//   cancha_<número>_<sede>.webp   →  cancha_2_bombonera.webp
+//   logo_sede_<sede>.webp         →  logo_sede_wembley.webp
+// (También sirven .jpeg, .jpg o .png, pero WebP pesa mucho menos.)
 // <sede> debe aparecer dentro del slug de la sede en Supabase.
 // ---------------------------------------------------------------------
 
-import logo from '../../imagenes/logo.jpeg'
+import logo from '../../imagenes/logo.webp'
 
 export { logo }
 
