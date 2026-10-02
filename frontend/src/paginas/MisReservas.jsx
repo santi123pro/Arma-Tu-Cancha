@@ -42,7 +42,7 @@ function esProxima(r) {
   return (r.estado === 'confirmada' || r.estado === 'pendiente') && inicioReserva(r) > new Date()
 }
 
-function TarjetaReserva({ reserva, onCancelada }) {
+function TarjetaReserva({ reserva, conSede, onCancelada }) {
   const toast = useToast()
   const [confirmando, setConfirmando] = useState(false)
   const [enviando, setEnviando] = useState(false)
@@ -75,6 +75,9 @@ function TarjetaReserva({ reserva, onCancelada }) {
         <span className={'torneo-estado ' + estado.clase}>{estado.texto}</span>
       </div>
 
+      {conSede && reserva.canchas?.sedes?.nombre && (
+        <p className="reserva-sede">🏟️ {reserva.canchas.sedes.nombre}</p>
+      )}
       <p className="partido-fecha">📅 {fechaCorta(reserva.fecha)}</p>
 
       <div className="torneo-datos">
@@ -109,7 +112,8 @@ function TarjetaReserva({ reserva, onCancelada }) {
   )
 }
 
-export default function MisReservas({ sedeId, sedeNombre }) {
+// Sin sedeId: las reservas del jugador en todas las sedes.
+export default function MisReservas({ sedeId = null, sedeNombre }) {
   const [reservas, setReservas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -151,7 +155,7 @@ export default function MisReservas({ sedeId, sedeNombre }) {
     if (items.length === 0) return <p className="partidos-aviso">{vacio}</p>
     return (
       <div className="grid-canchas grid-partidos">
-        {items.map((r) => <TarjetaReserva key={r.id} reserva={r} onCancelada={recargar} />)}
+        {items.map((r) => <TarjetaReserva key={r.id} reserva={r} conSede={!sedeId} onCancelada={recargar} />)}
       </div>
     )
   }
@@ -169,7 +173,9 @@ export default function MisReservas({ sedeId, sedeNombre }) {
             Puedes cancelar sin costo hasta 24 horas antes del partido.
           </p>
         </div>
-        {lista(proximas, `No tienes reservas próximas en ${sedeNombre ?? 'esta sede'}.`)}
+        {lista(proximas, sedeId
+          ? `No tienes reservas próximas en ${sedeNombre ?? 'esta sede'}.`
+          : 'No tienes reservas próximas en ninguna sede.')}
       </div>
 
       {/* ── Bloque B: historial ── */}

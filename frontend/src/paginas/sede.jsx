@@ -3,6 +3,7 @@ import { detalleSede } from '../lib/datos'
 import CanchaCard from '../componentes/CanchaCard'
 import { fotoSede } from '../lib/imagenes'
 import Cargando from '../componentes/Cargando'
+import { MapaSede } from '../componentes/MapasSedes'
 
 export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVerReservas }) {
   const [sede, setSede] = useState(null)
@@ -112,6 +113,8 @@ export default function Sede({ slug, onVolver, onVerPartidos, onVerTorneos, onVe
               l="Horario"
             />
           </div>
+
+          <MapaSede sede={sede} />
 
           <h3 style={{ color: '#0f172a', fontSize: 18, marginBottom: 14 }}>
             Canchas de {sede.nombre}

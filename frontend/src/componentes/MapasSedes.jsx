@@ -134,7 +134,7 @@ export default function MapaSedes({ sedes = [], onVerSede }) {
   return (
     <div className="mapa-marco">
       <aside className="mapa-lista">
-        <p className="mapa-lista-titulo">{puntos.length} sedes en el norte de Cali</p>
+        <p className="mapa-lista-titulo">{puntos.length} {puntos.length === 1 ? 'sede' : 'sedes'} en el norte de Cali</p>
 
         {puntos.map(function (p) {
           return (
@@ -236,5 +236,40 @@ export default function MapaSedes({ sedes = [], onVerSede }) {
         </MapContainer>
       </div>
     </div>
+  )
+}
+
+// Mapa pequeño con solo una sede, para su propia página.
+export function MapaSede({ sede }) {
+  const u = UBICACIONES[sede.slug]
+  if (!u) return null
+
+  const punto = { lat: u.lat, lng: u.lng }
+  const nombre = sede.nombre || u.nombre
+  const color = sede.color_hex || u.color
+
+  return (
+    <section className="mapa-sede">
+      <div className="mapa-sede-info">
+        <h3>📍 ¿Cómo llegar?</h3>
+        <p>{sede.direccion || u.direccion}</p>
+        <a href={comoLlegar(punto)} target="_blank" rel="noreferrer" className="btn-cta-primary">
+          Abrir en Google Maps
+        </a>
+      </div>
+      <MapContainer
+        center={[u.lat, u.lng]}
+        zoom={17}
+        scrollWheelZoom={false}
+        className="mapa-leaflet mapa-sede-lienzo"
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          maxZoom={19}
+        />
+        <Marker position={[u.lat, u.lng]} icon={icono(color, nombre[0], true)} />
+      </MapContainer>
+    </section>
   )
 }

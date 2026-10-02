@@ -216,21 +216,20 @@ export function misReservas() {
   )
 }
 
-// Reservas del jugador en una sede. Se filtra por usuario_id aunque RLS
-// ya lo haga: a un administrador RLS le devuelve todas las de su sede, y
-// aquí solo queremos las que hizo él mismo.
-export async function misReservasEnSede(sedeId) {
+// Reservas del jugador en una sede, o en todas si sedeId es null. Se
+// filtra por usuario_id aunque RLS ya lo haga: a un administrador RLS le
+// devuelve todas las de su sede, y aquí solo queremos las que hizo él mismo.
+export async function misReservasEnSede(sedeId = null) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { datos: null, error: 'Inicia sesión para ver tus reservas.' }
 
+  let q = supabase
+    .from('reservas')
+    .select('id, codigo, fecha, hora_inicio, hora_fin, precio_total, estado, canchas!inner ( nombre, tipo, sede_id, sedes ( nombre ) )')
+    .eq('usuario_id', user.id)
+  if (sedeId) q = q.eq('canchas.sede_id', sedeId)
   return consultar(
-    supabase
-      .from('reservas')
-      .select('id, codigo, fecha, hora_inicio, hora_fin, precio_total, estado, canchas!inner ( nombre, tipo, sede_id )')
-      .eq('usuario_id', user.id)
-      .eq('canchas.sede_id', sedeId)
-      .order('fecha', { ascending: false })
-      .order('hora_inicio', { ascending: false })
+    q.order('fecha', { ascending: false }).order('hora_inicio', { ascending: false })
   )
 }
 
@@ -275,20 +274,20 @@ export function listarPartidos(sedeId) {
   return consultar(q.order('fecha').limit(50))
 }
 
-// Partidos abiertos que todavía tienen cupo. cupos_disponibles es una
-// columna generada: PostgREST no compara dos columnas entre sí, por eso
-// el filtro va contra ella y no contra cupos_ocupados/cupos_totales.
+// Partidos abiertos o completos desde una fecha, con quiénes están
+// anotados. Los completos vienen para que quien ya está adentro pueda
+// salirse; la pantalla oculta los completos en los que no estás.
 export function partidosBuscandoJugadores(sedeId, desde) {
   let q = supabase
     .from('partidos_abiertos')
     .select(`
       id, fecha, hora_inicio, modalidad, nivel, posicion_requerida,
-      cupos_totales, cupos_ocupados, cupos_disponibles,
-      canchas!inner ( nombre, sede_id, sedes ( nombre, slug ) )
+      cupos_totales, cupos_ocupados, cupos_disponibles, creador_id,
+      canchas!inner ( nombre, sede_id, sedes ( nombre, slug ) ),
+      partido_jugadores ( usuario_id )
     `)
-    .eq('estado', 'abierto')
+    .in('estado', ['abierto', 'completo'])
     .gte('fecha', desde)
-    .gt('cupos_disponibles', 0)
   if (sedeId) q = q.eq('canchas.sede_id', sedeId)
   return consultar(q.order('fecha').order('hora_inicio'))
 }
@@ -328,6 +327,7 @@ export async function unirseAPartido(partidoId, posicion = null) {
 
 export async function salirDePartido(partidoId) {
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { datos: null, error: 'Inicia sesión para salirte.' }
   return consultar(
     supabase.from('partido_jugadores')
       .delete().eq('partido_id', partidoId).eq('usuario_id', user.id)

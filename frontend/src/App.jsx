@@ -9,6 +9,7 @@ import Portada from './paginas/Portada'
 import Login from './paginas/Login'
 import PaginaPartidos from './paginas/PaginaPartidos'
 import PanelAdmin from './paginas/PanelAdmin'
+import TodasMisReservas from './paginas/TodasMisReservas'
 import NuevaClave from './paginas/NuevaClave'
 import Cargando from './componentes/Cargando'
 
@@ -18,7 +19,7 @@ function Contenido() {
 
   // Sin sesion: 'portada', 'login' o 'recuperar' (olvidé mi contraseña).
   // Con sesion: 'marketplace', el slug de una sede, 'partidos/<slug>', 'torneos/<slug>',
-  // 'reservas/<slug>'
+  // 'reservas/<slug>', 'mis-reservas' (las de todas las sedes)
   // o 'admin' (superadmin, o admin de sede con solo las métricas de su sede).
   const [vista, setVista] = useState('portada')
   // Sede que el visitante toco antes de iniciar sesion.
@@ -66,6 +67,10 @@ function Contenido() {
   const puedeVerPanel = esSuperadmin || esAdminSede
   let vistaPrivada = ['portada', 'login', 'recuperar'].includes(vista) ? 'marketplace' : vista
   if (vistaPrivada === 'admin' && !puedeVerPanel) vistaPrivada = 'marketplace'
+  const esVistaFija = ['marketplace', 'admin', 'mis-reservas'].includes(vistaPrivada)
+  // El admin de sede solo entra a la sede que administra.
+  const slugPedido = vistaPrivada.replace(/^(partidos|torneos|reservas)\//, '')
+  if (esAdminSede && !esVistaFija && slugPedido !== perfil.sedes?.slug) vistaPrivada = 'marketplace'
   // 'torneos/wembley' → ['torneos', 'wembley']
   const [, seccion, slugSeccion] = vistaPrivada.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
 
@@ -99,6 +104,13 @@ function Contenido() {
                   {perfil?.rol ?? 'jugador'}
                 </span>
               </span>
+              <button
+                type="button"
+                className={'btn-panel-admin' + (vista === 'mis-reservas' ? ' activo' : '')}
+                onClick={() => irA('mis-reservas')}
+              >
+                📅 Mis reservas
+              </button>
               {puedeVerPanel && (
                 <button
                   type="button"
@@ -154,7 +166,14 @@ function Contenido() {
           )}
 
           {autenticado && vistaPrivada === 'marketplace' && (
-            <Marketplace onElegirSede={(slug) => irA(slug)} />
+            <Marketplace
+              soloSedeId={esAdminSede ? perfil.sede_id : null}
+              onElegirSede={(slug) => irA(slug)}
+            />
+          )}
+
+          {autenticado && vistaPrivada === 'mis-reservas' && (
+            <TodasMisReservas onVolver={() => irA('marketplace')} />
           )}
 
           {autenticado && seccion && (
@@ -167,7 +186,7 @@ function Contenido() {
             />
           )}
 
-          {autenticado && vistaPrivada !== 'marketplace' && vistaPrivada !== 'admin' && !seccion && (
+          {autenticado && !esVistaFija && !seccion && (
             <Sede
               slug={vistaPrivada}
               onVolver={() => irA('marketplace')}

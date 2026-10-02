@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { canchasDeSede, crearPartido, partidosBuscandoJugadores } from '../lib/datos'
+import { canchasDeSede, crearPartido, partidosBuscandoJugadores, salirDePartido, unirseAPartido } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
 import Cargando from '../componentes/Cargando'
@@ -50,7 +50,7 @@ function etiquetaNivel(valor) {
 }
 
 export default function Partidos({ sedeId, sedeNombre }) {
-  const { autenticado } = useSesion()
+  const { autenticado, usuario } = useSesion()
   const toast = useToast()
   const hoy = hoyLocal()
 
@@ -63,6 +63,8 @@ export default function Partidos({ sedeId, sedeNombre }) {
   const [cargando, setCargando] = useState(true)
   const [errorLista, setErrorLista] = useState(null)
   const [recarga, setRecarga] = useState(0)
+  // Partido en el que se está uniendo o saliendo, para bloquear su botón.
+  const [ocupado, setOcupado] = useState(null)
 
   // Canchas del desplegable: se recargan al cambiar de sede y se limpia
   // la que estuviera elegida, porque ya no pertenece a esta sede.
@@ -128,10 +130,29 @@ export default function Partidos({ sedeId, sedeNombre }) {
     setRecarga((n) => n + 1)
   }
 
-  // Preparado para el siguiente paso: aquí se insertará en partido_jugadores.
-  function unirseAlPartido(id) {
-    toast(`Pronto podrás unirte a este partido (#${id}).`, 'warn')
+  async function unirseAlPartido(p) {
+    if (ocupado) return
+    setOcupado(p.id)
+    const { error } = await unirseAPartido(p.id, p.posicion_requerida)
+    setOcupado(null)
+    if (error) return toast(error, 'error')
+    toast('¡Listo! Quedaste anotado en el partido.', 'success')
+    setRecarga((n) => n + 1)
   }
+
+  async function salirDelPartido(p) {
+    if (ocupado) return
+    setOcupado(p.id)
+    const { error } = await salirDePartido(p.id)
+    setOcupado(null)
+    if (error) return toast(error, 'error')
+    toast('Te saliste del partido.')
+    setRecarga((n) => n + 1)
+  }
+
+  const estoyEn = (p) => p.partido_jugadores?.some((j) => j.usuario_id === usuario?.id)
+  // Los completos solo se muestran a quien ya está anotado.
+  const visibles = partidos.filter((p) => p.cupos_disponibles > 0 || estoyEn(p))
 
   return (
     <section className="seccion-partidos">
@@ -227,11 +248,11 @@ export default function Partidos({ sedeId, sedeNombre }) {
               Reintentar
             </button>
           </div>
-        ) : partidos.length === 0 ? (
+        ) : visibles.length === 0 ? (
           <p className="partidos-aviso">Ahora mismo no hay partidos buscando jugadores.</p>
         ) : (
           <div className="grid-canchas grid-partidos">
-            {partidos.map((p) => (
+            {visibles.map((p) => (
               <article key={p.id} className="tarjeta-cancha">
                 <h3>{p.canchas?.nombre}</h3>
                 <p className="partido-fecha">{fechaLegible(p.fecha, p.hora_inicio)}</p>
@@ -244,9 +265,28 @@ export default function Partidos({ sedeId, sedeNombre }) {
                     <i style={{ width: `${(1 - p.cupos_disponibles / p.cupos_totales) * 100}%` }} />
                   </div>
                 </div>
-                <button type="button" className="btn-cta-primary" onClick={() => unirseAlPartido(p.id)}>
-                  Unirse al partido
-                </button>
+                {!autenticado ? (
+                  <p className="torneo-nota">Inicia sesión para unirte.</p>
+                ) : estoyEn(p) ? (
+                  <>
+                    <p className="torneo-nota">
+                      ✅ {p.creador_id === usuario?.id ? 'Publicaste este partido y estás anotado.' : 'Ya estás anotado.'}
+                    </p>
+                    <button
+                      type="button" className="btn-torneo-cancelar"
+                      onClick={() => salirDelPartido(p)} disabled={ocupado === p.id}
+                    >
+                      {ocupado === p.id ? 'Saliendo…' : 'Salirme del partido'}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button" className="btn-cta-primary"
+                    onClick={() => unirseAlPartido(p)} disabled={ocupado === p.id}
+                  >
+                    {ocupado === p.id ? 'Uniéndote…' : 'Unirse al partido'}
+                  </button>
+                )}
               </article>
             ))}
           </div>

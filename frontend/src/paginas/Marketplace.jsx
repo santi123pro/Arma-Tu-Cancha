@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { listarSedes } from '../lib/datos'
 import TarjetaSede from '../componentes/TarjetaSede'
 import Cargando from '../componentes/Cargando'
+import MapaSedes from '../componentes/MapasSedes'
 
-export default function Marketplace({ onElegirSede }) {
+// soloSedeId: el admin de sede solo ve la sede que administra.
+export default function Marketplace({ soloSedeId = null, onElegirSede }) {
   const [sedes, setSedes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -11,10 +13,10 @@ export default function Marketplace({ onElegirSede }) {
   useEffect(() => {
     listarSedes().then(({ datos, error }) => {
       if (error) setError(error)
-      else setSedes(datos ?? [])
+      else setSedes((datos ?? []).filter((s) => !soloSedeId || s.id === soloSedeId))
       setCargando(false)
     })
-  }, [])
+  }, [soloSedeId])
 
   if (cargando) {
     return <Cargando tamano="grande" texto="Cargando establecimientos" />
@@ -47,6 +49,16 @@ export default function Marketplace({ onElegirSede }) {
         {sedes.map((s) => (
           <TarjetaSede key={s.id} sede={s} onEntrar={() => onElegirSede(s.slug)} />
         ))}
+      </div>
+
+      <h2 style={{ fontSize: 24, color: '#0f172a', margin: '48px 0 8px' }}>
+        📍 ¿Dónde {sedes.length > 1 ? 'quedan las sedes' : 'queda la sede'}?
+      </h2>
+      <p style={{ color: '#64748b', marginBottom: 20 }}>
+        Toca un marcador para ver cómo llegar.
+      </p>
+      <div style={{ textAlign: 'left' }}>
+        <MapaSedes sedes={sedes} onVerSede={onElegirSede} />
       </div>
     </div>
   )

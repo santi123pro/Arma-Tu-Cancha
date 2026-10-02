@@ -2545,3 +2545,27 @@ button:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .cargando *, .cargando-texto::after { animation: none !important; }
 }
+
+/* ── Mapa de una sola sede (página de la sede) ─────────────── */
+.mapa-sede {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 18px;
+  align-items: stretch;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 28px;
+}
+.mapa-sede-info { display: flex; flex-direction: column; gap: 10px; justify-content: center; padding: 6px; }
+.mapa-sede-info h3 { color: #0f172a; font-size: 18px; margin: 0; }
+.mapa-sede-info p { color: #475569; font-size: 14px; line-height: 1.5; margin: 0; }
+.mapa-sede-info .btn-cta-primary { text-align: center; text-decoration: none; }
+.mapa-sede-lienzo { height: 240px; border-radius: 12px; }
+@media (max-width: 640px) {
+  .mapa-sede { grid-template-columns: minmax(0, 1fr); }
+  .mapa-sede-lienzo { height: 220px; }
+}
+
+.reserva-sede { color: var(--gray-600) !important; font-size: 13px; font-weight: 600; margin: 0; }
