@@ -2602,3 +2602,8 @@ button:focus-visible,
   transform: translateY(-2px);
 }
 .tarjeta-sede { transition: box-shadow var(--transition), transform var(--transition); }
+
+/* ── Tarjeta de torneo ──────────────────────────────────────────────
+   Modificador de .tarjeta-cancha. Estaba en el JSX pero sin definir. */
+.tarjeta-torneo { border-top: 3px solid var(--amber); }
+.tarjeta-torneo h3 { display: flex; align-items: center; gap: 8px; }

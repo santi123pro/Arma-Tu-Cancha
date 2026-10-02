@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { fechaLocal } from '../lib/formato'
 import { disponibilidad, crearReserva } from '../lib/datos'
 import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
 import { useToast } from './Toast'
@@ -10,15 +11,6 @@ import Cargando from './Cargando'
 // usa el mismo rango para no ofrecer días que el backend va a rechazar.
 const DIAS_ANTICIPACION = 15
 
-// Fecha local en formato YYYY-MM-DD. toISOString() usa UTC y en Colombia
-// daría el día siguiente a partir de las 7 p. m.
-function fechaLocal(desplazamientoDias = 0) {
-  const d = new Date()
-  d.setDate(d.getDate() + desplazamientoDias)
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${mm}-${dd}`
-}
 
 // '15:00:00' → '3:00 PM'
 function hora12(hora) {
@@ -145,7 +137,13 @@ export default function CanchaCard({ cancha, sede }) {
             {cargando ? (
               <Cargando tamano="chico" texto="Consultando disponibilidad" />
             ) : franjas.length === 0 ? (
-              <p className="cancha-card-estado">No hay franjas para este día.</p>
+              <p className="cancha-card-estado">
+                Esta cancha no tiene horarios configurados para ese día.
+              </p>
+            ) : franjas.every((f) => !f.disponible) ? (
+              <p className="cancha-card-estado">
+                Todas las franjas de este día están ocupadas. Prueba otro día.
+              </p>
             ) : (
               <div className="cancha-card-franjas">
                 {franjas.map((f) => (
@@ -154,6 +152,7 @@ export default function CanchaCard({ cancha, sede }) {
                     type="button"
                     disabled={!f.disponible}
                     title={f.disponible ? 'Disponible' : 'Ocupada'}
+                    aria-label={`${hora12(f.hora_inicio)} — ${f.disponible ? 'disponible' : 'ocupada'}`}
                     className={
                       'franja' + (franja?.hora_inicio === f.hora_inicio ? ' franja-activa' : '')
                     }

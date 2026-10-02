@@ -1,3 +1,4 @@
+import { hoyLocal } from './formato'
 import { supabase, consultar, traducirError, MARCA_RECUPERAR } from './supabase'
 
 // ---------------------------------------------------------------------
@@ -268,7 +269,7 @@ export function listarPartidos(sedeId) {
       canchas!inner ( id, nombre, sede_id, sedes(nombre, slug) ),
       partido_jugadores ( usuario_id )
     `)
-    .gte('fecha', new Date().toISOString().slice(0, 10))
+    .gte('fecha', hoyLocal())
     .neq('estado', 'cancelado')
   if (sedeId) q = q.eq('canchas.sede_id', sedeId)
   return consultar(q.order('fecha').limit(50))

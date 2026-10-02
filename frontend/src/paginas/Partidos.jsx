@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { hoyLocal } from '../lib/formato'
 import { canchasDeSede, crearPartido, partidosBuscandoJugadores, salirDePartido, unirseAPartido } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
@@ -26,14 +27,6 @@ const FORM_VACIO = {
   cupos: '',
 }
 
-// Fecha local YYYY-MM-DD. toISOString() usa UTC y en Colombia daría el
-// día siguiente a partir de las 7 p. m.
-function hoyLocal() {
-  const d = new Date()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${mm}-${dd}`
-}
 
 // '2026-10-05' + '19:00:00' → 'domingo 5 de octubre · 7:00 p. m.'
 function fechaLegible(fecha, hora) {

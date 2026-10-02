@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { hoyLocal } from '../lib/formato'
 import { crearTorneo, inscribirEquipo, listarTorneos } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
@@ -25,13 +26,6 @@ const FORM_VACIO = {
   descripcion: '',
 }
 
-// Fecha local YYYY-MM-DD (toISOString usa UTC y en Colombia cambia de dia en la noche).
-function hoyLocal() {
-  const d = new Date()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${mm}-${dd}`
-}
 
 // '2026-10-05' → 'dom 5 de oct'
 function fechaCorta(fecha) {

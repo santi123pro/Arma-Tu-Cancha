@@ -1,3 +1,4 @@
+/* global process */
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -6,4 +7,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: process.env.BASE_PATH || '/',
+  server: {
+    // Expone el servidor en la red para abrirlo desde el celular con la
+    // IP del PC. Sin esto hay que escribir `npm run dev -- --host`.
+    host: true,
+    port: 5173,
+  },
 })
