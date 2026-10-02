@@ -491,3 +491,10 @@ export function metricasGlobales(desde, hasta) {
     supabase.rpc('metricas_globales', { p_desde: desde, p_hasta: hasta })
   )
 }
+
+// Las del admin de sede (migración 0009). La sede la pone el servidor.
+export function metricasMiSede(desde, hasta) {
+  return consultar(
+    supabase.rpc('metricas_mi_sede', { p_desde: desde, p_hasta: hasta })
+  )
+}

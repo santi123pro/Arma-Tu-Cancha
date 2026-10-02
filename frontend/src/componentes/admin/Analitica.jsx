@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { contenidoAdmin, metricasGlobales } from '../../lib/datos'
+import { contenidoAdmin, metricasGlobales, metricasMiSede } from '../../lib/datos'
 import { formatoNumero, formatoPesos } from '../../lib/formato'
 import { BarrasAgrupadas, BarrasH, Cifra, Columnas, Dona } from './Graficas'
 
@@ -55,7 +55,8 @@ function Tarjeta({ titulo, subtitulo, children, ancha }) {
   )
 }
 
-export default function Analitica() {
+// Sin sedeId: todo el negocio (superadmin). Con sedeId: solo esa sede (admin de sede).
+export default function Analitica({ sedeId = null }) {
   const [dias, setDias] = useState(30)
   const [metricas, setMetricas] = useState(null)
   const [contenido, setContenido] = useState(null)
@@ -64,7 +65,8 @@ export default function Analitica() {
 
   useEffect(() => {
     let vigente = true
-    Promise.all([metricasGlobales(haceDias(dias), haceDias(0)), contenidoAdmin()]).then(([m, c]) => {
+    const pedirMetricas = sedeId ? metricasMiSede : metricasGlobales
+    Promise.all([pedirMetricas(haceDias(dias), haceDias(0)), contenidoAdmin()]).then(([m, c]) => {
       if (!vigente) return
       setError(m.error ?? c.error ?? null)
       setMetricas(m.datos)
@@ -72,7 +74,7 @@ export default function Analitica() {
       setCargando(false)
     })
     return () => { vigente = false }
-  }, [dias])
+  }, [dias, sedeId])
 
   function cambiarRango(n) {
     if (n === dias) return
@@ -119,8 +121,12 @@ export default function Analitica() {
   }
 
   const { resumen } = metricas
-  const { partidos, torneos, canchas } = contenido
   const sedes = metricas.por_sede ?? []
+  // RLS deja leer partidos, torneos y canchas de todas las sedes: se recorta aquí.
+  const deMiSede = (id) => !sedeId || id === sedeId
+  const partidos = contenido.partidos.filter((p) => deMiSede(p.canchas?.sede_id))
+  const torneos = contenido.torneos.filter((t) => deMiSede(t.sede_id))
+  const canchas = contenido.canchas.filter((c) => deMiSede(c.sede_id))
 
   const canchasActivas = canchas.filter((c) => c.activa).length
   const porSede = sedes.map((s) => ({
@@ -138,6 +144,8 @@ export default function Analitica() {
     valor: d.reservas,
   }))
 
+  const porCancha = metricas.por_cancha ?? []
+
   const usuariosRol = Object.keys(ROLES).map((k) => ({
     etiqueta: ROLES[k],
     valor: metricas.usuarios_por_rol?.[k] ?? 0,
@@ -148,10 +156,15 @@ export default function Analitica() {
       {filtros}
 
       <div className="admin-cifras">
-        <Cifra icono="👥" etiqueta="Usuarios" valor={formatoNumero(resumen.usuarios)}
-          detalle={`+${formatoNumero(resumen.usuarios_nuevos)} en ${dias} días`} />
+        {sedeId ? (
+          <Cifra icono="👥" etiqueta="Clientes" valor={formatoNumero(resumen.clientes)}
+            detalle={`Con reservas en ${dias} días`} />
+        ) : (
+          <Cifra icono="👥" etiqueta="Usuarios" valor={formatoNumero(resumen.usuarios)}
+            detalle={`+${formatoNumero(resumen.usuarios_nuevos)} en ${dias} días`} />
+        )}
         <Cifra icono="🏟️" etiqueta="Canchas activas" valor={formatoNumero(canchasActivas)}
-          detalle={`${sedes.length} sedes`} />
+          detalle={sedeId ? metricas.sede?.nombre : `${sedes.length} sedes`} />
         <Cifra icono="⚽" etiqueta="Partidos" valor={formatoNumero(partidos.length)}
           detalle={`${formatoNumero(resumen.partidos_abiertos)} abiertos próximos`} />
         <Cifra icono="🏆" etiqueta="Torneos" valor={formatoNumero(torneos.length)}
@@ -167,31 +180,41 @@ export default function Analitica() {
           <Columnas datos={reservasDia} nombre="Reservas" />
         </Tarjeta>
 
-        <Tarjeta titulo="Por sede" subtitulo="Canchas activas, partidos y torneos de cada sede">
-          <BarrasAgrupadas grupos={porSede} series={['Canchas', 'Partidos', 'Torneos']} />
-        </Tarjeta>
+        {sedeId ? (
+          <Tarjeta titulo="Reservas por cancha" subtitulo={`Últimos ${dias} días`}>
+            <BarrasH datos={porCancha.map((c) => ({ etiqueta: c.cancha, valor: c.reservas }))} nombre="Reservas" />
+          </Tarjeta>
+        ) : (
+          <>
+            <Tarjeta titulo="Por sede" subtitulo="Canchas activas, partidos y torneos de cada sede">
+              <BarrasAgrupadas grupos={porSede} series={['Canchas', 'Partidos', 'Torneos']} />
+            </Tarjeta>
 
-        <Tarjeta titulo="Usuarios por rol" subtitulo="Todas las cuentas registradas">
-          <Dona datos={usuariosRol} nombre="Usuarios" centro="usuarios" />
-        </Tarjeta>
+            <Tarjeta titulo="Usuarios por rol" subtitulo="Todas las cuentas registradas">
+              <Dona datos={usuariosRol} nombre="Usuarios" centro="usuarios" />
+            </Tarjeta>
+          </>
+        )}
 
-        <Tarjeta titulo="Partidos por estado" subtitulo="Todos los partidos publicados">
+        <Tarjeta titulo="Partidos por estado" subtitulo={sedeId ? 'Partidos publicados en tu sede' : 'Todos los partidos publicados'}>
           <BarrasH datos={contarPor(partidos, 'estado', ESTADOS_PARTIDO)} nombre="Partidos" />
         </Tarjeta>
 
-        <Tarjeta titulo="Torneos por estado" subtitulo="Todos los torneos creados">
+        <Tarjeta titulo="Torneos por estado" subtitulo={sedeId ? 'Torneos creados en tu sede' : 'Todos los torneos creados'}>
           <BarrasH datos={contarPor(torneos, 'estado', ESTADOS_TORNEO)} nombre="Torneos" />
         </Tarjeta>
 
-        <Tarjeta titulo="Ingresos por sede" subtitulo={`Últimos ${dias} días`}>
+        <Tarjeta titulo={sedeId ? 'Ingresos por cancha' : 'Ingresos por sede'} subtitulo={`Últimos ${dias} días`}>
           <BarrasH
-            datos={sedes.map((s) => ({ etiqueta: s.nombre, valor: s.ingresos }))}
+            datos={sedeId
+              ? porCancha.map((c) => ({ etiqueta: c.cancha, valor: c.ingresos }))
+              : sedes.map((s) => ({ etiqueta: s.nombre, valor: s.ingresos }))}
             nombre="Ingresos"
             formato={(n) => formatoPesos(n, true)}
           />
         </Tarjeta>
 
-        <Tarjeta titulo="Canchas más reservadas" subtitulo={`Top 5, últimos ${dias} días`}>
+        {!sedeId && <Tarjeta titulo="Canchas más reservadas" subtitulo={`Top 5, últimos ${dias} días`}>
           {metricas.top_canchas?.length ? (
             <table className="admin-tabla admin-tabla-compacta">
               <thead>
@@ -211,7 +234,7 @@ export default function Analitica() {
           ) : (
             <p className="viz-vacio">Sin reservas en este periodo.</p>
           )}
-        </Tarjeta>
+        </Tarjeta>}
       </div>
     </>
   )

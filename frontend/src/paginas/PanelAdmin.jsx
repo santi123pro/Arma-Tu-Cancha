@@ -3,15 +3,18 @@ import Analitica from '../componentes/admin/Analitica'
 import Usuarios from '../componentes/admin/Usuarios'
 import Contenido from '../componentes/admin/Contenido'
 
+// soloSede: pestañas que también ve el admin de sede.
 const PESTANAS = [
-  { id: 'analitica', icono: '📊', texto: 'Analítica', Componente: Analitica },
+  { id: 'analitica', icono: '📊', texto: 'Analítica', Componente: Analitica, soloSede: true },
   { id: 'usuarios', icono: '👥', texto: 'Usuarios', Componente: Usuarios },
   { id: 'contenido', icono: '🏆', texto: 'Partidos y torneos', Componente: Contenido },
 ]
 
-export default function PanelAdmin({ nombre, onVolver }) {
+// Sin sedeId: superadmin, ve todo. Con sedeId: admin de sede, solo su analítica.
+export default function PanelAdmin({ nombre, sedeId = null, onVolver }) {
   const [pestana, setPestana] = useState('analitica')
-  const actual = PESTANAS.find((p) => p.id === pestana)
+  const pestanas = sedeId ? PESTANAS.filter((p) => p.soloSede) : PESTANAS
+  const actual = pestanas.find((p) => p.id === pestana) ?? pestanas[0]
 
   return (
     <main className="pagina-admin">
@@ -27,7 +30,7 @@ export default function PanelAdmin({ nombre, onVolver }) {
         </div>
 
         <nav className="admin-pestanas" role="tablist">
-          {PESTANAS.map((p) => (
+          {pestanas.map((p) => (
             <button
               key={p.id}
               type="button"
@@ -43,7 +46,7 @@ export default function PanelAdmin({ nombre, onVolver }) {
       </section>
 
       <div className="admin-contenido" role="tabpanel">
-        <actual.Componente />
+        <actual.Componente sedeId={sedeId} />
       </div>
     </main>
   )

@@ -19,7 +19,7 @@ function Contenido() {
   // Sin sesion: 'portada', 'login' o 'recuperar' (olvidé mi contraseña).
   // Con sesion: 'marketplace', el slug de una sede, 'partidos/<slug>', 'torneos/<slug>',
   // 'reservas/<slug>'
-  // o 'admin' (solo superadmin).
+  // o 'admin' (superadmin, o admin de sede con solo las métricas de su sede).
   const [vista, setVista] = useState('portada')
   // Sede que el visitante toco antes de iniciar sesion.
   const [sedePendiente, setSedePendiente] = useState(null)
@@ -62,8 +62,10 @@ function Contenido() {
 
   // Si hay sesion pero la vista quedo en una pantalla publica, mostramos las sedes.
   const esSuperadmin = perfil?.rol === 'superadmin'
+  const esAdminSede = perfil?.rol === 'admin_sede' && perfil?.sede_id != null
+  const puedeVerPanel = esSuperadmin || esAdminSede
   let vistaPrivada = ['portada', 'login', 'recuperar'].includes(vista) ? 'marketplace' : vista
-  if (vistaPrivada === 'admin' && !esSuperadmin) vistaPrivada = 'marketplace'
+  if (vistaPrivada === 'admin' && !puedeVerPanel) vistaPrivada = 'marketplace'
   // 'torneos/wembley' → ['torneos', 'wembley']
   const [, seccion, slugSeccion] = vistaPrivada.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
 
@@ -97,13 +99,13 @@ function Contenido() {
                   {perfil?.rol ?? 'jugador'}
                 </span>
               </span>
-              {esSuperadmin && (
+              {puedeVerPanel && (
                 <button
                   type="button"
                   className={'btn-panel-admin' + (vista === 'admin' ? ' activo' : '')}
                   onClick={() => irA('admin')}
                 >
-                  📊 Panel admin
+                  📊 {esSuperadmin ? 'Panel admin' : 'Métricas de mi sede'}
                 </button>
               )}
               <button onClick={salir} className="btn-logout" style={{ marginLeft: 12 }}>
@@ -144,7 +146,11 @@ function Contenido() {
           )}
 
           {autenticado && vistaPrivada === 'admin' && (
-            <PanelAdmin nombre={perfil?.nombre} onVolver={() => irA('marketplace')} />
+            <PanelAdmin
+              nombre={perfil?.nombre}
+              sedeId={esSuperadmin ? null : perfil.sede_id}
+              onVolver={() => irA('marketplace')}
+            />
           )}
 
           {autenticado && vistaPrivada === 'marketplace' && (
