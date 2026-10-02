@@ -3,6 +3,7 @@ import { canchasDeSede, crearPartido, partidosBuscandoJugadores, salirDePartido,
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
 import Cargando from '../componentes/Cargando'
+import { balonazo } from '../lib/balonazo'
 
 const MODALIDADES = ['Fútbol 5', 'Fútbol 6', 'Fútbol 7', 'Fútbol 8', 'Fútbol 11']
 
@@ -125,9 +126,10 @@ export default function Partidos({ sedeId, sedeNombre }) {
       return
     }
 
-    toast('¡Partido publicado! Ya aparece en la lista.', 'success')
     setForm(FORM_VACIO)
     setRecarga((n) => n + 1)
+    await balonazo()
+    toast('¡Partido publicado! Ya aparece en la lista.', 'success')
   }
 
   async function unirseAlPartido(p) {

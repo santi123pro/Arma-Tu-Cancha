@@ -3,6 +3,7 @@ import { crearTorneo, inscribirEquipo, listarTorneos } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
 import { useToast } from '../componentes/Toast'
 import Cargando from '../componentes/Cargando'
+import { balonazo } from '../lib/balonazo'
 
 const MODALIDADES = ['Fútbol 5', 'Fútbol 6', 'Fútbol 7', 'Fútbol 8', 'Fútbol 11']
 
@@ -195,9 +196,10 @@ export default function Torneos({ sedeId, sedeNombre }) {
       return
     }
 
-    toast('¡Torneo creado! Ya aparece en la lista. 🏆')
     setForm(FORM_VACIO)
     recargar()
+    await balonazo()
+    toast('¡Torneo creado! Ya aparece en la lista. 🏆')
   }
 
   return (
