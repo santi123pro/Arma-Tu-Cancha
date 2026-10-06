@@ -36,7 +36,7 @@ const SEDE_INICIAL = {
   hora_apertura: '06:00:00',
   hora_cierre: '23:00:00',
   pago_instrucciones: 'Escribe el código de la reserva en la descripción del pago.',
-  pago_minutos_limite: 30,
+  pago_minutos_limite: 10,
 }
 
 // Sin qr_url: la pasarela muestra el QR de ejemplo.
@@ -99,13 +99,13 @@ export function reiniciar() {
   estado.reservas.push(
     nuevaReserva({
       cancha_id: 2, usuario: 'ana', fecha: hoyMas(1), hora_inicio: '19:00:00',
-      estado: 'pendiente', pago_estado: 'por_verificar', pago_vence_at: hace(-20),
+      estado: 'pendiente', pago_estado: 'por_verificar', pago_vence_at: hace(-4),
       pago_medio: 'nequi', pago_referencia: 'M8841207', comprobante_path: 'demo/ana.svg',
-      pago_reportado_at: hace(6),
+      pago_reportado_at: hace(24),
     }),
     nuevaReserva({
       cancha_id: 1, usuario: 'luis', fecha: hoyMas(2), hora_inicio: '20:00:00',
-      estado: 'pendiente', pago_estado: 'esperando_pago', pago_vence_at: hace(-12),
+      estado: 'pendiente', pago_estado: 'esperando_pago', pago_vence_at: hace(-7),
     }),
     nuevaReserva({
       cancha_id: 1, usuario: 'ana', fecha: hoyMas(-2), hora_inicio: '18:00:00',
@@ -201,6 +201,13 @@ export function crearReserva({ canchaId, fecha, hora }) {
   estado.reservas.push(r)
   avisar()
   return ok(conRelaciones(r))
+}
+
+export function estadoReserva(id) {
+  const r = estado.reservas.find((x) => x.id === id)
+  if (!r) return falla('Esa reserva no existe.')
+  const { estado: e, pago_estado, pago_medio, pago_motivo_rechazo } = r
+  return ok({ id, estado: e, pago_estado, pago_medio, pago_motivo_rechazo })
 }
 
 export async function subirComprobante(reservaId, archivo) {

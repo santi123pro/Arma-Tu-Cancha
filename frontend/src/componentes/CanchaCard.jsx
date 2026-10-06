@@ -8,6 +8,8 @@ import { fotoCancha } from '../lib/imagenes'
 import Cargando from './Cargando'
 import PasarelaPago from './PasarelaPago'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
+import { useSeguimientoReserva } from '../lib/useSeguimientoReserva'
+import { MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR } from '../lib/qrGenerico'
 
 // crear_reserva acepta fechas entre hoy y hoy + 15 días. El selector
 // usa el mismo rango para no ofrecer días que el backend va a rechazar.
@@ -32,8 +34,19 @@ const pesos = new Intl.NumberFormat('es-CO', {
 })
 
 // La tarjeta mientras el horario está apartado y la pasarela está cerrada.
-function HorarioApartado({ reserva, onPagar }) {
+function HorarioApartado({ reserva, onPagar, onOtra }) {
   const restante = useCuentaRegresiva(reserva.pago_vence_at)
+  if (restante === 0) {
+    return (
+      <div className="cancha-card-comprobante pago-cancelado" role="status">
+        <h4>⏰ Reserva cancelada</h4>
+        <p>Pasaron los {MINUTOS_PARA_PAGAR} minutos sin recibir el comprobante y el horario se liberó.</p>
+        <button type="button" className="btn-cta-primary" onClick={onOtra}>
+          Elegir otro horario
+        </button>
+      </div>
+    )
+  }
   return (
     <div className="cancha-card-comprobante pago-apartado" role="status">
       <h4>⏳ Horario apartado</h4>
@@ -64,6 +77,14 @@ export default function CanchaCard({ cancha, sede }) {
   const [pasarela, setPasarela] = useState(false)
   // Subirlo fuerza a consultar otra vez la misma fecha (tras un choque).
   const [recarga, setRecarga] = useState(0)
+
+  // Con el comprobante enviado, la tarjeta pasa sola a "confirmada" (o
+  // "rechazada") cuando la sede revisa el pago.
+  useSeguimientoReserva(comprobante, (datos) => {
+    setComprobante((c) => ({ ...c, ...datos }))
+    if (datos.pago_estado === 'aprobado') toast('¡Tu reserva quedó confirmada!')
+    else if (datos.pago_estado === 'rechazado') toast('La sede no pudo verificar tu pago.', 'error')
+  })
 
   useEffect(() => {
     let vigente = true
@@ -142,20 +163,31 @@ export default function CanchaCard({ cancha, sede }) {
             reserva={comprobante}
             cancha={cancha}
             sede={sede}
-            onEnviado={setComprobante}
+            onEnviado={(r) => { setComprobante(r); toast('Comprobante enviado. Tu reserva está pendiente por confirmar.') }}
             onCancelada={otraReserva}
             onCerrar={() => setPasarela(false)}
           />
         )}
 
         {comprobante?.pago_estado === 'esperando_pago' ? (
-          <HorarioApartado reserva={comprobante} onPagar={() => setPasarela(true)} />
+          <HorarioApartado reserva={comprobante} onPagar={() => setPasarela(true)} onOtra={otraReserva} />
+        ) : comprobante?.pago_estado === 'rechazado' ? (
+          <div className="cancha-card-comprobante pago-cancelado" role="status">
+            <h4>✕ Pago no verificado</h4>
+            <p>
+              {comprobante.pago_motivo_rechazo ? <>Motivo: <strong>{comprobante.pago_motivo_rechazo}</strong>. </> : null}
+              La reserva se canceló. Comunícate con la sede si crees que es un error.
+            </p>
+            <button type="button" className="btn-cta-primary" onClick={otraReserva}>
+              Hacer otra reserva
+            </button>
+          </div>
         ) : comprobante?.pago_estado === 'por_verificar' ? (
           <div className="cancha-card-comprobante pago-en-revision" role="status">
-            <h4>⏳ Pago en verificación</h4>
+            <h4>⏳ Pendiente por confirmar</h4>
             <p>
-              La sede revisará tu transferencia y confirmará la reserva. Puedes seguir el estado en
-              <strong> Mis reservas</strong>.
+              Recibimos tu comprobante. La sede tiene hasta {MINUTOS_PARA_CONFIRMAR} minutos para verificar el pago;
+              esta tarjeta se actualiza sola cuando la confirme.
             </p>
             <dl>
               <dt>Fecha</dt><dd>{fechaCorta(comprobante.fecha)}</dd>
@@ -255,7 +287,7 @@ export default function CanchaCard({ cancha, sede }) {
                     : 'Reservar'}
               </button>
               <p className="cancha-card-nota-pago">
-                💳 Pagas con QR de Nequi o Bre-B. La reserva queda confirmada cuando la sede verifica el pago.
+                💳 Pagas con QR de Nequi o Bre-B en los siguientes {MINUTOS_PARA_PAGAR} minutos. La reserva queda confirmada cuando la sede verifica el pago.
               </p>
             </div>
           </>

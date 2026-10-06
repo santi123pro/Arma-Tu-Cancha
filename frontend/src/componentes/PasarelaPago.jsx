@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cancelarReserva, datosPagoSede, reportarPago, subirComprobante } from '../lib/datos'
-import { MEDIOS_PAGO, qrGenerico } from '../lib/qrGenerico'
+import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrGenerico } from '../lib/qrGenerico'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
 import { useToast } from './Toast'
 
@@ -42,7 +42,7 @@ function Copiar({ texto, etiqueta }) {
   )
 }
 
-const PASOS = ['Cancha', 'Horario', 'Pago']
+const PASOS = ['Cancha', 'Horario', 'Pago', 'Comprobante', 'Confirmación']
 
 function Pasos({ actual }) {
   return (
@@ -54,7 +54,7 @@ function Pasos({ actual }) {
           aria-current={i === actual ? 'step' : undefined}
         >
           <span className="pasarela-paso-num">{i < actual ? '✓' : i + 1}</span>
-          {p}
+          <span className="pasarela-paso-texto">{p}</span>
         </li>
       ))}
     </ol>
@@ -73,15 +73,42 @@ function Resumen({ reserva, cancha, sede, medio }) {
   )
 }
 
+// Cuenta regresiva de los 10 minutos para pagar, con barra de progreso.
+function Contador({ restante, total }) {
+  if (restante == null) return null
+  const urgente = restante < 120
+  const parte = Math.max(0, Math.min(1, restante / total))
+  return (
+    <div className={'pasarela-contador' + (urgente ? ' urgente' : '')} role="timer" aria-live="off">
+      <span className="pasarela-contador-reloj">⏱ {formatoRestante(restante)}</span>
+      <span className="pasarela-contador-texto">
+        {urgente
+          ? 'Apúrate: si no envías el comprobante a tiempo, la reserva se cancela.'
+          : `Tienes ${MINUTOS_PARA_PAGAR} minutos para pagar y enviar el comprobante. Si no, la reserva se cancela.`}
+      </span>
+      <span className="pasarela-contador-barra" aria-hidden="true">
+        <span style={{ transform: `scaleX(${parte})` }} />
+      </span>
+    </div>
+  )
+}
+
 // Pasarela de pago de una reserva pendiente. Se abre encima de la página.
-//   reserva  { id, codigo, fecha, hora_inicio, hora_fin, precio_total, pago_estado, pago_vence_at }
+//   1. Pago         QR de Nequi o Bre-B y datos de la cuenta.
+//   2. Comprobante  el jugador carga la captura del pago.
+//   3. Confirmación "Pendiente por confirmar" hasta que la sede aprueba;
+//                   el padre actualiza `reserva` (useSeguimientoReserva) y
+//                   aquí aparece "¡Reserva confirmada!" o el rechazo.
+//
+//   reserva  { id, codigo, fecha, hora_inicio, hora_fin, precio_total, estado, pago_estado, pago_vence_at }
 //   cancha   { nombre, tipo }      sede { id, nombre }
-//   onEnviado(reserva)  el comprobante quedó enviado (la pasarela muestra "¡Reserva realizada!")
-//   onCancelada()       el jugador soltó el horario
+//   onEnviado(reserva)  el comprobante quedó enviado
+//   onCancelada()       el jugador soltó el horario (o se le venció)
 //   onCerrar()          cerrar la pasarela (la reserva sigue apartada)
 export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCancelada, onCerrar }) {
   const toast = useToast()
   const caja = useRef(null)
+  const [paso, setPaso] = useState('qr')
   const [pago, setPago] = useState(null)
   const [errorPago, setErrorPago] = useState(null)
   const [medio, setMedio] = useState(null)
@@ -94,8 +121,11 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
   const [error, setError] = useState(null)
 
   const restante = useCuentaRegresiva(reserva.pago_vence_at)
+  const confirmada = reserva.pago_estado === 'aprobado'
+  const rechazada = reserva.pago_estado === 'rechazado'
   const enviado = reserva.pago_estado === 'por_verificar'
-  const vencida = !enviado && restante === 0
+  const vencida = reserva.pago_estado === 'vencido' ||
+    (reserva.pago_estado === 'esperando_pago' && restante === 0)
 
   useEffect(() => {
     let vigente = true
@@ -127,6 +157,12 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
   // La miniatura del comprobante se libera al cambiarla o al cerrar.
   useEffect(() => () => { if (vista) URL.revokeObjectURL(vista) }, [vista])
 
+  function irAComprobante() {
+    setError(null)
+    setPaso('comprobante')
+    caja.current?.closest('.pasarela-fondo')?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   function elegirArchivo(e) {
     const f = e.target.files?.[0] ?? null
     e.target.value = ''
@@ -152,7 +188,7 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
       return
     }
     if (!archivo) {
-      setError('Adjunta el comprobante del pago para que la sede lo verifique.')
+      setError('Carga el comprobante del pago para que la sede lo verifique.')
       return
     }
 
@@ -185,24 +221,60 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
       toast(error, 'error')
       return
     }
-    toast('Solicitud cancelada. El horario quedó libre.')
+    toast('Reserva cancelada. El horario quedó libre.')
     onCancelada?.()
   }
 
   const metodo = pago?.metodos.find((m) => m.tipo === medio)
   const info = MEDIOS_PAGO[medio]
   const total = pesos.format(reserva.precio_total)
+  const sinMedios = !pago || pago.metodos.length === 0
 
+  const selectorMedio = pago && pago.metodos.length > 0 && (
+    <div className="pasarela-medios" role="radiogroup" aria-label="Medio de pago">
+      {pago.metodos.map((m) => (
+        <button
+          key={m.tipo}
+          type="button"
+          role="radio"
+          aria-checked={medio === m.tipo}
+          className={`pasarela-medio medio-${m.tipo}` + (medio === m.tipo ? ' activo' : '')}
+          onClick={() => setMedio(m.tipo)}
+        >
+          <span className="pasarela-medio-logo" aria-hidden="true">{m.tipo === 'nequi' ? 'N' : 'B'}</span>
+          {MEDIOS_PAGO[m.tipo]?.nombre ?? m.tipo}
+        </button>
+      ))}
+    </div>
+  )
+
+  let pasoActual = paso === 'qr' ? 2 : 3
   let contenido
-  if (enviado) {
+
+  if (confirmada || rechazada || enviado) {
+    pasoActual = confirmada ? 5 : 4
     contenido = (
-      <div className="pasarela-final">
-        <span className="pasarela-final-icono" aria-hidden="true">✓</span>
-        <h2 id="pasarela-titulo">¡Reserva realizada!</h2>
-        <p>
-          Recibimos tu comprobante. {sede.nombre} verificará el pago y tu reserva quedará
-          <strong> confirmada</strong>. Puedes seguir el estado en <strong>Mis reservas</strong>.
-        </p>
+      <div className={'pasarela-final' + (confirmada ? ' confirmada' : rechazada ? ' rechazada' : ' pendiente')}>
+        <span className="pasarela-final-icono" aria-hidden="true">{confirmada ? '✓' : rechazada ? '✕' : '⏳'}</span>
+        <h2 id="pasarela-titulo">
+          {confirmada ? '¡Reserva confirmada!' : rechazada ? 'La sede no pudo verificar tu pago' : '¡Comprobante enviado!'}
+        </h2>
+        <span className="pasarela-estado">
+          {confirmada ? '✅ Reserva confirmada' : rechazada ? 'Reserva cancelada' : '⏳ Pendiente por confirmar'}
+        </span>
+        {confirmada ? (
+          <p>{sede.nombre} verificó tu pago. ¡Nos vemos en la cancha! Presenta este código al llegar.</p>
+        ) : rechazada ? (
+          <p>
+            {reserva.pago_motivo_rechazo ? <>Motivo: <strong>{reserva.pago_motivo_rechazo}</strong>. </> : null}
+            Comunícate con {sede.nombre} si crees que es un error.
+          </p>
+        ) : (
+          <p>
+            {sede.nombre} está verificando que el pago llegó. Tiene hasta <strong>{MINUTOS_PARA_CONFIRMAR} minutos</strong> para
+            confirmar tu reserva. Esta pantalla se actualiza sola, y también puedes seguir el estado en <strong>Mis reservas</strong>.
+          </p>
+        )}
         <div className="pasarela-final-codigo">
           <small>Código de reserva</small>
           <strong>{reserva.codigo}</strong>
@@ -212,18 +284,18 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
           <Resumen reserva={reserva} cancha={cancha} sede={sede} medio={reserva.pago_medio} />
           <div className="pasarela-total"><span>Total</span><strong>{total}</strong></div>
         </div>
-        <span className="pasarela-estado">⏳ Pago en verificación</span>
+        {enviado && <span className="pasarela-esperando"><span className="pasarela-punto" aria-hidden="true" /> Esperando la confirmación de la sede…</span>}
         <button type="button" className="btn-cta-primary pasarela-listo" onClick={onCerrar}>
-          Listo
+          {enviado ? 'Entendido' : 'Listo'}
         </button>
       </div>
     )
   } else if (vencida) {
     contenido = (
-      <div className="pasarela-final pasarela-final-vencida">
+      <div className="pasarela-final rechazada">
         <span className="pasarela-final-icono" aria-hidden="true">⏰</span>
-        <h2 id="pasarela-titulo">El tiempo para pagar terminó</h2>
-        <p>No recibimos el comprobante a tiempo y el horario se liberó. Puedes solicitarlo de nuevo si sigue disponible.</p>
+        <h2 id="pasarela-titulo">Se acabaron los {MINUTOS_PARA_PAGAR} minutos</h2>
+        <p>No recibimos el comprobante a tiempo, así que la reserva se canceló y el horario quedó libre. Puedes reservarlo de nuevo si sigue disponible.</p>
         <button type="button" className="btn-cta-primary pasarela-listo" onClick={onCancelada ?? onCerrar}>
           Elegir otro horario
         </button>
@@ -231,145 +303,149 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
     )
   } else {
     contenido = (
-      <div className="pasarela-cuerpo">
-        <section className="pasarela-qr" aria-labelledby="pasarela-titulo">
-          <h2 id="pasarela-titulo">Paga con QR</h2>
-
-          {errorPago ? (
-            <p className="pago-error" role="alert">No se pudieron cargar los medios de pago de la sede. Recarga la página.</p>
-          ) : !pago ? (
-            <p className="pago-cargando">Cargando medios de pago…</p>
-          ) : pago.metodos.length === 0 ? (
-            <p className="pago-error" role="alert">{sede.nombre} no tiene medios de pago activos. Comunícate con la sede.</p>
-          ) : (
-            <>
-              <div className="pasarela-medios" role="radiogroup" aria-label="Medio de pago">
-                {pago.metodos.map((m) => (
-                  <button
-                    key={m.tipo}
-                    type="button"
-                    role="radio"
-                    aria-checked={medio === m.tipo}
-                    className={`pasarela-medio medio-${m.tipo}` + (medio === m.tipo ? ' activo' : '')}
-                    onClick={() => setMedio(m.tipo)}
-                  >
-                    <span className="pasarela-medio-logo" aria-hidden="true">{m.tipo === 'nequi' ? 'N' : 'B'}</span>
-                    {MEDIOS_PAGO[m.tipo]?.nombre ?? m.tipo}
-                  </button>
-                ))}
+      <>
+        <Contador restante={restante} total={MINUTOS_PARA_PAGAR * 60} />
+        <div className="pasarela-cuerpo">
+          {paso === 'qr' ? (
+            <section className="pasarela-principal" aria-labelledby="pasarela-titulo">
+              <div>
+                <span className="pasarela-paso-etiqueta">Paso 1 de 2</span>
+                <h2 id="pasarela-titulo">Escanea el QR y paga</h2>
               </div>
 
-              {metodo && (
+              {errorPago ? (
+                <p className="pago-error" role="alert">No se pudieron cargar los medios de pago de la sede. Recarga la página.</p>
+              ) : !pago ? (
+                <p className="pago-cargando">Cargando medios de pago…</p>
+              ) : pago.metodos.length === 0 ? (
+                <p className="pago-error" role="alert">{sede.nombre} no tiene medios de pago activos. Comunícate con la sede.</p>
+              ) : (
                 <>
-                  <figure className={`pasarela-qr-imagen medio-${metodo.tipo}`}>
-                    <img
-                      src={metodo.qr_url || qrGenerico(info?.semilla)}
-                      alt={`Código QR de ${info?.nombre} para pagar a ${sede.nombre}`}
-                    />
-                    {!metodo.qr_url && <span className="pasarela-qr-ejemplo">QR de ejemplo</span>}
-                    <figcaption>{info?.app}</figcaption>
-                  </figure>
+                  {selectorMedio}
+                  {metodo && (
+                    <>
+                      <figure className={`pasarela-qr-imagen medio-${metodo.tipo}`}>
+                        <img
+                          src={metodo.qr_url || qrGenerico(info?.semilla)}
+                          alt={`Código QR de ${info?.nombre} para pagar a ${sede.nombre}`}
+                        />
+                        {!metodo.qr_url && <span className="pasarela-qr-ejemplo">QR de ejemplo</span>}
+                        <figcaption>{info?.app}</figcaption>
+                      </figure>
 
-                  <dl className="pago-cuenta pasarela-cuenta">
-                    {metodo.titular && (<><dt>Titular</dt><dd>{metodo.titular}</dd></>)}
-                    {metodo.cuenta && (
-                      <>
-                        <dt>{info?.cuenta}</dt>
+                      <dl className="pago-cuenta pasarela-cuenta">
+                        {metodo.titular && (<><dt>Titular</dt><dd>{metodo.titular}</dd></>)}
+                        {metodo.cuenta && (
+                          <>
+                            <dt>{info?.cuenta}</dt>
+                            <dd className="pago-dato-copiable">
+                              <span>{metodo.cuenta}</span>
+                              <Copiar texto={metodo.cuenta} etiqueta={info?.cuenta} />
+                            </dd>
+                          </>
+                        )}
+                        <dt>Valor exacto</dt>
                         <dd className="pago-dato-copiable">
-                          <span>{metodo.cuenta}</span>
-                          <Copiar texto={metodo.cuenta} etiqueta={info?.cuenta} />
+                          <span>{total}</span>
+                          <Copiar texto={String(reserva.precio_total)} etiqueta="el valor" />
                         </dd>
-                      </>
-                    )}
-                    <dt>Valor exacto</dt>
-                    <dd className="pago-dato-copiable">
-                      <span>{total}</span>
-                      <Copiar texto={String(reserva.precio_total)} etiqueta="el valor" />
-                    </dd>
-                    <dt>Descripción</dt>
-                    <dd className="pago-dato-copiable">
-                      <span className="pago-codigo">{reserva.codigo}</span>
-                      <Copiar texto={reserva.codigo} etiqueta="el código de la reserva" />
-                    </dd>
-                  </dl>
+                        <dt>Descripción</dt>
+                        <dd className="pago-dato-copiable">
+                          <span className="pago-codigo">{reserva.codigo}</span>
+                          <Copiar texto={reserva.codigo} etiqueta="el código de la reserva" />
+                        </dd>
+                      </dl>
+                    </>
+                  )}
+                  {pago.instrucciones && <p className="pago-instrucciones">ℹ️ {pago.instrucciones}</p>}
                 </>
               )}
-              {pago.instrucciones && <p className="pago-instrucciones">ℹ️ {pago.instrucciones}</p>}
-            </>
-          )}
-        </section>
-
-        <section className="pasarela-resumen" aria-label="Resumen de tu reserva">
-          <div className="pasarela-resumen-cabeza">
-            <h3>Resumen de tu reserva</h3>
-            {restante != null && (
-              <span className={'pasarela-reloj' + (restante < 300 ? ' urgente' : '')} title="Tiempo para enviar el comprobante">
-                ⏱ {formatoRestante(restante)}
-              </span>
-            )}
-          </div>
-          <Resumen reserva={reserva} cancha={cancha} sede={sede} />
-          <div className="pasarela-total"><span>Total</span><strong>{total}</strong></div>
-          <p className="pasarela-apartado">
-            Tu horario está apartado. Se libera si no envías el comprobante antes de que termine el tiempo.
-          </p>
-        </section>
-
-        <section className="pasarela-comprobante" aria-label="Comprobante de pago">
-          <label className={'pasarela-adjuntar' + (archivo ? ' con-archivo' : '')}>
-            <input type="file" accept="image/png,image/jpeg,image/webp,application/pdf" onChange={elegirArchivo} />
-            {vista ? (
-              <img src={vista} alt="Vista previa del comprobante" />
-            ) : (
-              <span className="pasarela-adjuntar-icono" aria-hidden="true">{archivo ? '📄' : '📎'}</span>
-            )}
-            <span className="pasarela-adjuntar-texto">
-              <strong>{archivo ? archivo.name : 'Adjuntar comprobante'}</strong>
-              <small>{archivo ? 'Toca para cambiarlo' : 'Captura de pantalla o PDF · máx. 5 MB'}</small>
-            </span>
-          </label>
-
-          <label className="pasarela-referencia">
-            Referencia de la transacción <small>(opcional)</small>
-            <input
-              className="input-moderno"
-              maxLength={120}
-              value={referencia}
-              onChange={(e) => setReferencia(e.target.value)}
-              placeholder="Ej.: M1234567"
-            />
-          </label>
-
-          {error && <p className="pago-error" role="alert">{error}</p>}
-
-          <div className="pasarela-accion">
-            <button
-              type="button"
-              className="btn-cta-primary"
-              onClick={enviar}
-              disabled={enviando || !pago || pago.metodos.length === 0}
-            >
-              {enviando ? 'Enviando comprobante…' : `Enviar comprobante · ${total}`}
-            </button>
-          </div>
-
-          {confirmarCancelar ? (
-            <div className="pasarela-cancelar-confirmar">
-              <span>¿Cancelar la solicitud? El horario quedará libre para otros.</span>
-              <button type="button" className="btn-peligro" onClick={cancelar} disabled={cancelando}>
-                {cancelando ? 'Cancelando…' : 'Sí, cancelar'}
-              </button>
-              <button type="button" className="pago-cancelar" onClick={() => setConfirmarCancelar(false)}>
-                No
-              </button>
-            </div>
+            </section>
           ) : (
-            <button type="button" className="pago-cancelar" onClick={() => setConfirmarCancelar(true)}>
-              Cancelar solicitud y liberar el horario
-            </button>
+            <section className="pasarela-principal" aria-labelledby="pasarela-titulo">
+              <div>
+                <span className="pasarela-paso-etiqueta">Paso 2 de 2</span>
+                <h2 id="pasarela-titulo">Carga tu comprobante de pago</h2>
+                <p className="pasarela-subtitulo">
+                  Con el comprobante, {sede.nombre} verifica que el pago llegó y confirma tu reserva.
+                </p>
+              </div>
+
+              <div className="pasarela-campo">
+                <span className="pasarela-campo-titulo">¿Con qué pagaste?</span>
+                {selectorMedio}
+              </div>
+
+              <label className={'pasarela-adjuntar' + (archivo ? ' con-archivo' : '')}>
+                <input type="file" accept="image/png,image/jpeg,image/webp,application/pdf" onChange={elegirArchivo} />
+                {vista ? (
+                  <img src={vista} alt="Vista previa del comprobante" />
+                ) : (
+                  <span className="pasarela-adjuntar-icono" aria-hidden="true">{archivo ? '📄' : '📤'}</span>
+                )}
+                <span className="pasarela-adjuntar-texto">
+                  <strong>{archivo ? archivo.name : 'Toca para cargar el comprobante'}</strong>
+                  <small>{archivo ? 'Toca para cambiarlo' : 'Captura de pantalla o PDF · máx. 5 MB'}</small>
+                </span>
+              </label>
+
+              <label className="pasarela-referencia">
+                Referencia de la transacción <small>(opcional)</small>
+                <input
+                  className="input-moderno"
+                  maxLength={120}
+                  value={referencia}
+                  onChange={(e) => setReferencia(e.target.value)}
+                  placeholder="Ej.: M1234567"
+                />
+              </label>
+            </section>
           )}
-        </section>
-      </div>
+
+          <section className="pasarela-resumen" aria-label="Resumen de tu reserva">
+            <h3>Resumen de tu reserva</h3>
+            <Resumen reserva={reserva} cancha={cancha} sede={sede} medio={paso === 'comprobante' ? medio : null} />
+            <div className="pasarela-total"><span>Total a pagar</span><strong>{total}</strong></div>
+          </section>
+
+          <section className="pasarela-acciones" aria-label="Acciones">
+            {error && <p className="pago-error" role="alert">{error}</p>}
+            <div className="pasarela-accion">
+              {paso === 'qr' ? (
+                <button type="button" className="btn-cta-primary" onClick={irAComprobante} disabled={sinMedios}>
+                  Ya pagué, cargar comprobante →
+                </button>
+              ) : (
+                <button type="button" className="btn-cta-primary" onClick={enviar} disabled={enviando || sinMedios}>
+                  {enviando ? 'Enviando comprobante…' : 'Enviar comprobante'}
+                </button>
+              )}
+            </div>
+
+            {paso === 'comprobante' && (
+              <button type="button" className="pasarela-volver" onClick={() => { setError(null); setPaso('qr') }}>
+                ← Volver al QR
+              </button>
+            )}
+
+            {confirmarCancelar ? (
+              <div className="pasarela-cancelar-confirmar">
+                <span>¿Cancelar la reserva? El horario quedará libre para otros.</span>
+                <button type="button" className="btn-peligro" onClick={cancelar} disabled={cancelando}>
+                  {cancelando ? 'Cancelando…' : 'Sí, cancelar'}
+                </button>
+                <button type="button" className="pago-cancelar" onClick={() => setConfirmarCancelar(false)}>
+                  No
+                </button>
+              </div>
+            ) : (
+              <button type="button" className="pago-cancelar" onClick={() => setConfirmarCancelar(true)}>
+                Cancelar reserva
+              </button>
+            )}
+          </section>
+        </div>
+      </>
     )
   }
 
@@ -384,7 +460,7 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
         tabIndex={-1}
       >
         <header className="pasarela-cabeza">
-          <Pasos actual={enviado ? 3 : 2} />
+          <Pasos actual={pasoActual} />
           <button type="button" className="pasarela-cerrar" onClick={onCerrar} aria-label="Cerrar">✕</button>
         </header>
         {contenido}

@@ -4,6 +4,8 @@ import { useToast } from '../componentes/Toast'
 import Cargando from '../componentes/Cargando'
 import PasarelaPago from '../componentes/PasarelaPago'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
+import { useSeguimientoReserva } from '../lib/useSeguimientoReserva'
+import { MINUTOS_PARA_CONFIRMAR } from '../lib/qrGenerico'
 
 // Los valores son los que acepta el CHECK reservas_estado_valido.
 const ESTADOS = {
@@ -55,15 +57,15 @@ function esProxima(r) {
 // Estado que ve el jugador, contando el pago (migración 0014).
 function estadoVisible(r) {
   if (solicitudVencida(r) || r.pago_estado === 'vencido') {
-    return { texto: 'Vencida', clase: 'estado-fin', nota: 'No se envió el comprobante a tiempo y el horario se liberó.' }
+    return { texto: 'Cancelada', clase: 'estado-fin', nota: 'No se envió el comprobante a tiempo y el horario se liberó.' }
   }
   if (r.estado === 'pendiente' && r.pago_estado === 'esperando_pago') {
-    return { texto: 'Pago pendiente', clase: 'estado-cerrado' }
+    return { texto: 'Pendiente de pago', clase: 'estado-cerrado' }
   }
   if (r.estado === 'pendiente' && r.pago_estado === 'por_verificar') {
     return {
-      texto: 'Pago en verificación', clase: 'estado-curso',
-      nota: 'Recibimos tu comprobante. La sede está verificando el pago para confirmar la reserva.',
+      texto: 'Pendiente por confirmar', clase: 'estado-curso',
+      nota: `Recibimos tu comprobante. La sede tiene hasta ${MINUTOS_PARA_CONFIRMAR} minutos para verificar el pago y confirmar tu reserva.`,
     }
   }
   if (r.estado === 'cancelada' && r.pago_estado === 'rechazado') {
@@ -81,6 +83,9 @@ function AvisoPagoPendiente({ reserva, onCambio }) {
   // la lista se recarga al cerrarla para no desmontarla antes de tiempo.
   const [enviada, setEnviada] = useState(null)
   const restante = useCuentaRegresiva(reserva.pago_vence_at)
+  // Con la pasarela abierta en "Pendiente por confirmar", pasa sola a
+  // "¡Reserva confirmada!" cuando la sede aprueba.
+  useSeguimientoReserva(enviada, (datos) => setEnviada((r) => ({ ...r, ...datos })))
 
   function cerrar() {
     setAbierto(false)
@@ -120,6 +125,9 @@ function TarjetaReserva({ reserva, conSede, onCancelada }) {
   const esperandoPago = proxima && reserva.estado === 'pendiente' && reserva.pago_estado === 'esperando_pago'
   const horasFaltan = (inicioReserva(reserva) - new Date()) / 3600000
   const puedeCancelar = proxima && horasFaltan >= HORAS_MINIMAS_CANCELAR
+
+  // Si espera la confirmación de la sede, la lista se recarga cuando llega.
+  useSeguimientoReserva(reserva, () => onCancelada())
 
   async function cancelar() {
     if (enviando) return

@@ -18,6 +18,11 @@ export function qrGenerico(semilla = 7) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
 }
 
+// Tiempos del pago (migración 0015): el jugador paga y envía el
+// comprobante en 10 minutos; la sede lo confirma en 30.
+export const MINUTOS_PARA_PAGAR = 10
+export const MINUTOS_PARA_CONFIRMAR = 30
+
 // Medios de pago que puede configurar una sede (tabla sede_metodos_pago).
 export const MEDIOS_PAGO = {
   nequi: {

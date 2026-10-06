@@ -3413,20 +3413,62 @@ button:focus-visible,
 .pasarela-cuerpo {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  grid-template-areas: "qr resumen" "qr comprobante";
+  grid-template-areas: "principal resumen" "principal acciones";
   grid-template-rows: auto 1fr;
 }
-.pasarela-qr {
-  grid-area: qr;
+.pasarela-principal {
+  grid-area: principal;
   padding: 24px 26px 28px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   border-right: 1px solid var(--gray-100);
 }
-.pasarela-qr h2 { font-size: 22px; }
+.pasarela-principal h2 { font-size: 22px; }
+.pasarela-paso-etiqueta { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--green-d); }
+.pasarela-subtitulo { font-size: 13px; color: var(--gray-600); margin-top: 4px; line-height: 1.5; }
+.pasarela-campo { display: flex; flex-direction: column; gap: 8px; }
+.pasarela-campo-titulo { font-size: 12.5px; font-weight: 700; color: var(--navy3); }
+.pasarela-resumen h3 { font-size: 17px; }
+.pasarela-volver { background: none; color: var(--navy3); font-size: 13px; padding: 6px; align-self: center; }
+.pasarela-volver:hover { color: var(--navy); text-decoration: underline; }
 .pasarela-resumen { grid-area: resumen; padding: 24px 26px 4px; display: flex; flex-direction: column; gap: 14px; }
-.pasarela-comprobante { grid-area: comprobante; padding: 14px 26px 26px; display: flex; flex-direction: column; gap: 12px; }
+.pasarela-acciones { grid-area: acciones; padding: 14px 26px 26px; display: flex; flex-direction: column; gap: 10px; justify-content: flex-end; }
+
+/* Cuenta regresiva de los 10 minutos para pagar */
+.pasarela-contador {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 22px 16px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  overflow: hidden;
+}
+.pasarela-contador-reloj {
+  font-size: 26px;
+  font-weight: 900;
+  color: #b45309;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.5px;
+  white-space: nowrap;
+}
+.pasarela-contador-texto { font-size: 13px; color: #92400e; line-height: 1.4; }
+.pasarela-contador-barra { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #fde68a; }
+.pasarela-contador-barra span {
+  display: block;
+  height: 100%;
+  background: var(--amber);
+  transform-origin: left;
+  transition: transform 1s linear;
+}
+.pasarela-contador.urgente { background: #fef2f2; border-color: #fecaca; animation: pasarela-latido 1s ease-in-out infinite alternate; }
+.pasarela-contador.urgente .pasarela-contador-reloj { color: #dc2626; }
+.pasarela-contador.urgente .pasarela-contador-texto { color: #b91c1c; }
+.pasarela-contador.urgente .pasarela-contador-barra { background: #fecaca; }
+.pasarela-contador.urgente .pasarela-contador-barra span { background: var(--red); }
+@keyframes pasarela-latido { to { background: #fee2e2; } }
 
 .pasarela-medios {
   display: grid;
@@ -3506,19 +3548,6 @@ button:focus-visible,
 }
 .pasarela-cuenta { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--gray-200); }
 
-.pasarela-resumen-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.pasarela-resumen-cabeza h3 { font-size: 17px; }
-.pasarela-reloj {
-  font-size: 13px;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #fef3c7;
-  color: #b45309;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.pasarela-reloj.urgente { background: #fee2e2; color: #b91c1c; }
 .pasarela-resumen-datos {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -3539,7 +3568,6 @@ button:focus-visible,
 }
 .pasarela-total span { font-size: 15px; font-weight: 700; color: var(--gray-600); }
 .pasarela-total strong { font-size: 28px; color: var(--navy); font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
-.pasarela-apartado { font-size: 12px; color: var(--gray-400); line-height: 1.45; }
 
 .pasarela-adjuntar {
   position: relative;
@@ -3629,7 +3657,29 @@ button:focus-visible,
 .pasarela-final-resumen { width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: left; }
 .pasarela-estado { font-size: 12.5px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: #e0f2fe; color: #0369a1; }
 .pasarela-listo { min-width: 200px; padding: 12px 24px; }
-.pasarela-final-vencida .pasarela-final-icono { background: #fee2e2; color: #b91c1c; }
+.pasarela-final.pendiente .pasarela-final-icono { background: #e0f2fe; color: #0369a1; font-size: 30px; }
+.pasarela-final.rechazada .pasarela-final-icono { background: #fee2e2; color: #b91c1c; }
+.pasarela-final.pendiente .pasarela-estado { background: #fef3c7; color: #92400e; font-size: 14px; padding: 6px 14px; }
+.pasarela-final.confirmada .pasarela-estado { background: #dcfce7; color: var(--green-d); font-size: 14px; padding: 6px 14px; }
+.pasarela-final.rechazada .pasarela-estado { background: #fee2e2; color: #b91c1c; }
+.pasarela-esperando { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--gray-600); }
+.pasarela-punto {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--amber);
+  animation: pasarela-punto 1.2s ease-in-out infinite;
+}
+@keyframes pasarela-punto { 50% { opacity: .25; transform: scale(.7); } }
+@media (prefers-reduced-motion: reduce) {
+  .pasarela-punto, .pasarela-contador.urgente, .pasarela-final-icono { animation: none; }
+}
+
+.pago-cancelado { background: #fef2f2; border-color: #fecaca; }
+.pago-cancelado h4 { color: #b91c1c; }
+.pago-cancelado p { font-size: 13px; color: var(--gray-600); }
+.confirmar-tarjeta.atrasada { border-top-color: var(--red); box-shadow: 0 0 0 2px #fecaca; }
+.pago-tiempos { font-size: 13px; color: var(--gray-700); background: var(--gray-50); border-radius: 10px; padding: 10px 12px; line-height: 1.5; }
 
 @media (max-width: 760px) {
   .pasarela-fondo { padding: 0; }
@@ -3640,12 +3690,17 @@ button:focus-visible,
   /* En móvil: resumen arriba, luego el QR y el comprobante con el botón fijo abajo. */
   .pasarela-cuerpo {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "resumen" "qr" "comprobante";
+    grid-template-areas: "resumen" "principal" "acciones";
     grid-template-rows: none;
   }
   .pasarela-resumen { padding: 18px 16px 4px; }
-  .pasarela-qr { padding: 18px 16px; border-right: none; border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100); }
-  .pasarela-comprobante { padding: 16px 16px 0; }
+  .pasarela-principal { padding: 18px 16px; border-right: none; border-top: 1px solid var(--gray-100); }
+  .pasarela-acciones { padding: 0 16px; }
+  .pasarela-contador { position: sticky; top: 61px; z-index: 2; padding: 10px 16px 14px; gap: 10px; }
+  .pasarela-contador-reloj { font-size: 22px; }
+  .pasarela-contador-texto { font-size: 12px; }
+  .pasarela-paso-texto { display: none; }
+  .pasarela-pasos li.actual .pasarela-paso-texto { display: inline; }
   .pasarela-accion {
     position: sticky;
     bottom: 0;
@@ -3655,8 +3710,9 @@ button:focus-visible,
     box-shadow: 0 -6px 16px rgba(15, 23, 42, .08);
     z-index: 2;
   }
-  .pasarela-comprobante .pago-cancelar,
-  .pasarela-cancelar-confirmar { order: -1; }
+  .pasarela-acciones .pago-cancelar,
+  .pasarela-acciones .pasarela-volver,
+  .pasarela-cancelar-confirmar { order: 2; }
   .pasarela-total strong { font-size: 24px; }
 }
 
@@ -3817,6 +3873,7 @@ button:focus-visible,
 .pago-plazo.urgente,
 .pago-plazo.vencido { background: #fee2e2; color: #b91c1c; }
 .pago-plazo.reportado { background: #e0f2fe; color: #0369a1; }
+.pago-plazo.reportado.urgente { background: #fee2e2; color: #b91c1c; }
 .pago-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
 .pago-acciones .btn-cta-primary,
 .pago-acciones .btn-torneo-cancelar,

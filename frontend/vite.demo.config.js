@@ -4,14 +4,14 @@ import react from '@vitejs/plugin-react'
 
 // Simulación del pago con QR: las mismas pantallas, con datos en memoria.
 //   npx vite --config vite.demo.config.js   →   http://localhost:5174/demo/
-// Toda importación de lib/datos se cambia por demo/datosDemo.js, así que
-// nada llega a Supabase.
+// Toda importación de lib/datos (también './datos' desde src/lib) se
+// cambia por demo/datosDemo.js, así que nada llega a Supabase.
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
       {
-        find: /^(?:\.\.\/)+lib\/datos$/,
+        find: /^(?:(?:\.\.\/)+lib\/|\.\/)datos$/,
         replacement: fileURLToPath(new URL('./demo/datosDemo.js', import.meta.url)),
       },
     ],

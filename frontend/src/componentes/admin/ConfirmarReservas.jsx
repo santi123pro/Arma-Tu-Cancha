@@ -3,7 +3,7 @@ import {
   configurarPagoSede, listarSedes, pagosSede, revisarPago, subirQrSede, urlComprobante,
 } from '../../lib/datos'
 import { formatoNumero, formatoPesos } from '../../lib/formato'
-import { MEDIOS_PAGO, qrGenerico } from '../../lib/qrGenerico'
+import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrGenerico } from '../../lib/qrGenerico'
 import { formatoRestante, useCuentaRegresiva } from '../../lib/useCuentaRegresiva'
 import { useToast } from '../Toast'
 import { Persona } from '../ContactosPartido'
@@ -18,14 +18,6 @@ const METODOS = [
   { valor: 'efectivo', texto: 'Efectivo' },
 ]
 const NOMBRE_METODO = { ...Object.fromEntries(METODOS.map((m) => [m.valor, m.texto])), daviplata: 'Daviplata' }
-const MINUTOS = [
-  { valor: 15, texto: '15 minutos' },
-  { valor: 30, texto: '30 minutos' },
-  { valor: 60, texto: '1 hora' },
-  { valor: 120, texto: '2 horas' },
-  { valor: 360, texto: '6 horas' },
-  { valor: 1440, texto: '24 horas' },
-]
 const MAX_QR = 2 * 1024 * 1024
 
 // '2026-10-03' → 'Sábado 3 de octubre'
@@ -97,7 +89,27 @@ function Plazo({ vence }) {
   if (restante == null) return null
   return restante === 0
     ? <span className="pago-plazo vencido">Plazo vencido</span>
-    : <span className={'pago-plazo' + (restante < 300 ? ' urgente' : '')}>Vence en {formatoRestante(restante)}</span>
+    : <span className={'pago-plazo' + (restante < 180 ? ' urgente' : '')}>El jugador tiene {formatoRestante(restante)}</span>
+}
+
+// Momento límite para que la sede confirme un comprobante.
+const limiteConfirmar = (r) =>
+  new Date(new Date(r.pago_reportado_at).getTime() + MINUTOS_PARA_CONFIRMAR * 60000)
+
+// Cuánto le queda a la sede para confirmar. Pasado el plazo la reserva
+// no se cancela (el jugador ya pagó): se marca como atrasada.
+function PlazoConfirmar({ r }) {
+  const limite = limiteConfirmar(r)
+  const restante = useCuentaRegresiva(limite)
+  if (restante == null) return null
+  if (restante === 0) {
+    return <span className="pago-plazo vencido">⚠️ Atrasada desde {momento(limite)}</span>
+  }
+  return (
+    <span className={'pago-plazo reportado' + (restante < 600 ? ' urgente' : '')}>
+      Confirma en {formatoRestante(restante)}
+    </span>
+  )
 }
 
 // Una reserva con su pago. Las de 'por_verificar' y 'esperando_pago' traen
@@ -110,6 +122,7 @@ function SolicitudPago({ r, sedeNombre, onCambio }) {
   const [enviando, setEnviando] = useState(false)
   const reportado = r.pago_estado === 'por_verificar'
   const pendiente = reportado || r.pago_estado === 'esperando_pago'
+  const atrasada = useCuentaRegresiva(reportado ? limiteConfirmar(r) : null) === 0
 
   async function decidir(aprobar) {
     if (enviando) return
@@ -132,14 +145,14 @@ function SolicitudPago({ r, sedeNombre, onCambio }) {
   }
 
   return (
-    <article className={`confirmar-tarjeta pago-${r.pago_estado}`}>
+    <article className={`confirmar-tarjeta pago-${r.pago_estado}` + (atrasada ? ' atrasada' : '')}>
       <header className="confirmar-tarjeta-cabeza">
         <div>
           <span className="confirmar-codigo">{r.codigo}</span>
           <strong className="confirmar-monto">{formatoPesos(r.precio_total)}</strong>
         </div>
         {reportado ? (
-          <span className="pago-plazo reportado">Enviado {momento(r.pago_reportado_at)}</span>
+          <PlazoConfirmar r={r} />
         ) : r.pago_estado === 'esperando_pago' ? (
           <Plazo vence={r.pago_vence_at} />
         ) : r.pago_estado === 'aprobado' ? (
@@ -173,6 +186,7 @@ function SolicitudPago({ r, sedeNombre, onCambio }) {
                 : <span className="confirmar-tenue">Aún no paga</span>}
             </dd>
             {r.pago_referencia && (<><dt>Referencia</dt><dd>{r.pago_referencia}</dd></>)}
+            {r.pago_reportado_at && (<><dt>Enviado</dt><dd>{momento(r.pago_reportado_at)}</dd></>)}
           </dl>
         </div>
 
@@ -320,7 +334,6 @@ function ConfiguracionPago({ sede, metodos, onGuardado }) {
   }
   const [medios, setMedios] = useState(() => ({ nequi: inicial('nequi'), breb: inicial('breb') }))
   const [instrucciones, setInstrucciones] = useState(sede.pago_instrucciones ?? '')
-  const [minutos, setMinutos] = useState(sede.pago_minutos_limite ?? 30)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
 
@@ -339,7 +352,7 @@ function ConfiguracionPago({ sede, metodos, onGuardado }) {
       return
     }
     setGuardando(true)
-    const { error } = await configurarPagoSede(sede.id, { metodos: lista, instrucciones, minutos })
+    const { error } = await configurarPagoSede(sede.id, { metodos: lista, instrucciones, minutos: MINUTOS_PARA_PAGAR })
     setGuardando(false)
     if (error) {
       setError(error)
@@ -364,12 +377,11 @@ function ConfiguracionPago({ sede, metodos, onGuardado }) {
       </div>
 
       <div className="form-partido pago-config-campos">
-        <label>
-          Tiempo para pagar
-          <select className="input-moderno" value={minutos} onChange={(e) => setMinutos(Number(e.target.value))}>
-            {MINUTOS.map((m) => <option key={m.valor} value={m.valor}>{m.texto}</option>)}
-          </select>
-        </label>
+        <p className="form-partido-completo pago-tiempos">
+          ⏱ El jugador tiene <strong>{MINUTOS_PARA_PAGAR} minutos</strong> para pagar y enviar el comprobante; si no lo
+          hace, la reserva se cancela sola. Tú tienes <strong>{MINUTOS_PARA_CONFIRMAR} minutos</strong> para confirmar
+          cada comprobante.
+        </p>
         <label className="form-partido-completo">
           Instrucciones para el jugador (opcional)
           <textarea
@@ -381,9 +393,6 @@ function ConfiguracionPago({ sede, metodos, onGuardado }) {
             placeholder="Ej.: Escribe el código de la reserva en la descripción del pago."
           />
         </label>
-        <p className="form-partido-completo pago-config-ayuda">
-          Si el jugador no envía el comprobante dentro de ese tiempo, la solicitud vence y el horario se libera solo.
-        </p>
         {error && <p className="form-partido-completo partidos-error" role="alert">{error}</p>}
         <button type="submit" className="btn-cta-primary form-partido-completo" disabled={guardando}>
           {guardando ? 'Guardando…' : 'Guardar medios de pago'}
@@ -424,9 +433,9 @@ export default function ConfirmarReservas({ sedeId = null }) {
     return () => { vigente = false }
   }, [clave, sedeId, sedeActiva])
 
-  // Los comprobantes llegan mientras el panel está abierto: se revisa cada minuto.
+  // Los comprobantes llegan mientras el panel está abierto: se revisa cada 30 segundos.
   useEffect(() => {
-    const reloj = setInterval(() => setRecarga((n) => n + 1), 60000)
+    const reloj = setInterval(() => setRecarga((n) => n + 1), 30000)
     return () => clearInterval(reloj)
   }, [])
 
@@ -482,8 +491,8 @@ const VACIO = {
 }
 
 const AYUDA = {
-  por_verificar: 'El jugador ya pagó y envió el comprobante. Revisa en tu cuenta que el dinero llegó y aprueba: la reserva queda confirmada.',
-  esperando_pago: 'Horarios apartados que aún no envían comprobante. Si no lo envían a tiempo, se liberan solos.',
+  por_verificar: `El jugador ya pagó y cargó el comprobante. Revisa en tu cuenta que el dinero llegó y aprueba: tienes ${MINUTOS_PARA_CONFIRMAR} minutos por reserva. Al aprobar, al jugador le sale "Reserva confirmada".`,
+  esperando_pago: `Reservas recién hechas, aún sin comprobante. El jugador tiene ${MINUTOS_PARA_PAGAR} minutos para pagar; si no, se cancelan solas y el horario se libera.`,
   aprobadas: 'Pagos aprobados y rechazados de los últimos 30 días.',
 }
 

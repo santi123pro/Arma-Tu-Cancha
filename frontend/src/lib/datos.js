@@ -278,6 +278,16 @@ export async function datosPagoSede(sedeId) {
   return { datos: { metodos: metodos.data, instrucciones: sede.data.pago_instrucciones }, error: null }
 }
 
+// Estado actual de una reserva propia, para saber cuándo la sede la confirma.
+export function estadoReserva(id) {
+  return consultar(
+    supabase.from('reservas')
+      .select('id, estado, pago_estado, pago_medio, pago_motivo_rechazo')
+      .eq('id', id)
+      .single()
+  )
+}
+
 // Sube el comprobante a 'comprobantes/<reserva>/<archivo>' y devuelve la ruta.
 export async function subirComprobante(reservaId, archivo) {
   const extension = (archivo.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '')
