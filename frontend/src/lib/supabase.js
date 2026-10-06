@@ -87,6 +87,9 @@ export function traducirError(error) {
   if (error.code && /^P00\d\d$/.test(error.code)) return error.message
 
   // Violación de restricción única o de CHECK.
+  // 23P01: la restricción de exclusión de 0010 (dos reservas que se pisan).
+  if (error.code === '23P01') return ERROR_FRANJA_OCUPADA
+
   if (error.code === '23505' || error.code === '23514') {
     const texto = `${error.message} ${error.details ?? ''}`
     for (const [clave, mensaje] of Object.entries(POR_RESTRICCION)) {

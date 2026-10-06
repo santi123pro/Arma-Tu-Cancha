@@ -3273,3 +3273,654 @@ button:focus-visible,
   text-overflow: ellipsis;
 }
 .contacto-correo-boton { background: #fef3c7; color: #b45309; }
+
+/* ═══════════════════════════════════════════════════════
+   Pago con QR: Nequi y Bre-B
+   (componentes/PasarelaPago.jsx y admin/ConfirmarReservas.jsx)
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --nequi:      #da0081;
+  --nequi-suave:#fdf2f8;
+  --breb:       #0b5cff;
+  --breb-suave: #eff4ff;
+}
+
+.cancha-card-nota-pago { font-size: 11.5px; color: var(--gray-400); line-height: 1.45; text-align: center; }
+
+/* Tarjeta de la cancha mientras el horario está apartado */
+.pago-apartado { background: #fffbeb; border-color: #fde68a; }
+.pago-apartado h4 { color: #b45309; }
+.pago-apartado p { font-size: 13px; color: var(--gray-600); }
+.pago-en-revision { background: #eff6ff; border-color: #bfdbfe; }
+.pago-en-revision h4 { color: #1d4ed8; }
+.pago-en-revision p { font-size: 13px; color: var(--gray-600); }
+
+/* ── Piezas compartidas ── */
+.pago-copiar {
+  padding: 3px 10px;
+  font-size: 11px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-d);
+  border: 1px solid #bbf7d0;
+  white-space: nowrap;
+}
+.pago-copiar:hover { background: #f0fdf4; }
+.pago-cuenta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 14px;
+  font-size: 13.5px;
+  align-items: center;
+}
+.pago-cuenta dt { color: var(--gray-400); font-weight: 600; font-size: 12.5px; }
+.pago-cuenta dd { color: var(--navy); font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.pago-dato-copiable { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.pago-codigo { font-family: ui-monospace, Consolas, monospace; letter-spacing: .5px; }
+.pago-instrucciones { font-size: 12.5px; color: var(--gray-700); background: var(--gray-50); padding: 8px 10px; border-radius: 8px; }
+.pago-error { font-size: 12.5px; color: #dc2626; }
+.pago-cargando { font-size: 12.5px; color: var(--gray-400); }
+.pago-cancelar {
+  background: none;
+  color: var(--gray-600);
+  font-size: 12.5px;
+  text-decoration: underline;
+  padding: 4px;
+  align-self: center;
+}
+.pago-cancelar:hover { color: #dc2626; }
+.pago-archivo { position: relative; cursor: pointer; display: block; }
+.pago-archivo input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.pago-archivo-boton {
+  display: block;
+  padding: 9px 12px;
+  border: 1.5px dashed var(--gray-200);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--gray-600);
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+  white-space: nowrap;
+}
+.pago-archivo:hover .pago-archivo-boton,
+.pago-archivo:focus-within .pago-archivo-boton { border-color: var(--green); color: var(--green-d); }
+
+/* ── Pasarela ── */
+.pasarela-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(15, 23, 42, .62);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px;
+  overflow-y: auto;
+  animation: pasarela-entra .18s ease;
+}
+@keyframes pasarela-entra { from { opacity: 0; } }
+.pasarela {
+  width: 100%;
+  max-width: 980px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  outline: none;
+  overflow: clip;
+}
+.pasarela-cabeza {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.pasarela-cerrar {
+  margin-left: auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.pasarela-cerrar:hover { background: var(--gray-200); color: var(--navy); }
+
+.pasarela-pasos { list-style: none; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; }
+.pasarela-pasos li { display: flex; align-items: center; gap: 7px; color: var(--gray-400); font-weight: 600; }
+.pasarela-pasos li + li::before { content: ""; width: 22px; height: 2px; background: var(--gray-200); border-radius: 2px; margin-right: 2px; }
+.pasarela-paso-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--gray-100);
+  color: var(--gray-400);
+}
+.pasarela-pasos li.hecho { color: var(--green-d); }
+.pasarela-pasos li.hecho .pasarela-paso-num { background: #dcfce7; color: var(--green-d); }
+.pasarela-pasos li.hecho + li::before,
+.pasarela-pasos li.actual::before { background: var(--green); }
+.pasarela-pasos li.actual { color: var(--navy); }
+.pasarela-pasos li.actual .pasarela-paso-num { background: var(--navy); color: #fff; }
+
+.pasarela-cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-areas: "qr resumen" "qr comprobante";
+  grid-template-rows: auto 1fr;
+}
+.pasarela-qr {
+  grid-area: qr;
+  padding: 24px 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-right: 1px solid var(--gray-100);
+}
+.pasarela-qr h2 { font-size: 22px; }
+.pasarela-resumen { grid-area: resumen; padding: 24px 26px 4px; display: flex; flex-direction: column; gap: 14px; }
+.pasarela-comprobante { grid-area: comprobante; padding: 14px 26px 26px; display: flex; flex-direction: column; gap: 12px; }
+
+.pasarela-medios {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: var(--gray-100);
+}
+.pasarela-medio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--gray-600);
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.pasarela-medio:hover { color: var(--navy); }
+.pasarela-medio.activo { background: #fff; color: var(--navy); box-shadow: var(--shadow-sm); }
+.pasarela-medio-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  background: var(--gray-400);
+  flex-shrink: 0;
+}
+.medio-nequi .pasarela-medio-logo { background: var(--nequi); }
+.medio-breb .pasarela-medio-logo { background: var(--breb); }
+
+.pasarela-qr-imagen {
+  margin: 0;
+  position: relative;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 18px 14px;
+  border-radius: 18px;
+  border: 2px solid var(--gray-200);
+  width: min(100%, 300px);
+}
+.pasarela-qr-imagen.medio-nequi { border-color: #fbcfe8; background: var(--nequi-suave); }
+.pasarela-qr-imagen.medio-breb { border-color: #c7d7fe; background: var(--breb-suave); }
+.pasarela-qr-imagen img {
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+}
+.pasarela-qr-imagen figcaption { font-size: 12px; color: var(--gray-600); text-align: center; line-height: 1.45; }
+.pasarela-qr-ejemplo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+}
+.pasarela-cuenta { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--gray-200); }
+
+.pasarela-resumen-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.pasarela-resumen-cabeza h3 { font-size: 17px; }
+.pasarela-reloj {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #b45309;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pasarela-reloj.urgente { background: #fee2e2; color: #b91c1c; }
+.pasarela-resumen-datos {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px 16px;
+  font-size: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--gray-50);
+}
+.pasarela-resumen-datos dt { color: var(--gray-600); }
+.pasarela-resumen-datos dd { color: var(--navy); font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+.pasarela-resumen-datos small { font-weight: 500; color: var(--gray-600); }
+.pasarela-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 4px;
+}
+.pasarela-total span { font-size: 15px; font-weight: 700; color: var(--gray-600); }
+.pasarela-total strong { font-size: 28px; color: var(--navy); font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+.pasarela-apartado { font-size: 12px; color: var(--gray-400); line-height: 1.45; }
+
+.pasarela-adjuntar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 2px dashed var(--gray-200);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.pasarela-adjuntar:hover,
+.pasarela-adjuntar:focus-within { border-color: var(--green); background: #f0fdf4; }
+.pasarela-adjuntar.con-archivo { border-style: solid; border-color: #86efac; background: #f0fdf4; }
+.pasarela-adjuntar input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.pasarela-adjuntar img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; border: 1px solid var(--gray-200); flex-shrink: 0; }
+.pasarela-adjuntar-icono {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: var(--gray-100);
+  flex-shrink: 0;
+}
+.pasarela-adjuntar-texto { display: flex; flex-direction: column; min-width: 0; }
+.pasarela-adjuntar-texto strong { color: var(--navy); font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pasarela-adjuntar-texto small { color: var(--gray-400); font-size: 12px; }
+.pasarela-referencia { display: flex; flex-direction: column; font-size: 12.5px; font-weight: 600; color: var(--navy3); }
+.pasarela-referencia small { font-weight: 500; color: var(--gray-400); }
+.pasarela-accion .btn-cta-primary { width: 100%; padding: 14px; font-size: 15.5px; border-radius: 12px; }
+.pasarela-cancelar-confirmar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--gray-600);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fef2f2;
+}
+.pasarela-cancelar-confirmar span { flex: 1 1 200px; }
+.pasarela-cancelar-confirmar .btn-peligro { padding: 6px 12px; font-size: 12.5px; }
+
+/* Frame final: "¡Reserva realizada!" o vencida */
+.pasarela-final {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 40px 24px 36px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.pasarela-final-icono {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  font-weight: 900;
+  background: #dcfce7;
+  color: var(--green-d);
+  animation: pasarela-check .35s ease;
+}
+@keyframes pasarela-check { from { transform: scale(.6); opacity: 0; } }
+.pasarela-final h2 { font-size: 26px; }
+.pasarela-final > p { font-size: 14px; color: var(--gray-600); line-height: 1.55; }
+.pasarela-final-codigo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 26px;
+  border-radius: 14px;
+  border: 2px dashed #86efac;
+  background: #f0fdf4;
+}
+.pasarela-final-codigo small { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--gray-600); }
+.pasarela-final-codigo strong { font-family: ui-monospace, Consolas, monospace; font-size: 22px; letter-spacing: 1px; color: var(--navy); }
+.pasarela-final-resumen { width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.pasarela-estado { font-size: 12.5px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: #e0f2fe; color: #0369a1; }
+.pasarela-listo { min-width: 200px; padding: 12px 24px; }
+.pasarela-final-vencida .pasarela-final-icono { background: #fee2e2; color: #b91c1c; }
+
+@media (max-width: 760px) {
+  .pasarela-fondo { padding: 0; }
+  .pasarela { border-radius: 0; min-height: 100%; }
+  .pasarela-cabeza { position: sticky; top: 0; z-index: 2; background: #fff; padding: 12px 16px; }
+  .pasarela-pasos { font-size: 12px; gap: 4px; }
+  .pasarela-pasos li + li::before { width: 12px; }
+  /* En móvil: resumen arriba, luego el QR y el comprobante con el botón fijo abajo. */
+  .pasarela-cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "resumen" "qr" "comprobante";
+    grid-template-rows: none;
+  }
+  .pasarela-resumen { padding: 18px 16px 4px; }
+  .pasarela-qr { padding: 18px 16px; border-right: none; border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100); }
+  .pasarela-comprobante { padding: 16px 16px 0; }
+  .pasarela-accion {
+    position: sticky;
+    bottom: 0;
+    margin: 0 -16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: #fff;
+    box-shadow: 0 -6px 16px rgba(15, 23, 42, .08);
+    z-index: 2;
+  }
+  .pasarela-comprobante .pago-cancelar,
+  .pasarela-cancelar-confirmar { order: -1; }
+  .pasarela-total strong { font-size: 24px; }
+}
+
+/* ── Mis reservas ── */
+.reserva-nota-pago {
+  font-size: 12.5px !important;
+  color: var(--gray-600) !important;
+  background: var(--gray-50);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.reserva-pago-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+.reserva-pago-aviso p { font-size: 12.5px !important; color: var(--gray-700) !important; }
+
+/* ── Panel "Confirmar reservas" del administrador ── */
+.pago-actualizar { padding: 7px 14px; font-size: 13px; align-self: center; margin-left: auto; }
+.pago-alerta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 13.5px;
+}
+.confirmar-pestanas {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 22px 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.confirmar-pestanas button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-600);
+  font-size: 13.5px;
+}
+.confirmar-pestanas button:hover { color: var(--navy); border-color: var(--gray-400); }
+.confirmar-pestanas button.activo { background: var(--navy); border-color: var(--navy); color: #fff; }
+.confirmar-pestanas button.activo .admin-contador { background: rgba(255, 255, 255, .18); color: #fff; }
+.confirmar-pestanas .confirmar-pestana-config { margin-left: auto; }
+.confirmar-ayuda { font-size: 13px; color: var(--gray-600); margin-bottom: 14px; }
+.confirmar-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+  gap: 14px;
+}
+.confirmar-tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  border-top: 4px solid var(--gray-200);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+.confirmar-tarjeta.pago-por_verificar { border-top-color: var(--sky); }
+.confirmar-tarjeta.pago-esperando_pago { border-top-color: var(--amber); }
+.confirmar-tarjeta.pago-aprobado { border-top-color: var(--green); }
+.confirmar-tarjeta.pago-rechazado { border-top-color: var(--red); opacity: .85; }
+.confirmar-tarjeta-cabeza { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.confirmar-tarjeta-cabeza > div { display: flex; flex-direction: column; }
+.confirmar-codigo { font-size: 12px; color: var(--gray-400); font-family: ui-monospace, Consolas, monospace; }
+.confirmar-monto { font-size: 22px; color: var(--navy); font-variant-numeric: tabular-nums; }
+.confirmar-tarjeta-cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 16px;
+  align-items: start;
+}
+.confirmar-jugador { grid-column: 1 / -1; }
+.confirmar-bloque { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.confirmar-etiqueta { font-size: 10.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--gray-400); }
+.confirmar-datos { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; font-size: 12.5px; }
+.confirmar-datos dt { color: var(--gray-400); }
+.confirmar-datos dd { color: var(--navy); font-weight: 600; overflow-wrap: anywhere; }
+.confirmar-tenue { color: var(--gray-400); font-weight: 500; }
+.confirmar-comprobante {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  width: 112px;
+}
+.confirmar-comprobante:hover { border-color: var(--sky); background: #f0f9ff; }
+.confirmar-comprobante img { width: 100px; height: 120px; object-fit: cover; border-radius: 8px; background: #fff; }
+.confirmar-comprobante small { font-size: 11px; color: #0369a1; }
+.confirmar-comprobante-pdf {
+  width: 100px;
+  height: 120px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  color: var(--gray-600);
+}
+.confirmar-sin-comprobante {
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  color: var(--gray-600);
+  background: #fffbeb;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.confirmar-motivo { font-size: 12.5px; color: #b91c1c; background: #fef2f2; border-radius: 10px; padding: 8px 10px; }
+.confirmar-rechazadas { margin-top: 22px; }
+.confirmar-rechazadas summary { cursor: pointer; font-size: 13.5px; font-weight: 700; color: var(--gray-600); margin-bottom: 12px; }
+.confirmar-tarjeta .contactos-lista { margin: 0; }
+
+.medio-chip {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+.medio-chip.medio-nequi { background: var(--nequi-suave); color: var(--nequi); }
+.medio-chip.medio-breb { background: var(--breb-suave); color: var(--breb); }
+
+.pago-plazo {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #b45309;
+  white-space: nowrap;
+}
+.pago-plazo.urgente,
+.pago-plazo.vencido { background: #fee2e2; color: #b91c1c; }
+.pago-plazo.reportado { background: #e0f2fe; color: #0369a1; }
+.pago-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
+.pago-acciones .btn-cta-primary,
+.pago-acciones .btn-torneo-cancelar,
+.pago-acciones .btn-peligro { padding: 9px 16px; font-size: 13px; border-radius: 10px; }
+.pago-acciones .btn-cta-primary { flex: 0 1 200px; }
+.pago-metodo { width: auto; margin: 0 auto 0 0; padding: 8px 10px; font-size: 13px; }
+.pago-rechazo { display: flex; flex-direction: column; gap: 8px; }
+.pago-rechazo label { display: flex; flex-direction: column; font-size: 12px; font-weight: 600; color: var(--navy3); }
+
+/* Configuración de los medios de pago */
+.pago-config-medios { display: flex; flex-direction: column; gap: 20px; }
+.medios-config-rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.medio-config {
+  border: 1px solid var(--gray-200);
+  border-top: 4px solid var(--gray-200);
+  border-radius: 16px;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  transition: opacity var(--transition);
+}
+.medio-config.medio-nequi { border-top-color: var(--nequi); }
+.medio-config.medio-breb { border-top-color: var(--breb); }
+.medio-config.inactivo { opacity: .6; }
+.medio-config legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  float: left;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.medio-config legend + * { clear: both; }
+.medio-config > label { display: flex; flex-direction: column; font-size: 12px; font-weight: 600; color: var(--navy3); }
+.medio-config > label small { font-weight: 500; color: var(--gray-400); }
+.medio-config-qr { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.medio-config-qr-imagen { position: relative; flex-shrink: 0; }
+.medio-config-qr-imagen img {
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  padding: 6px;
+  display: block;
+}
+.medio-config-qr-imagen .pasarela-qr-ejemplo { top: auto; bottom: -8px; right: 50%; transform: translateX(50%); white-space: nowrap; }
+.medio-config-qr-botones { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.pago-quitar-qr { background: none; color: var(--gray-400); font-size: 12px; text-decoration: underline; }
+
+.interruptor {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+}
+.interruptor input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.interruptor span {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--gray-200);
+  transition: background var(--transition);
+}
+.interruptor span::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+  transition: transform var(--transition);
+}
+.interruptor input:checked + span { background: var(--green); }
+.interruptor input:checked + span::after { transform: translateX(16px); }
+.interruptor input:focus-visible + span { box-shadow: 0 0 0 3px rgba(34, 197, 94, .3); }
+.pago-config-ayuda { font-size: 12px; color: var(--gray-400); }
+
+@media (max-width: 720px) {
+  .confirmar-tarjeta-cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .confirmar-comprobante { flex-direction: row; width: 100%; justify-content: flex-start; gap: 12px; }
+  .confirmar-comprobante img,
+  .confirmar-comprobante-pdf { width: 64px; height: 76px; }
+  .confirmar-pestanas { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .confirmar-pestanas button { white-space: nowrap; flex-shrink: 0; }
+  .confirmar-pestanas .confirmar-pestana-config { margin-left: 0; }
+  .pago-acciones .btn-cta-primary { flex: 1 1 100%; order: -1; }
+}
+
+/* Dentro de las tarjetas de "Mis reservas" los botones se estiran a todo el
+   ancho (.tarjeta-cancha button); los pequeños del pago no. */
+.pagina-partidos .tarjeta-cancha .pago-copiar,
+.tarjeta-cancha .pago-copiar { width: auto; margin: 0; padding: 3px 10px; font-size: 11px; border-radius: 999px; }

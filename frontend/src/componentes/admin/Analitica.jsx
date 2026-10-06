@@ -15,11 +15,11 @@ const ESTADOS_TORNEO = {
   finalizado: 'Finalizado', cancelado: 'Cancelado',
 }
 const ESTADOS_RESERVA = {
-  completada: 'Jugadas', confirmada: 'Confirmadas', pendiente: 'Pendientes',
+  completada: 'Jugadas', confirmada: 'Confirmadas', pendiente: 'Pendientes de pago',
   cancelada: 'Canceladas', no_asistio: 'No asistieron',
 }
 const METODOS_PAGO = {
-  efectivo: 'Efectivo', nequi: 'Nequi', daviplata: 'Daviplata',
+  efectivo: 'Efectivo', nequi: 'Nequi', breb: 'Bre-B', daviplata: 'Daviplata',
   transferencia: 'Transferencia', sin_registrar: 'Sin registrar',
 }
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']

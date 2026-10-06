@@ -3,16 +3,18 @@ import Analitica from '../componentes/admin/Analitica'
 import Usuarios from '../componentes/admin/Usuarios'
 import Contenido from '../componentes/admin/Contenido'
 import Solicitudes from '../componentes/admin/Solicitudes'
+import ConfirmarReservas from '../componentes/admin/ConfirmarReservas'
 
 // soloSede: pestañas que también ve el admin de sede.
 const PESTANAS = [
   { id: 'analitica', icono: '📊', texto: 'Analítica', Componente: Analitica, soloSede: true },
+  { id: 'confirmar', icono: '✅', texto: 'Confirmar reservas', Componente: ConfirmarReservas, soloSede: true },
   { id: 'usuarios', icono: '👥', texto: 'Usuarios', Componente: Usuarios },
   { id: 'contenido', icono: '🏆', texto: 'Partidos y torneos', Componente: Contenido },
   { id: 'solicitudes', icono: '🤝', texto: 'Solicitudes', Componente: Solicitudes },
 ]
 
-// Sin sedeId: superadmin, ve todo. Con sedeId: admin de sede, solo su analítica.
+// Sin sedeId: superadmin, ve todo. Con sedeId: admin de sede, solo su analítica y la confirmación de sus reservas.
 export default function PanelAdmin({ nombre, sedeId = null, onVolver }) {
   const [pestana, setPestana] = useState('analitica')
   const pestanas = sedeId ? PESTANAS.filter((p) => p.soloSede) : PESTANAS

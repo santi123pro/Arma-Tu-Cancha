@@ -249,7 +249,7 @@ function Contenido() {
                   className={'btn-panel-admin' + (vista === 'admin' ? ' activo' : '')}
                   onClick={() => irA('admin')}
                 >
-                  📊 {esSuperadmin ? 'Panel de administración' : 'Métricas de mi sede'}
+                  📊 {esSuperadmin ? 'Panel de administración' : 'Panel de mi sede'}
                 </button>
               )}
               <button onClick={salir} className="btn-logout" style={{ marginLeft: 12 }}>

@@ -227,14 +227,20 @@ export async function misReservasEnSede(sedeId = null) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { datos: null, error: 'Inicia sesión para ver tus reservas.' }
 
-  let q = supabase
-    .from('reservas')
-    .select('id, codigo, fecha, hora_inicio, hora_fin, precio_total, estado, canchas!inner ( nombre, tipo, sede_id, sedes ( nombre ) )')
-    .eq('usuario_id', user.id)
-  if (sedeId) q = q.eq('canchas.sede_id', sedeId)
-  return consultar(
-    q.order('fecha', { ascending: false }).order('hora_inicio', { ascending: false })
-  )
+  const base = 'id, codigo, fecha, hora_inicio, hora_fin, precio_total, estado, canchas!inner ( nombre, tipo, sede_id, sedes ( nombre ) )'
+  const conPago = base + ', pago_estado, pago_medio, pago_vence_at, pago_referencia, pago_motivo_rechazo'
+
+  function pedir(columnas) {
+    let q = supabase.from('reservas').select(columnas).eq('usuario_id', user.id)
+    if (sedeId) q = q.eq('canchas.sede_id', sedeId)
+    return q.order('fecha', { ascending: false }).order('hora_inicio', { ascending: false })
+  }
+
+  // 42703 = la columna no existe: la migración 0014 todavía no se corrió.
+  // Se muestran las reservas igual, sin el seguimiento del pago.
+  const primero = await pedir(conPago)
+  if (primero.error?.code === '42703') return consultar(pedir(base))
+  return { datos: primero.data, error: traducirError(primero.error) }
 }
 
 export function buscarPorCodigo(codigo) {
@@ -249,6 +255,99 @@ export function buscarPorCodigo(codigo) {
 
 export function cancelarReserva(id) {
   return consultar(supabase.rpc('cancelar_reserva', { p_reserva_id: id }))
+}
+
+// =====================================================================
+// PAGO CON QR: NEQUI O BRE-B   (migración 0014)
+// =====================================================================
+// Flujo: crear_reserva deja la reserva pendiente → el jugador paga con el
+// QR y envía el comprobante → la sede lo aprueba o lo rechaza.
+
+// Medios activos de una sede y sus instrucciones, para la pasarela.
+// → { datos: { metodos: [{ tipo, qr_url, titular, cuenta }], instrucciones } }
+export async function datosPagoSede(sedeId) {
+  const [metodos, sede] = await Promise.all([
+    supabase.from('sede_metodos_pago')
+      .select('tipo, qr_url, titular, cuenta')
+      .eq('sede_id', sedeId).eq('activo', true)
+      .order('tipo', { ascending: false }),
+    supabase.from('sedes').select('pago_instrucciones').eq('id', sedeId).single(),
+  ])
+  const error = metodos.error ?? sede.error
+  if (error) return { datos: null, error: traducirError(error) }
+  return { datos: { metodos: metodos.data, instrucciones: sede.data.pago_instrucciones }, error: null }
+}
+
+// Sube el comprobante a 'comprobantes/<reserva>/<archivo>' y devuelve la ruta.
+export async function subirComprobante(reservaId, archivo) {
+  const extension = (archivo.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '')
+  const ruta = `${reservaId}/${Date.now()}.${extension}`
+  const { error } = await supabase.storage
+    .from('comprobantes')
+    .upload(ruta, archivo, { contentType: archivo.type, upsert: false })
+  if (error) return { datos: null, error: 'No se pudo subir el comprobante. Intenta con una imagen más liviana.' }
+  return { datos: ruta, error: null }
+}
+
+// medio: 'nequi' | 'breb'. La referencia es opcional.
+export function reportarPago(reservaId, { medio, comprobante, referencia = null }) {
+  return consultar(
+    supabase.rpc('reportar_pago', {
+      p_reserva_id: reservaId,
+      p_medio: medio,
+      p_comprobante: comprobante,
+      p_referencia: referencia || null,
+    })
+  )
+}
+
+// Enlace temporal (10 minutos) para ver un comprobante privado.
+export async function urlComprobante(ruta) {
+  const { data, error } = await supabase.storage.from('comprobantes').createSignedUrl(ruta, 600)
+  if (error) return { datos: null, error: 'No se pudo abrir el comprobante.' }
+  return { datos: data.signedUrl, error: null }
+}
+
+// Panel "Confirmar reservas": al admin de sede el servidor le fija la suya.
+export function pagosSede(sedeId = null) {
+  return consultar(supabase.rpc('pagos_sede', { p_sede_id: sedeId }))
+}
+
+// Sin metodo, queda registrado el medio con que pagó el jugador.
+export function revisarPago(reservaId, aprobar, { metodo = null, motivo = null } = {}) {
+  return consultar(
+    supabase.rpc('revisar_pago', {
+      p_reserva_id: reservaId,
+      p_aprobar: aprobar,
+      p_metodo_pago: metodo,
+      p_motivo: motivo,
+    })
+  )
+}
+
+// metodos: [{ tipo: 'nequi' | 'breb', activo, qr_url, titular, cuenta }]
+export function configurarPagoSede(sedeId, { metodos, instrucciones, minutos }) {
+  return consultar(
+    supabase.rpc('configurar_pago_sede', {
+      p_sede_id: sedeId,
+      p_metodos: metodos,
+      p_instrucciones: instrucciones || null,
+      p_minutos: Number(minutos),
+    })
+  )
+}
+
+// Sube el QR a 'qr-sedes/<sede>/<archivo>' (público) y devuelve su URL.
+// Cada subida usa un nombre nuevo para que el navegador no muestre el
+// QR viejo desde la caché.
+export async function subirQrSede(sedeId, archivo) {
+  const extension = (archivo.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '')
+  const ruta = `${sedeId}/qr-${Date.now()}.${extension}`
+  const { error } = await supabase.storage
+    .from('qr-sedes')
+    .upload(ruta, archivo, { contentType: archivo.type, upsert: false })
+  if (error) return { datos: null, error: 'No se pudo subir el código QR. Usa una imagen PNG, JPG o WEBP de menos de 2 MB.' }
+  return { datos: supabase.storage.from('qr-sedes').getPublicUrl(ruta).data.publicUrl, error: null }
 }
 
 export function cambiarEstadoReserva(id, estado, metodoPago) {

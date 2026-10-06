@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulación de pagos — Arma Tu Cancha</title>
+    <style>
+      .demo-pagina { max-width: 1400px; margin: 0 auto; padding: 28px 20px 60px; }
+      .demo-cabecera { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+      .demo-cabecera h1 { font-size: 28px; color: var(--navy); margin: 10px 0 6px; }
+      .demo-cabecera p { color: var(--gray-600); max-width: 720px; line-height: 1.5; font-size: 14px; }
+      .demo-cabecera .hero-badge { background: #fef3c7; color: #b45309; }
+      .demo-botones { display: flex; gap: 8px; flex-wrap: wrap; }
+      .demo-botones button { padding: 9px 14px; font-size: 13px; }
+      .demo-pasos { margin: 18px 0 24px; padding: 14px 18px 14px 36px; background: #fff; border: 1px solid var(--gray-200);
+        border-radius: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px 24px;
+        font-size: 13px; color: var(--gray-700); line-height: 1.45; }
+      .demo-columnas { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px; align-items: start; }
+      .demo-columna { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+      .demo-titulo { font-size: 15px; text-transform: uppercase; letter-spacing: .6px; color: var(--navy3); }
+      .demo-canchas { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+      .demo-mis-reservas.pagina-partidos .seccion-partidos { display: block; padding: 0; max-width: none; }
+      .demo-mis-reservas .partidos-bloque { position: static; margin-bottom: 18px; }
+      .demo-admin { background: var(--gray-100); border-radius: 18px; padding: 18px; }
+      @media (max-width: 1100px) { .demo-columnas { grid-template-columns: minmax(0, 1fr); } }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.jsx"></script>
+  </body>
+</html>

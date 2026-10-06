@@ -6,6 +6,8 @@ import { useToast } from './Toast'
 import ImagenSede from './ImagenSede'
 import { fotoCancha } from '../lib/imagenes'
 import Cargando from './Cargando'
+import PasarelaPago from './PasarelaPago'
+import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
 
 // crear_reserva acepta fechas entre hoy y hoy + 15 días. El selector
 // usa el mismo rango para no ofrecer días que el backend va a rechazar.
@@ -29,6 +31,23 @@ const pesos = new Intl.NumberFormat('es-CO', {
   style: 'currency', currency: 'COP', maximumFractionDigits: 0,
 })
 
+// La tarjeta mientras el horario está apartado y la pasarela está cerrada.
+function HorarioApartado({ reserva, onPagar }) {
+  const restante = useCuentaRegresiva(reserva.pago_vence_at)
+  return (
+    <div className="cancha-card-comprobante pago-apartado" role="status">
+      <h4>⏳ Horario apartado</h4>
+      <p>
+        {fechaCorta(reserva.fecha)} · {hora12(reserva.hora_inicio)} – {hora12(reserva.hora_fin)}
+        {restante ? <> · te quedan <strong>{formatoRestante(restante)}</strong> para pagar</> : null}
+      </p>
+      <button type="button" className="btn-cta-primary" onClick={onPagar}>
+        Continuar con el pago
+      </button>
+    </div>
+  )
+}
+
 export default function CanchaCard({ cancha, sede }) {
   const toast = useToast()
   const hoy = fechaLocal()
@@ -42,6 +61,7 @@ export default function CanchaCard({ cancha, sede }) {
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
   const [comprobante, setComprobante] = useState(null)
+  const [pasarela, setPasarela] = useState(false)
   // Subirlo fuerza a consultar otra vez la misma fecha (tras un choque).
   const [recarga, setRecarga] = useState(0)
 
@@ -91,10 +111,13 @@ export default function CanchaCard({ cancha, sede }) {
     }
 
     setComprobante(datos)
-    toast('¡Reserva realizada!')
+    // Quien administra la sede reserva sin pasar por el pago.
+    if (datos.pago_estado === 'esperando_pago') setPasarela(true)
+    else toast('¡Reserva confirmada!')
   }
 
   function otraReserva() {
+    setPasarela(false)
     setComprobante(null)
     setRecarga((n) => n + 1)
   }
@@ -114,9 +137,40 @@ export default function CanchaCard({ cancha, sede }) {
         <p><strong>Tipo:</strong> {cancha.tipo}</p>
         <p><strong>Tarifa:</strong> {pesos.format(cancha.precio_hora)} / hora</p>
 
-        {comprobante ? (
+        {pasarela && comprobante && (
+          <PasarelaPago
+            reserva={comprobante}
+            cancha={cancha}
+            sede={sede}
+            onEnviado={setComprobante}
+            onCancelada={otraReserva}
+            onCerrar={() => setPasarela(false)}
+          />
+        )}
+
+        {comprobante?.pago_estado === 'esperando_pago' ? (
+          <HorarioApartado reserva={comprobante} onPagar={() => setPasarela(true)} />
+        ) : comprobante?.pago_estado === 'por_verificar' ? (
+          <div className="cancha-card-comprobante pago-en-revision" role="status">
+            <h4>⏳ Pago en verificación</h4>
+            <p>
+              La sede revisará tu transferencia y confirmará la reserva. Puedes seguir el estado en
+              <strong> Mis reservas</strong>.
+            </p>
+            <dl>
+              <dt>Fecha</dt><dd>{fechaCorta(comprobante.fecha)}</dd>
+              <dt>Horario</dt>
+              <dd>{hora12(comprobante.hora_inicio)} – {hora12(comprobante.hora_fin)}</dd>
+              <dt>Código de reserva</dt>
+              <dd className="cancha-card-codigo">{comprobante.codigo}</dd>
+            </dl>
+            <button type="button" className="btn-cta-primary" onClick={otraReserva}>
+              Hacer otra reserva
+            </button>
+          </div>
+        ) : comprobante ? (
           <div className="cancha-card-comprobante" role="status">
-            <h4>¡Reserva realizada!</h4>
+            <h4>¡Reserva confirmada!</h4>
             <dl>
               <dt>Cancha</dt><dd>{cancha.nombre}</dd>
               <dt>Fecha</dt><dd>{fechaCorta(comprobante.fecha)}</dd>
@@ -195,11 +249,14 @@ export default function CanchaCard({ cancha, sede }) {
                 onClick={reservar}
               >
                 {enviando
-                  ? 'Reservando…'
+                  ? 'Apartando horario…'
                   : franja
                     ? `Reservar ${hora12(franja.hora_inicio)}`
                     : 'Reservar'}
               </button>
+              <p className="cancha-card-nota-pago">
+                💳 Pagas con QR de Nequi o Bre-B. La reserva queda confirmada cuando la sede verifica el pago.
+              </p>
             </div>
           </>
         )}

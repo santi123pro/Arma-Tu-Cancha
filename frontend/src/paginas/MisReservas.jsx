@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { cancelarReserva, misReservasEnSede } from '../lib/datos'
 import { useToast } from '../componentes/Toast'
 import Cargando from '../componentes/Cargando'
+import PasarelaPago from '../componentes/PasarelaPago'
+import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
 
 // Los valores son los que acepta el CHECK reservas_estado_valido.
 const ESTADOS = {
@@ -38,8 +40,74 @@ function hora12(hora) {
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`
 }
 
+// Solicitud sin pagar cuyo plazo ya pasó (aunque el servidor todavía
+// no la haya marcado como vencida).
+function solicitudVencida(r) {
+  return r.estado === 'pendiente' && r.pago_estado === 'esperando_pago' &&
+    r.pago_vence_at && new Date(r.pago_vence_at) <= new Date()
+}
+
 function esProxima(r) {
-  return (r.estado === 'confirmada' || r.estado === 'pendiente') && inicioReserva(r) > new Date()
+  return (r.estado === 'confirmada' || r.estado === 'pendiente') &&
+    inicioReserva(r) > new Date() && !solicitudVencida(r)
+}
+
+// Estado que ve el jugador, contando el pago (migración 0014).
+function estadoVisible(r) {
+  if (solicitudVencida(r) || r.pago_estado === 'vencido') {
+    return { texto: 'Vencida', clase: 'estado-fin', nota: 'No se envió el comprobante a tiempo y el horario se liberó.' }
+  }
+  if (r.estado === 'pendiente' && r.pago_estado === 'esperando_pago') {
+    return { texto: 'Pago pendiente', clase: 'estado-cerrado' }
+  }
+  if (r.estado === 'pendiente' && r.pago_estado === 'por_verificar') {
+    return {
+      texto: 'Pago en verificación', clase: 'estado-curso',
+      nota: 'Recibimos tu comprobante. La sede está verificando el pago para confirmar la reserva.',
+    }
+  }
+  if (r.estado === 'cancelada' && r.pago_estado === 'rechazado') {
+    return {
+      texto: 'Pago rechazado', clase: 'estado-fin',
+      nota: r.pago_motivo_rechazo ? `Motivo: ${r.pago_motivo_rechazo}` : 'La sede no pudo verificar el pago.',
+    }
+  }
+  return ESTADOS[r.estado] ?? { texto: r.estado, clase: 'estado-fin' }
+}
+
+function AvisoPagoPendiente({ reserva, onCambio }) {
+  const [abierto, setAbierto] = useState(false)
+  // La pasarela muestra "¡Reserva realizada!" con la reserva ya enviada;
+  // la lista se recarga al cerrarla para no desmontarla antes de tiempo.
+  const [enviada, setEnviada] = useState(null)
+  const restante = useCuentaRegresiva(reserva.pago_vence_at)
+
+  function cerrar() {
+    setAbierto(false)
+    if (enviada) onCambio()
+  }
+
+  return (
+    <div className="reserva-pago-aviso">
+      <p>
+        ⏳ Tu horario está apartado{restante != null && <> por <strong>{formatoRestante(restante)}</strong> más</>}.
+        Paga con QR y envía el comprobante para confirmarla.
+      </p>
+      <button type="button" className="btn-cta-primary" onClick={() => setAbierto(true)}>
+        Pagar ahora
+      </button>
+      {abierto && (
+        <PasarelaPago
+          reserva={enviada ?? reserva}
+          cancha={reserva.canchas ?? { nombre: 'Cancha' }}
+          sede={{ id: reserva.canchas?.sede_id, nombre: reserva.canchas?.sedes?.nombre ?? 'la sede' }}
+          onEnviado={setEnviada}
+          onCancelada={() => { setAbierto(false); onCambio() }}
+          onCerrar={cerrar}
+        />
+      )}
+    </div>
+  )
 }
 
 function TarjetaReserva({ reserva, conSede, onCancelada }) {
@@ -47,8 +115,9 @@ function TarjetaReserva({ reserva, conSede, onCancelada }) {
   const [confirmando, setConfirmando] = useState(false)
   const [enviando, setEnviando] = useState(false)
 
-  const estado = ESTADOS[reserva.estado] ?? { texto: reserva.estado, clase: 'estado-fin' }
+  const estado = estadoVisible(reserva)
   const proxima = esProxima(reserva)
+  const esperandoPago = proxima && reserva.estado === 'pendiente' && reserva.pago_estado === 'esperando_pago'
   const horasFaltan = (inicioReserva(reserva) - new Date()) / 3600000
   const puedeCancelar = proxima && horasFaltan >= HORAS_MINIMAS_CANCELAR
 
@@ -90,7 +159,11 @@ function TarjetaReserva({ reserva, conSede, onCancelada }) {
         Código de reserva: <strong>{reserva.codigo}</strong>
       </p>
 
-      {!proxima ? null : !puedeCancelar ? (
+      {estado.nota && <p className="reserva-nota-pago">{estado.nota}</p>}
+
+      {esperandoPago ? (
+        <AvisoPagoPendiente reserva={reserva} onCambio={onCancelada} />
+      ) : !proxima ? null : !puedeCancelar ? (
         <p className="torneo-nota">
           Faltan menos de 24 horas. Para cancelar, comunícate con la sede.
         </p>
@@ -170,7 +243,7 @@ export default function MisReservas({ sedeId = null, sedeNombre }) {
             <h2 className="landing-title">Próximas reservas</h2>
           </div>
           <p className="landing-desc-side">
-            Puedes cancelar sin costo hasta 24 horas antes del partido.
+            Puedes cancelar sin costo hasta 24 horas antes del partido. Las solicitudes que aún no has pagado se pueden cancelar en cualquier momento.
           </p>
         </div>
         {lista(proximas, sedeId
