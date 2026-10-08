@@ -176,6 +176,13 @@ function Contenido() {
     setSedePendiente(null)
   }
 
+  // Desde la bienvenida: a la sede que había tocado antes de registrarse,
+  // o a la lista de sedes.
+  function continuarTrasRegistro() {
+    irA(sedePendiente ?? 'marketplace')
+    setSedePendiente(null)
+  }
+
   function claveCambiada() {
     terminarRecuperacion()
     irA('marketplace')
@@ -306,7 +313,7 @@ function Contenido() {
             <Gracias
               lista
               nombre={nombreRegistro || perfil?.nombre}
-              onContinuar={alAutenticarse}
+              onContinuar={continuarTrasRegistro}
             />
           )}
 

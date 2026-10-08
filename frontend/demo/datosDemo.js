@@ -39,7 +39,7 @@ const SEDE_INICIAL = {
   pago_minutos_limite: 10,
 }
 
-// Sin qr_url: la pasarela muestra el QR de ejemplo.
+// Sin qr_url: la pasarela muestra el QR general (public/pagos/).
 const METODOS_INICIALES = [
   { tipo: 'nequi', activo: true, qr_url: null, titular: 'Wembley Norte SAS', cuenta: '300 111 2233' },
   { tipo: 'breb', activo: true, qr_url: null, titular: 'Wembley Norte SAS', cuenta: '@wembleynorte' },

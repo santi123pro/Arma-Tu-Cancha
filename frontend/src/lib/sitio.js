@@ -36,3 +36,12 @@ export const GOATCOUNTER_CODIGO = ''
 // Vacío = no se envía correo; las solicitudes igual quedan guardadas en
 // Supabase y se ven en el panel (pestaña "Solicitudes").
 export const CORREO_SOLICITUDES = ''
+
+// Datos de pago generales. La pasarela los usa cuando la sede no ha
+// llenado los suyos en el panel (Medios de pago). El QR va aparte, en
+// frontend/public/pagos/ (ver lib/qrGenerico.js).
+export const PAGOS_POR_DEFECTO = {
+  nequi: { cuenta: '316 252 8100', titular: 'Arma Tu Cancha' },
+  // EJEMPLO: cambia esta llave por la real.
+  breb: { cuenta: '@armatucancha', titular: 'Arma Tu Cancha' },
+}

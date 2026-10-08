@@ -3,7 +3,7 @@ import {
   configurarPagoSede, listarSedes, pagosSede, revisarPago, subirQrSede, urlComprobante,
 } from '../../lib/datos'
 import { formatoNumero, formatoPesos } from '../../lib/formato'
-import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrGenerico } from '../../lib/qrGenerico'
+import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrPorDefecto } from '../../lib/qrGenerico'
 import { formatoRestante, useCuentaRegresiva } from '../../lib/useCuentaRegresiva'
 import { useToast } from '../Toast'
 import { Persona } from '../ContactosPartido'
@@ -296,8 +296,13 @@ function MedioConfig({ sedeId, medio, valor, onCambio }) {
 
       <div className="medio-config-qr">
         <span className="medio-config-qr-imagen">
-          <img src={valor.qr_url || qrGenerico(info.semilla)} alt={`QR de ${info.nombre}`} />
-          {!valor.qr_url && <span className="pasarela-qr-ejemplo">QR de ejemplo</span>}
+          <img
+            key={valor.qr_url || 'general'}
+            src={valor.qr_url || qrPorDefecto(medio)}
+            alt={`QR de ${info.nombre}`}
+            onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+          />
+          {!valor.qr_url && <span className="pasarela-qr-ejemplo">QR general</span>}
         </span>
         <div className="medio-config-qr-botones">
           <label className="pago-archivo">
@@ -518,7 +523,7 @@ function Contenido({ datos, onCambio }) {
           <strong>⚠️ Completa tus datos de pago</strong>
           <span>
             {incompletos.map((m) => MEDIOS_PAGO[m.tipo]?.nombre).join(' y ')}{' '}
-            {incompletos.length > 1 ? 'muestran' : 'muestra'} un QR de ejemplo o no tiene{incompletos.length > 1 ? 'n' : ''} número.
+            {incompletos.length > 1 ? 'usan' : 'usa'} el QR o el número general de Arma Tu Cancha.
             Sube tu QR real en <em>Medios de pago</em>.
           </span>
         </div>

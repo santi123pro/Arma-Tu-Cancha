@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cancelarReserva, datosPagoSede, reportarPago, subirComprobante } from '../lib/datos'
-import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrGenerico } from '../lib/qrGenerico'
+import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrPorDefecto } from '../lib/qrGenerico'
+import { PAGOS_POR_DEFECTO } from '../lib/sitio'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
 import { useToast } from './Toast'
 
@@ -22,16 +23,41 @@ function fechaLarga(fecha) {
   return texto.charAt(0).toUpperCase() + texto.slice(1)
 }
 
+// '3162528100' → '316 252 8100'. Otros formatos (llaves Bre-B) quedan igual.
+function celular(cuenta) {
+  const digitos = cuenta.replace(/\D/g, '')
+  return /^3\d{9}$/.test(digitos) ? digitos.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1 $2 $3') : cuenta
+}
+
+async function alPortapapeles(texto) {
+  try {
+    await navigator.clipboard.writeText(texto)
+    return true
+  } catch {
+    // Sin permiso o sin HTTPS (algunos celulares): con un campo temporal.
+    const campo = document.createElement('textarea')
+    campo.value = texto
+    campo.setAttribute('readonly', '')
+    campo.style.position = 'fixed'
+    campo.style.opacity = '0'
+    document.body.appendChild(campo)
+    campo.select()
+    const ok = document.execCommand('copy')
+    campo.remove()
+    return ok
+  }
+}
+
 function Copiar({ texto, etiqueta }) {
+  const toast = useToast()
   const [copiado, setCopiado] = useState(false)
 
   async function copiar() {
-    try {
-      await navigator.clipboard.writeText(texto)
+    if (await alPortapapeles(texto)) {
       setCopiado(true)
       setTimeout(() => setCopiado(false), 1600)
-    } catch {
-      // Sin permiso para el portapapeles: el dato sigue visible para copiarlo a mano.
+    } else {
+      toast('No se pudo copiar. Mantén presionado el dato para copiarlo.', 'warn')
     }
   }
 
@@ -119,6 +145,8 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
   const [confirmarCancelar, setConfirmarCancelar] = useState(false)
   const [cancelando, setCancelando] = useState(false)
   const [error, setError] = useState(null)
+  // Medios cuyo QR no cargó (la sede no lo subió y no está el general).
+  const [sinQr, setSinQr] = useState([])
 
   const restante = useCuentaRegresiva(reserva.pago_vence_at)
   const confirmada = reserva.pago_estado === 'aprobado'
@@ -225,7 +253,14 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
     onCancelada?.()
   }
 
-  const metodo = pago?.metodos.find((m) => m.tipo === medio)
+  const encontrado = pago?.metodos.find((m) => m.tipo === medio)
+  // Lo que la sede no llenó sale de los datos generales (lib/sitio.js).
+  const metodo = encontrado && {
+    ...encontrado,
+    cuenta: encontrado.cuenta || PAGOS_POR_DEFECTO[medio]?.cuenta,
+    titular: encontrado.titular || PAGOS_POR_DEFECTO[medio]?.titular,
+    qr: encontrado.qr_url || qrPorDefecto(medio),
+  }
   const info = MEDIOS_PAGO[medio]
   const total = pesos.format(reserva.precio_total)
   const sinMedios = !pago || pago.metodos.length === 0
@@ -324,14 +359,16 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
                   {selectorMedio}
                   {metodo && (
                     <>
-                      <figure className={`pasarela-qr-imagen medio-${metodo.tipo}`}>
-                        <img
-                          src={metodo.qr_url || qrGenerico(info?.semilla)}
-                          alt={`Código QR de ${info?.nombre} para pagar a ${sede.nombre}`}
-                        />
-                        {!metodo.qr_url && <span className="pasarela-qr-ejemplo">QR de ejemplo</span>}
-                        <figcaption>{info?.app}</figcaption>
-                      </figure>
+                      {!sinQr.includes(metodo.tipo) && (
+                        <figure className={`pasarela-qr-imagen medio-${metodo.tipo}`}>
+                          <img
+                            src={metodo.qr}
+                            alt={`Código QR de ${info?.nombre} para pagar a ${sede.nombre}`}
+                            onError={() => setSinQr((l) => [...l, metodo.tipo])}
+                          />
+                          <figcaption>{info?.app}</figcaption>
+                        </figure>
+                      )}
 
                       <dl className="pago-cuenta pasarela-cuenta">
                         {metodo.titular && (<><dt>Titular</dt><dd>{metodo.titular}</dd></>)}
@@ -339,8 +376,13 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
                           <>
                             <dt>{info?.cuenta}</dt>
                             <dd className="pago-dato-copiable">
-                              <span>{metodo.cuenta}</span>
-                              <Copiar texto={metodo.cuenta} etiqueta={info?.cuenta} />
+                              <span className="pago-cuenta-numero">
+                                {metodo.tipo === 'nequi' ? celular(metodo.cuenta) : metodo.cuenta}
+                              </span>
+                              <Copiar
+                                texto={metodo.tipo === 'nequi' ? metodo.cuenta.replace(/\s/g, '') : metodo.cuenta}
+                                etiqueta={info?.cuenta}
+                              />
                             </dd>
                           </>
                         )}
