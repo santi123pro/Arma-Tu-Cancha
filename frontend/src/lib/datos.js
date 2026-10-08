@@ -56,20 +56,6 @@ export async function recuperarPorCorreo(correo) {
   return { datos: null, error: traducirError(error) }
 }
 
-// Con el teléfono no se puede desde el navegador: la Edge Function busca
-// el correo de la cuenta y le manda el mismo enlace (migración 0008).
-export async function recuperarPorTelefono(telefono) {
-  const { data, error } = await supabase.functions.invoke('recuperar-por-telefono', {
-    body: { telefono, redirectTo: urlRecuperacion() },
-  })
-  if (error) {
-    // Los 4xx traen el mensaje en el cuerpo de la respuesta.
-    const cuerpo = await error.context?.json?.().catch(() => null)
-    return { datos: null, error: cuerpo?.error ?? 'No fue posible enviar el enlace. Intenta más tarde.' }
-  }
-  return { datos: data, error: null }
-}
-
 // Solo funciona con la sesión que abre el enlace del correo (o con
 // cualquier sesión activa).
 export async function cambiarClave(nueva) {
