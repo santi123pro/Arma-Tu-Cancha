@@ -56,6 +56,22 @@ export async function recuperarPorCorreo(correo) {
   return { datos: null, error: traducirError(error) }
 }
 
+// Entrar con el celular: la Edge Function entrar-con-telefono busca la
+// cuenta e inicia sesión (migración 0018). El correo no llega aquí.
+export async function entrarConTelefono(telefono, clave) {
+  const { data, error } = await supabase.functions.invoke('entrar-con-telefono', {
+    body: { telefono, clave },
+  })
+  if (error) {
+    // Los 4xx traen el mensaje en el cuerpo de la respuesta.
+    const cuerpo = await error.context?.json?.().catch(() => null)
+    return { datos: null, error: cuerpo?.error ?? 'No pudimos iniciar sesión. Intenta más tarde.' }
+  }
+  const { data: sesion, error: errorSesion } = await supabase.auth.setSession(data)
+  if (errorSesion) return { datos: null, error: traducirError(errorSesion) }
+  return { datos: sesion, error: null }
+}
+
 // Solo funciona con la sesión que abre el enlace del correo (o con
 // cualquier sesión activa).
 export async function cambiarClave(nueva) {

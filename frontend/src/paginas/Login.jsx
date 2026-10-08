@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase, traducirError } from '../lib/supabase'
 import { useToast } from '../componentes/Toast'
-import { recuperarPorCorreo } from '../lib/datos'
+import { entrarConTelefono, recuperarPorCorreo } from '../lib/datos'
 import fotoFondo from '../../imagenes/cancha_1_wembley.webp'
 
 const BENEFICIOS = [
@@ -56,49 +56,70 @@ function FormEntrar({ onAutenticado, onOlvide }) {
   const toast = useToast()
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
-  const [correo, setCorreo] = useState('')
+  // Correo o celular: si tiene @ es correo.
+  const [usuario, setUsuario] = useState('')
   const [clave, setClave] = useState('')
+  const esCorreo = usuario.includes('@')
 
   async function iniciarSesion(e) {
     e.preventDefault()
     if (enviando) return
     setError(null)
+
+    if (!esCorreo && usuario.replace(/\D/g, '').length < 10) {
+      setError('Escribe tu correo o tu celular completo (10 dígitos).')
+      return
+    }
+    if (!clave) {
+      setError('Escribe tu contraseña.')
+      return
+    }
+
     setEnviando(true)
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: correo.trim(),
-      password: clave,
-    })
-
+    let datos, mensaje
+    if (esCorreo) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: usuario.trim(),
+        password: clave,
+      })
+      datos = data
+      mensaje = error && traducirError(error)
+    } else {
+      const { datos: sesion, error } = await entrarConTelefono(usuario, clave)
+      datos = sesion
+      mensaje = error
+    }
     setEnviando(false)
 
-    if (error) {
-      setError(traducirError(error))
-      toast(traducirError(error), 'error')
+    if (mensaje) {
+      setError(mensaje)
+      toast(mensaje, 'error')
       return
     }
 
     toast('Sesión iniciada.')
-    if (onAutenticado) onAutenticado(data.user)
+    if (onAutenticado) onAutenticado(datos.user)
   }
 
   return (
-    <form onSubmit={iniciarSesion} className="login-form">
-      <Campo etiqueta="Correo">
+    <form onSubmit={iniciarSesion} className="login-form" noValidate>
+      <Campo etiqueta="Correo o celular">
         <input
           className="input-moderno"
-          type="email"
+          type="text"
           required
-          autoComplete="email"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-          placeholder="tucorreo@ejemplo.com"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          value={usuario}
+          onChange={(e) => setUsuario(e.target.value)}
+          placeholder="tucorreo@ejemplo.com o 300 000 0000"
         />
       </Campo>
 
       <CampoClave etiqueta="Contraseña" valor={clave} onCambio={setClave} placeholder="••••••••" />
 
-      <button type="button" className="login-link" onClick={() => onOlvide(correo.trim())}>
+      <button type="button" className="login-link" onClick={() => onOlvide(esCorreo ? usuario.trim() : '')}>
         ¿Olvidaste tu contraseña?
       </button>
 
