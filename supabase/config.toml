@@ -414,6 +414,6 @@ enabled = true
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 
-# La llama el formulario de "¿Olvidaste tu contraseña?", sin sesión.
-[functions.recuperar-por-telefono]
+# La llama el formulario de inicio de sesión con el celular, sin sesión.
+[functions.entrar-con-telefono]
 verify_jwt = false
