@@ -159,8 +159,9 @@ export default function Partidos({ sedeId, sedeNombre }) {
     if (!form.canchaId) return setErrorForm('Selecciona la cancha.')
     if (!form.fecha || form.fecha < hoy) return setErrorForm('Elige una fecha de hoy en adelante.')
     if (!form.hora) return setErrorForm('Selecciona la hora de inicio.')
-    if (!Number.isInteger(cupos) || cupos < 1 || cupos > 22) {
-      return setErrorForm('Los cupos deben estar entre 1 y 22.')
+    // Uno de los cupos es el de quien lo arma (migración 0016).
+    if (!Number.isInteger(cupos) || cupos < 2 || cupos > 22) {
+      return setErrorForm('Los cupos deben estar entre 2 y 22 (contándote a ti).')
     }
 
     setPublicando(true)
@@ -184,7 +185,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
     setForm(FORM_VACIO)
     setRecarga((n) => n + 1)
     await balonazo()
-    toast('¡Partido publicado! Ya aparece en la lista.', 'success')
+    toast('¡Partido publicado! Ya estás anotado y aparece en la lista.', 'success')
   }
 
   async function unirseAlPartido(p) {
@@ -298,9 +299,9 @@ export default function Partidos({ sedeId, sedeNombre }) {
             </label>
 
             <label>
-              Cupos totales
+              Cupos totales (contándote a ti)
               <input
-                type="number" className="input-moderno" min={1} max={22}
+                type="number" className="input-moderno" min={2} max={22}
                 value={form.cupos} onChange={cambiar('cupos')}
               />
             </label>
@@ -366,11 +367,12 @@ export default function Partidos({ sedeId, sedeNombre }) {
 
                 {!autenticado ? (
                   <p className="torneo-nota">Inicia sesión para unirte.</p>
+                ) : esMio(p) ? (
+                  // Quien lo arma queda anotado al crearlo (migración 0016).
+                  <p className="torneo-nota">✅ Armaste este partido y ya tienes tu cupo.</p>
                 ) : estoyEn(p) ? (
                   <>
-                    <p className="torneo-nota">
-                      ✅ {p.creador_id === usuario?.id ? 'Publicaste este partido y ya tienes tu cupo.' : 'Ya tienes un cupo en este partido.'}
-                    </p>
+                    <p className="torneo-nota">✅ Ya tienes un cupo en este partido.</p>
                     <button
                       type="button" className="btn-torneo-cancelar"
                       onClick={() => salirDelPartido(p)} disabled={ocupado === p.id}
@@ -385,7 +387,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
                     type="button" className="btn-cta-primary"
                     onClick={() => unirseAlPartido(p)} disabled={ocupado === p.id}
                   >
-                    {ocupado === p.id ? 'Uniéndote…' : esMio(p) ? 'Tomar un cupo yo también' : 'Unirme al partido'}
+                    {ocupado === p.id ? 'Uniéndote…' : 'Unirme al partido'}
                   </button>
                 )}
               </article>
