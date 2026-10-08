@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { analiticaSede, contenidoAdmin, listarSedes, metricasGlobales } from '../../lib/datos'
 import { formatoNumero, formatoPesos } from '../../lib/formato'
+import { useToast } from '../Toast'
+import { DIAS_SEMANA, ESTADOS_PARTIDO, ESTADOS_RESERVA, ESTADOS_TORNEO, METODOS_PAGO, ROLES } from './etiquetas'
+import { exportarAnalitica } from './exportarCsv'
 import { BarrasAgrupadas, BarrasH, Cifra, Columnas, Dona } from './Graficas'
 
 const RANGOS = [
@@ -8,26 +11,6 @@ const RANGOS = [
   { dias: 30, texto: '30 días' },
   { dias: 90, texto: '90 días' },
 ]
-
-const ESTADOS_PARTIDO = { abierto: 'Abierto', completo: 'Completo', jugado: 'Jugado', cancelado: 'Cancelado' }
-const ESTADOS_TORNEO = {
-  inscripciones: 'Inscripciones abiertas', cerrado: 'Cupos completos', en_curso: 'En curso',
-  finalizado: 'Finalizado', cancelado: 'Cancelado',
-}
-const ESTADOS_RESERVA = {
-  completada: 'Jugadas', confirmada: 'Confirmadas', pendiente: 'Pendientes de pago',
-  cancelada: 'Canceladas', no_asistio: 'No asistieron',
-}
-const METODOS_PAGO = {
-  efectivo: 'Efectivo', nequi: 'Nequi', breb: 'Bre-B', daviplata: 'Daviplata',
-  transferencia: 'Transferencia', sin_registrar: 'Sin registrar',
-}
-const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-const ROLES = {
-  jugador: 'Jugadores',
-  admin_sede: 'Administradores de sede',
-  superadmin: 'Administradores generales',
-}
 
 // Fecha local YYYY-MM-DD, n días atrás.
 function haceDias(n) {
@@ -142,6 +125,16 @@ export default function Analitica({ sedeId = null }) {
   }, [sedeId])
 
   const sedeElegida = sedeId ?? (vista === 'todas' ? null : Number(vista))
+  const toast = useToast()
+  const [exportando, setExportando] = useState(false)
+
+  async function exportar() {
+    setExportando(true)
+    const { error } = await exportarAnalitica({ desde: haceDias(dias - 1), hasta: haceDias(0), sedeId: sedeElegida })
+    setExportando(false)
+    if (error) toast(error, 'error')
+    else toast('Listo. El CSV con los reportes se descargó en tu equipo.')
+  }
 
   return (
     <>
@@ -182,6 +175,16 @@ export default function Analitica({ sedeId = null }) {
             </div>
           </div>
         )}
+
+        <button
+          type="button"
+          className="btn-cta-primary btn-chico admin-exportar"
+          onClick={exportar}
+          disabled={exportando}
+          title="Descarga en CSV los reportes del periodo y el detalle de las reservas"
+        >
+          {exportando ? 'Preparando…' : '⬇️ Exportar datos'}
+        </button>
       </div>
 
       {sedeElegida

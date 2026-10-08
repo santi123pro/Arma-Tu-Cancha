@@ -626,6 +626,30 @@ export function analiticaSede(desde, hasta, sedeId = null) {
   )
 }
 
+// Detalle de las reservas del periodo para exportar a CSV. RLS ya limita
+// al admin de sede a la suya; sin sedeId el superadmin recibe todas.
+// PostgREST entrega máximo 1000 filas por consulta, así que se pide por páginas.
+export async function reservasParaExportar(desde, hasta, sedeId = null) {
+  const PAGINA = 1000
+  const filas = []
+  for (let inicio = 0; ; inicio += PAGINA) {
+    let consulta = supabase.from('reservas')
+      .select('codigo, fecha, hora_inicio, hora_fin, cliente_nombre, cliente_tel, cliente_correo, precio_total, estado, metodo_pago, creado_at, canchas!inner ( nombre, sede_id, sedes ( nombre ) )')
+      .gte('fecha', desde)
+      .lte('fecha', hasta)
+      .order('fecha')
+      .order('hora_inicio')
+      .order('id')
+      .range(inicio, inicio + PAGINA - 1)
+    if (sedeId) consulta = consulta.eq('canchas.sede_id', sedeId)
+
+    const { datos, error } = await consultar(consulta)
+    if (error) return { datos: null, error }
+    filas.push(...datos)
+    if (datos.length < PAGINA) return { datos: filas, error: null }
+  }
+}
+
 // Las del admin de sede (migración 0009). La sede la pone el servidor.
 export function metricasMiSede(desde, hasta) {
   return consultar(

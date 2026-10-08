@@ -2907,6 +2907,7 @@ button:focus-visible,
    Analítica al detalle de una sede (admin/Analitica.jsx)
    ═══════════════════════════════════════════════════════ */
 .admin-filtros-barra { display: flex; flex-wrap: wrap; gap: 4px 28px; }
+.admin-exportar { margin: 0 0 20px auto; align-self: center; white-space: nowrap; }
 .admin-sede-titulo {
   display: flex;
   flex-wrap: wrap;
