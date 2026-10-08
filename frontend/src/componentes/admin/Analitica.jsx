@@ -3,7 +3,7 @@ import { analiticaSede, contenidoAdmin, listarSedes, metricasGlobales } from '..
 import { formatoNumero, formatoPesos } from '../../lib/formato'
 import { useToast } from '../Toast'
 import { DIAS_SEMANA, ESTADOS_PARTIDO, ESTADOS_RESERVA, ESTADOS_TORNEO, METODOS_PAGO, ROLES } from './etiquetas'
-import { exportarAnalitica } from './exportarCsv'
+import { exportarAnalitica } from './ExportarCsv'
 import { BarrasAgrupadas, BarrasH, Cifra, Columnas, Dona } from './Graficas'
 
 const RANGOS = [
