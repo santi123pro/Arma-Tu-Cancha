@@ -92,7 +92,7 @@ function SeccionHero({ sedes, cargando, onIrLogin, onVerSede }) {
             <strong>{cargando ? '–' : sedes.reduce((n, s) => n + (s.canchas?.length ?? 0), 0)}</strong>
             <span>canchas</span>
           </div>
-          <div><strong>24/7</strong><span>reservas en línea</span></div>
+          <div><strong>En línea</strong><span>reserva a cualquier hora</span></div>
         </div>
       </div>
 

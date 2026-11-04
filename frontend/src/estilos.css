@@ -4160,6 +4160,20 @@ button, a, summary { touch-action: manipulation; }
 .selector-dia-texto { margin-top: 8px; color: var(--texto); font-size: 15px; font-weight: 600; }
 
 .lista-canchas { container-type: inline-size; display: flex; flex-direction: column; gap: 16px; }
+/* Elegir cancha: solo en el celular, para no mostrar todas las horas de golpe */
+.filtro-canchas { display: none; }
+@media (max-width: 768px) {
+  .filtro-canchas {
+    display: flex;
+    gap: 8px;
+    margin: 0 -20px 16px;
+    padding: 2px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filtro-canchas::-webkit-scrollbar { display: none; }
+  .cancha-oculta-movil { display: none; }
+}
 
 /* Sin overflow hidden: el botón "Reservar" se pega al borde mientras se baja */
 .cancha-card { overflow: visible; box-shadow: none; }
@@ -4270,7 +4284,7 @@ button, a, summary { touch-action: manipulation; }
 /* ── Portada ── */
 .hero-title { font-size: clamp(46px, 6vw, 72px); line-height: 1; }
 .hero-title span { color: inherit; }
-.texto-resaltado { background: none; color: inherit; }
+.texto-resaltado { padding: 0; background: none; color: inherit; }
 .landing-title, .landing-title-white { font-size: clamp(34px, 4.5vw, 48px); line-height: 1.05; }
 @media (max-width: 768px) {
   .landing-header-flex { align-items: flex-start; text-align: left; }
@@ -4362,6 +4376,25 @@ button, a, summary { touch-action: manipulation; }
   .admin-cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .admin-hero .partidos-hero-titulo { margin-bottom: 16px; }
 }
+
+/* ── Login: zonas táctiles de al menos 44 px ── */
+.login-ojo {
+  right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+.login-clave .input-moderno { padding-right: 48px; }
+.login-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.login-form > .login-link { margin-top: -6px; }
+.login-pie { margin-top: 8px; }
 
 /* ── Sede en el celular: los horarios más arriba ── */
 @media (max-width: 859px) {

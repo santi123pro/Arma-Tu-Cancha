@@ -18,6 +18,8 @@ export default function Sede({ slug, onVolver, onIrSeccion }) {
   const { sede, cargando, reintentar } = useDetalleSede(slug)
   // null: el jugador aún no ha elegido día (ver más abajo cuál se muestra).
   const [fechaElegida, setFechaElegida] = useState(null)
+  // En el celular se ve una cancha a la vez: null es la primera, 'todas' las muestra.
+  const [canchaElegida, setCanchaElegida] = useState(null)
   // El mapa se crea al abrir la sección: Leaflet no sabe medirse estando oculto.
   const [verMapa, setVerMapa] = useState(false)
 
@@ -42,6 +44,7 @@ export default function Sede({ slug, onVolver, onIrSeccion }) {
   // De noche, si ya no quedan franjas hoy, la página abre directo en mañana.
   const fecha = fechaElegida ?? fechaLocal(hoyTermino(sede) ? 1 : 0)
   const hayOtroDia = fecha < fechaLocal(DIAS_ANTICIPACION)
+  const canchaVisible = canchaElegida ?? canchas[0]?.id
 
   return (
     <main className={'pagina-sede ' + temaSede(sede)}>
@@ -54,15 +57,45 @@ export default function Sede({ slug, onVolver, onIrSeccion }) {
           <p className="partidos-aviso">Esta sede todavía no tiene canchas publicadas.</p>
         ) : (
           <>
+            {canchas.length > 1 && (
+              <div className="filtro-canchas" role="group" aria-label="Elegir cancha">
+                <button
+                  type="button"
+                  className="chip-filtro"
+                  aria-pressed={canchaVisible === 'todas'}
+                  onClick={() => setCanchaElegida('todas')}
+                >
+                  Todas
+                </button>
+                {canchas.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className="chip-filtro"
+                    aria-pressed={canchaVisible === c.id}
+                    onClick={() => setCanchaElegida(c.id)}
+                  >
+                    {c.nombre}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="lista-canchas">
+              {/* Se ocultan con CSS y solo en el celular: en PC se ven todas, y
+                  así ninguna pierde la hora elegida ni la reserva en curso. */}
               {canchas.map((c) => (
-                <CanchaCard
+                <div
                   key={c.id}
-                  cancha={c}
-                  sede={sede}
-                  fecha={fecha}
-                  onVerOtroDia={hayOtroDia ? () => setFechaElegida(diaSiguiente(fecha)) : undefined}
-                />
+                  className={canchaVisible === 'todas' || canchaVisible === c.id ? undefined : 'cancha-oculta-movil'}
+                >
+                  <CanchaCard
+                    cancha={c}
+                    sede={sede}
+                    fecha={fecha}
+                    onVerOtroDia={hayOtroDia ? () => setFechaElegida(diaSiguiente(fecha)) : undefined}
+                  />
+                </div>
               ))}
             </div>
             <p className="sede-nota-pago">
