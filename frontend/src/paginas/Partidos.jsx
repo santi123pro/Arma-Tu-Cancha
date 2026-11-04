@@ -33,6 +33,11 @@ const FORM_VACIO = {
   cupos: '',
 }
 
+// El organizador queda anotado al crear el partido y ocupa un lugar en
+// cupos_totales (migración 0016). Al jugador solo le importan los que faltan.
+const LUGAR_ORGANIZADOR = 1
+const cuposBuscados = (p) => Math.max(p.cupos_totales - LUGAR_ORGANIZADOR, 0)
+
 
 // '2026-10-05' + '19:00:00' → 'domingo 5 de octubre · 7:00 p. m.'
 function fechaLegible(fecha, hora) {
@@ -159,9 +164,8 @@ export default function Partidos({ sedeId, sedeNombre }) {
     if (!form.canchaId) return setErrorForm('Selecciona la cancha.')
     if (!form.fecha || form.fecha < hoy) return setErrorForm('Elige una fecha de hoy en adelante.')
     if (!form.hora) return setErrorForm('Selecciona la hora de inicio.')
-    // Uno de los cupos es el de quien lo arma (migración 0016).
-    if (!Number.isInteger(cupos) || cupos < 2 || cupos > 22) {
-      return setErrorForm('Los cupos deben estar entre 2 y 22 (contándote a ti).')
+    if (!Number.isInteger(cupos) || cupos < 1 || cupos > 21) {
+      return setErrorForm('Indica cuántos jugadores te faltan: entre 1 y 21.')
     }
 
     setPublicando(true)
@@ -172,7 +176,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
       modalidad: form.modalidad,
       nivel: form.nivel,
       posicionRequerida: form.posicion || null,
-      cuposTotales: cupos,
+      cuposTotales: cupos + LUGAR_ORGANIZADOR,
     })
     setPublicando(false)
 
@@ -185,7 +189,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
     setForm(FORM_VACIO)
     setRecarga((n) => n + 1)
     await balonazo()
-    toast('¡Partido publicado! Ya estás anotado y aparece en la lista.', 'success')
+    toast('¡Partido publicado! Ya aparece en la lista.', 'success')
   }
 
   async function unirseAlPartido(p) {
@@ -299,9 +303,9 @@ export default function Partidos({ sedeId, sedeNombre }) {
             </label>
 
             <label>
-              Cupos totales (contándote a ti)
+              Jugadores que te faltan
               <input
-                type="number" className="input-moderno" min={2} max={22}
+                type="number" className="input-moderno" min={1} max={21}
                 value={form.cupos} onChange={cambiar('cupos')}
               />
             </label>
@@ -345,9 +349,12 @@ export default function Partidos({ sedeId, sedeNombre }) {
                 <p><strong>Nivel:</strong> {etiquetaNivel(p.nivel)}</p>
                 <p><strong>Posición buscada:</strong> {p.posicion_requerida ?? 'Cualquier posición'}</p>
                 <div className="partido-cupos">
-                  <p><span>{p.cupos_disponibles}</span> de {p.cupos_totales} cupos libres</p>
+                  <p>
+                    <span>{p.cupos_disponibles}</span> de {cuposBuscados(p)}{' '}
+                    {cuposBuscados(p) === 1 ? 'cupo libre' : 'cupos libres'}
+                  </p>
                   <div className="partido-barra">
-                    <i style={{ width: `${(1 - p.cupos_disponibles / p.cupos_totales) * 100}%` }} />
+                    <i style={{ width: `${cuposBuscados(p) ? (1 - p.cupos_disponibles / cuposBuscados(p)) * 100 : 100}%` }} />
                   </div>
                 </div>
 
@@ -368,8 +375,7 @@ export default function Partidos({ sedeId, sedeNombre }) {
                 {!autenticado ? (
                   <p className="torneo-nota">Inicia sesión para unirte.</p>
                 ) : esMio(p) ? (
-                  // Quien lo arma queda anotado al crearlo (migración 0016).
-                  <p className="torneo-nota">✅ Armaste este partido y ya tienes tu cupo.</p>
+                  <p className="torneo-nota">✅ Armaste este partido.</p>
                 ) : estoyEn(p) ? (
                   <>
                     <p className="torneo-nota">✅ Ya tienes un cupo en este partido.</p>
