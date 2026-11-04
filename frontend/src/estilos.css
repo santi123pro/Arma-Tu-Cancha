@@ -2012,8 +2012,6 @@ button:focus-visible,
 .pagina-reservas .partidos-hero-titulo span { color: var(--sky); }
 .pagina-reservas .partidos-bloque:first-child { border-top-color: var(--sky); }
 .pagina-reservas .tarjeta-cancha::before { background: linear-gradient(90deg, var(--sky), var(--green)); }
-/* Las próximas van en una sola columna dentro del bloque angosto */
-.pagina-reservas .partidos-bloque:first-child .grid-partidos { grid-template-columns: minmax(0, 1fr); }
 .reserva-pasada { opacity: .72; }
 .reserva-codigo { font-size: 12px !important; color: var(--gray-600); }
 .reserva-codigo strong { font-family: ui-monospace, monospace; color: var(--navy); letter-spacing: .5px; }
@@ -4284,8 +4282,44 @@ button, a, summary { touch-action: manipulation; }
 .pagina-partidos .tarjeta-cancha { border-radius: 12px; box-shadow: none; }
 @media (max-width: 1000px) {
   /* En el celular primero se ve a qué unirse y después el formulario para crear */
-  .pagina-sede .partidos-bloque:first-child { order: 2; }
+  .pagina-sede:not(.pagina-reservas) .partidos-bloque:first-child { order: 2; }
 }
+
+/* ── Mis reservas: una sola lista con filtro discreto ── */
+.pagina-partidos .seccion-reservas { display: block; }
+.pagina-partidos .seccion-reservas .partidos-bloque { position: static; }
+.pagina-partidos .seccion-reservas .grid-partidos {
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  margin-top: 0;
+}
+.filtro-reservas {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.filtro-reservas button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 0 2px;
+  background: none;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--gray-600);
+  font-size: 15px;
+  font-weight: 500;
+}
+.filtro-reservas button:hover { color: var(--navy); }
+.filtro-reservas button[aria-pressed='true'] {
+  border-bottom-color: var(--navy);
+  color: var(--navy);
+  font-weight: 700;
+}
+.filtro-reservas small { color: var(--gray-600); font-size: 13px; font-weight: 500; }
+.reservas-nota { margin-top: 16px; color: var(--gray-600); font-size: 14px; }
 
 .pagina-reservas .partidos-bloque:first-child { border-top: 1px solid var(--gray-200); }
 

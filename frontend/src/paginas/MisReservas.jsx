@@ -199,6 +199,7 @@ export default function MisReservas({ sedeId = null, sedeNombre }) {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [recarga, setRecarga] = useState(0)
+  const [verHistorial, setVerHistorial] = useState(false)
 
   useEffect(() => {
     let vigente = true
@@ -242,27 +243,31 @@ export default function MisReservas({ sedeId = null, sedeNombre }) {
   }
 
   return (
-    <section className="seccion-partidos">
-      {/* ── Bloque A: próximas ── */}
+    <section className="seccion-partidos seccion-reservas">
       <div className="partidos-bloque">
-        <div className="landing-header-flex partidos-encabezado">
-          <div>
-            <span className="sub-tag">Lo que viene</span>
-            <h2 className="landing-title">Próximas reservas</h2>
-          </div>
-          <p className="landing-desc-side">
-            Puedes cancelar sin costo hasta 24 horas antes del partido. Las solicitudes que aún no has pagado se pueden cancelar en cualquier momento.
-          </p>
+        <div className="filtro-reservas" role="group" aria-label="Filtrar reservas">
+          <button type="button" aria-pressed={!verHistorial} onClick={() => setVerHistorial(false)}>
+            Activas{!cargando && !error && <small>{proximas.length}</small>}
+          </button>
+          <button type="button" aria-pressed={verHistorial} onClick={() => setVerHistorial(true)}>
+            Historial{!cargando && !error && <small>{historial.length}</small>}
+          </button>
         </div>
-        {lista(proximas, sedeId
-          ? `No tienes reservas próximas en ${sedeNombre ?? 'esta sede'}.`
-          : 'No tienes reservas próximas en ninguna sede.')}
-      </div>
 
-      {/* ── Bloque B: historial ── */}
-      <div className="partidos-bloque">
-        <h2 className="landing-title">Historial</h2>
-        {lista(historial, 'Aquí aparecerán tus reservas pasadas y canceladas.')}
+        {verHistorial ? (
+          lista(historial, 'Aquí aparecerán tus reservas pasadas y canceladas.')
+        ) : (
+          <>
+            {lista(proximas, sedeId
+              ? `No tienes reservas activas en ${sedeNombre ?? 'esta sede'}.`
+              : 'No tienes reservas activas en ninguna sede.')}
+            {!cargando && !error && proximas.length > 0 && (
+              <p className="reservas-nota">
+                Puedes cancelar sin costo hasta 24 horas antes del partido. Las solicitudes que aún no has pagado se pueden cancelar en cualquier momento.
+              </p>
+            )}
+          </>
+        )}
       </div>
     </section>
   )
