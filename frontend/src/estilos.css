@@ -156,12 +156,13 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 }
 
 .logo-img {
-  width: 52px;
-  height: 52px;
+  height: 48px;
+  width: auto;
+  max-width: 86px;
   object-fit: contain;
   border-radius: var(--radius);
   background: #fff;
-  padding: 3px;
+  padding: 3px 6px;
 }
 
 .header-wembley h1 {
