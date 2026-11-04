@@ -325,7 +325,7 @@ const TEXTOS = {
 }
 
 export default function Login({
-  modoInicial = 'entrar', sedePendiente, onAutenticado, onRegistrado, onRegistroPendiente, onVolver,
+  modoInicial = 'entrar', sedePendiente, onAutenticado, onRegistrado, onRegistroPendiente,
 }) {
   const [modo, setModo] = useState(modoInicial)
   // Correo que ya había escrito al pulsar "¿Olvidaste tu contraseña?".
@@ -359,10 +359,6 @@ export default function Login({
 
       <section className="login-lado-form">
         <div className="login-card">
-          <button type="button" className="login-link login-volver" onClick={onVolver}>
-            ← Volver al inicio
-          </button>
-
           <h2 className="login-titulo">{TEXTOS[modo].titulo}</h2>
           <p className="login-subtitulo">{TEXTOS[modo].subtitulo}</p>
 

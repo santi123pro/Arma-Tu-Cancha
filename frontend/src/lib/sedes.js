@@ -7,3 +7,7 @@ export function tiposDe(sede) {
     .map((c) => c.tipo.trim().replace(/^f[uú]tbol/i, 'Fútbol'))
   return [...new Set(tipos)]
 }
+
+// crear_reserva acepta fechas entre hoy y hoy + 15 días. El selector de día
+// usa el mismo rango para no ofrecer días que el backend va a rechazar.
+export const DIAS_ANTICIPACION = 15

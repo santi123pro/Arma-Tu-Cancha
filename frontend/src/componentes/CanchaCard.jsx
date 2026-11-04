@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fechaLocal } from '../lib/formato'
+import { fechaLocal, formatoPesos } from '../lib/formato'
 import { disponibilidad, crearReserva } from '../lib/datos'
 import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
 import { useToast } from './Toast'
@@ -11,10 +11,18 @@ import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
 import { useSeguimientoReserva } from '../lib/useSeguimientoReserva'
 import { MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR } from '../lib/qrGenerico'
 
-// crear_reserva acepta fechas entre hoy y hoy + 15 días. El selector
-// usa el mismo rango para no ofrecer días que el backend va a rechazar.
-const DIAS_ANTICIPACION = 15
 
+// Los horarios se agrupan por parte del día para encontrarlos más rápido.
+const TRAMOS = [
+  { nombre: 'Mañana', desde: 0, hasta: 12 },
+  { nombre: 'Tarde', desde: 12, hasta: 18 },
+  { nombre: 'Noche', desde: 18, hasta: 24 },
+]
+
+function enTramo(franja, tramo) {
+  const hora = Number(franja.hora_inicio.slice(0, 2))
+  return hora >= tramo.desde && hora < tramo.hasta
+}
 
 // '15:00:00' → '3:00 PM'
 function hora12(hora) {
@@ -28,10 +36,6 @@ function fechaCorta(iso) {
   const [a, m, d] = iso.split('-')
   return `${d}/${m}/${a}`
 }
-
-const pesos = new Intl.NumberFormat('es-CO', {
-  style: 'currency', currency: 'COP', maximumFractionDigits: 0,
-})
 
 // La tarjeta mientras el horario está apartado y la pasarela está cerrada.
 function HorarioApartado({ reserva, onPagar, onOtra }) {
@@ -61,13 +65,10 @@ function HorarioApartado({ reserva, onPagar, onOtra }) {
   )
 }
 
-export default function CanchaCard({ cancha, sede }) {
+// fecha: el día elegido en la página de la sede, común a todas sus canchas.
+export default function CanchaCard({ cancha, sede, fecha = fechaLocal() }) {
   const toast = useToast()
-  const hoy = fechaLocal()
-  const limite = fechaLocal(DIAS_ANTICIPACION)
 
-  const [fecha, setFecha] = useState(hoy)
-  const [verFecha, setVerFecha] = useState(false)
   const [franjas, setFranjas] = useState([])
   const [franja, setFranja] = useState(null)
   const [cargando, setCargando] = useState(true)
@@ -90,6 +91,7 @@ export default function CanchaCard({ cancha, sede }) {
     let vigente = true
     setCargando(true)
     setFranja(null)
+    setError(null)
 
     disponibilidad(cancha.id, fecha).then(({ datos, error }) => {
       if (!vigente) return
@@ -104,12 +106,6 @@ export default function CanchaCard({ cancha, sede }) {
 
     return () => { vigente = false }
   }, [cancha.id, fecha, recarga])
-
-  function cambiarFecha(valor) {
-    if (!valor || valor < hoy || valor > limite) return
-    setError(null)
-    setFecha(valor)
-  }
 
   async function reservar() {
     if (!franja?.disponible || enviando) return
@@ -145,19 +141,22 @@ export default function CanchaCard({ cancha, sede }) {
 
   return (
     <article className="cancha-card">
-      <ImagenSede
-        className="cancha-card-imagen"
-        url={fotoCancha(sede, cancha)}
-        color={sede.color_hex}
-        texto={sede.nombre}
-        alt={`${cancha.nombre} de ${sede.nombre}, ${cancha.tipo}`}
-      />
+      <div className="cancha-card-cabeza">
+        <ImagenSede
+          className="cancha-card-imagen"
+          url={fotoCancha(sede, cancha)}
+          color={sede.color_hex}
+          texto={cancha.nombre}
+          alt={`${cancha.nombre} de ${sede.nombre}, ${cancha.tipo}`}
+        />
+        <div className="cancha-card-datos">
+          <h3>{cancha.nombre}</h3>
+          <p>{cancha.tipo}</p>
+          <p className="cancha-card-precio">{formatoPesos(cancha.precio_hora)} <small>por hora</small></p>
+        </div>
+      </div>
 
       <div className="cancha-card-cuerpo">
-        <h3>{cancha.nombre}</h3>
-        <p><strong>Tipo:</strong> {cancha.tipo}</p>
-        <p><strong>Tarifa:</strong> {pesos.format(cancha.precio_hora)} / hora</p>
-
         {pasarela && comprobante && (
           <PasarelaPago
             reserva={comprobante}
@@ -217,10 +216,6 @@ export default function CanchaCard({ cancha, sede }) {
           </div>
         ) : (
           <>
-            <p className="cancha-card-fecha">
-              {fecha === hoy ? 'Horarios de hoy' : `Horarios del ${fechaCorta(fecha)}`}
-            </p>
-
             {cargando ? (
               <Cargando tamano="chico" texto="Consultando disponibilidad" />
             ) : franjas.length === 0 ? (
@@ -229,67 +224,56 @@ export default function CanchaCard({ cancha, sede }) {
               </p>
             ) : franjas.every((f) => !f.disponible) ? (
               <p className="cancha-card-estado">
-                Todos los horarios de este día están ocupados. Prueba con otra fecha.
+                Todos los horarios de este día están ocupados. Prueba con otro día.
               </p>
             ) : (
-              <div className="cancha-card-franjas">
-                {franjas.map((f) => (
+              <>
+                {TRAMOS.map((tramo) => {
+                  const delTramo = franjas.filter((f) => enTramo(f, tramo))
+                  if (delTramo.length === 0) return null
+                  return (
+                    <div key={tramo.nombre} className="cancha-card-tramo" role="group" aria-label={tramo.nombre}>
+                      <h4>{tramo.nombre}</h4>
+                      <div className="cancha-card-franjas">
+                        {delTramo.map((f) => (
+                          <button
+                            key={f.hora_inicio}
+                            type="button"
+                            disabled={!f.disponible}
+                            title={f.disponible ? 'Disponible' : 'Ocupada'}
+                            aria-label={`${hora12(f.hora_inicio)} — ${f.disponible ? 'disponible' : 'ocupada'}`}
+                            aria-pressed={franja?.hora_inicio === f.hora_inicio}
+                            className={
+                              'franja' + (franja?.hora_inicio === f.hora_inicio ? ' franja-activa' : '')
+                            }
+                            onClick={() => f.disponible && setFranja(f)}
+                          >
+                            {hora12(f.hora_inicio)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+
+                <div className={'cancha-card-acciones' + (franja ? ' cancha-card-acciones-lista' : '')}>
                   <button
-                    key={f.hora_inicio}
                     type="button"
-                    disabled={!f.disponible}
-                    title={f.disponible ? 'Disponible' : 'Ocupada'}
-                    aria-label={`${hora12(f.hora_inicio)} — ${f.disponible ? 'disponible' : 'ocupada'}`}
-                    className={
-                      'franja' + (franja?.hora_inicio === f.hora_inicio ? ' franja-activa' : '')
-                    }
-                    onClick={() => f.disponible && setFranja(f)}
+                    className="btn-cta-primary btn-reservar"
+                    disabled={!franja || cargando || enviando}
+                    onClick={reservar}
                   >
-                    {hora12(f.hora_inicio)}
+                    {enviando
+                      ? 'Apartando horario…'
+                      : franja
+                        ? `Reservar ${hora12(franja.hora_inicio)}`
+                        : 'Elige un horario'}
                   </button>
-                ))}
-              </div>
+                </div>
+              </>
             )}
 
-            <div className="cancha-card-acciones">
-              <button
-                type="button"
-                className="btn-elegir-dia"
-                onClick={() => setVerFecha((v) => !v)}
-              >
-                📅 Elegir otra fecha
-              </button>
-
-              {verFecha && (
-                <input
-                  type="date"
-                  className="input-moderno"
-                  aria-label="Fecha de la reserva"
-                  value={fecha}
-                  min={hoy}
-                  max={limite}
-                  onChange={(e) => cambiarFecha(e.target.value)}
-                />
-              )}
-
-              {error && <p className="cancha-card-error" role="alert">{error}</p>}
-
-              <button
-                type="button"
-                className="btn-cta-primary btn-reservar"
-                disabled={!franja || cargando || enviando}
-                onClick={reservar}
-              >
-                {enviando
-                  ? 'Apartando horario…'
-                  : franja
-                    ? `Reservar ${hora12(franja.hora_inicio)}`
-                    : 'Reservar'}
-              </button>
-              <p className="cancha-card-nota-pago">
-                💳 Pagas con QR de Nequi o Bre-B en los siguientes {MINUTOS_PARA_PAGAR} minutos. La reserva queda confirmada cuando la sede verifica el pago.
-              </p>
-            </div>
+            {error && <p className="cancha-card-error" role="alert">{error}</p>}
           </>
         )}
       </div>

@@ -15,7 +15,7 @@ const PESTANAS = [
 ]
 
 // Sin sedeId: superadmin, ve todo. Con sedeId: admin de sede, solo su analítica y la confirmación de sus reservas.
-export default function PanelAdmin({ nombre, sedeId = null, onVolver }) {
+export default function PanelAdmin({ nombre, sedeId = null }) {
   const [pestana, setPestana] = useState('analitica')
   const pestanas = sedeId ? PESTANAS.filter((p) => p.soloSede) : PESTANAS
   const actual = pestanas.find((p) => p.id === pestana) ?? pestanas[0]
@@ -24,9 +24,6 @@ export default function PanelAdmin({ nombre, sedeId = null, onVolver }) {
     <main className="pagina-admin">
       <section className="admin-hero">
         <div className="admin-hero-contenido">
-          <button type="button" className="partidos-hero-volver" onClick={onVolver}>
-            ← Volver a las sedes
-          </button>
           <span className="hero-badge">Panel de administración</span>
           <h1 className="partidos-hero-titulo">
             Hola, {nombre ?? 'admin'}. <span>Así va la cancha.</span>

@@ -176,6 +176,7 @@ export default function MapaSedes({ sedes = [], onVerSede }) {
           center={CENTRO}
           zoom={ZOOM_INICIAL}
           scrollWheelZoom={false}
+          dragging={!L.Browser.mobile}
           zoomControl={false}
           className="mapa-leaflet"
         >
@@ -261,6 +262,7 @@ export function MapaSede({ sede }) {
         center={[u.lat, u.lng]}
         zoom={17}
         scrollWheelZoom={false}
+        dragging={!L.Browser.mobile}
         className="mapa-leaflet mapa-sede-lienzo"
       >
         <TileLayer

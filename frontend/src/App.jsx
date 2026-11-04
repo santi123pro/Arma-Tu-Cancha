@@ -17,14 +17,9 @@ import { Privacidad, Terminos } from './paginas/Legal'
 import NoEncontrada from './paginas/NoEncontrada'
 import Gracias from './paginas/Gracias'
 import Aliados from './paginas/Aliados'
-import { CONTACTO } from './lib/sitio'
+import Icono from './componentes/Icono'
 import { registrarVisita } from './lib/analiticas'
-
-const NOMBRES_ROL = {
-  jugador: 'Jugador',
-  admin_sede: 'Administrador de sede',
-  superadmin: 'Administrador general',
-}
+import { useEnLinea } from './lib/pwa'
 
 // '/Arma-Tu-Cancha/' en GitHub Pages, '/' en local.
 const BASE = import.meta.env.BASE_URL
@@ -97,8 +92,9 @@ function tituloDe(vista) {
 }
 
 function Contenido() {
-  const { perfil, cargando, autenticado, esAdmin, recuperando, terminarRecuperacion } = useSesion()
+  const { perfil, cargando, autenticado, recuperando, terminarRecuperacion } = useSesion()
   const toast = useToast()
+  const enLinea = useEnLinea()
 
   // Sin sesion: 'portada', 'login' o 'recuperar' (olvidé mi contraseña).
   // Con sesion: 'marketplace', el slug de una sede, 'partidos/<slug>', 'torneos/<slug>',
@@ -213,67 +209,67 @@ function Contenido() {
   // 'torneos/wembley' → ['torneos', 'wembley']
   const [, seccion, slugSeccion] = vistaPrivada.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
 
+  // La misma navegación va arriba en PC y como barra inferior en el celular.
+  const destinos = autenticado ? [
+    { id: 'marketplace', texto: 'Sedes', icono: 'sedes', activo: !['mis-reservas', 'admin'].includes(vistaPrivada) && !SUELTAS.includes(vista) },
+    { id: 'mis-reservas', texto: 'Mis reservas', icono: 'reservas', activo: vistaPrivada === 'mis-reservas' },
+    ...(puedeVerPanel ? [{ id: 'admin', texto: esSuperadmin ? 'Panel' : 'Mi sede', icono: 'panel', activo: vistaPrivada === 'admin' }] : []),
+  ] : []
+  const enlaces = destinos.map((d) => (
+    <button
+      key={d.id}
+      type="button"
+      aria-current={d.activo ? 'page' : undefined}
+      onClick={() => irA(d.id)}
+    >
+      <Icono nombre={d.icono} />
+      <span>{d.texto}</span>
+    </button>
+  ))
+
   return (
-    <>
-      <header className="header-wembley">
+    <div className={autenticado ? 'app-con-barra' : undefined}>
+      <header className="app-header">
         <button
           type="button"
-          className="logo-container logo-boton"
+          className="app-marca"
           onClick={function () {
             irA(autenticado ? 'marketplace' : 'portada')
           }}
         >
-          <img src={logo} alt="Logo de Arma Tu Cancha" className="logo-img" />
-          <div>
-            <h1>Arma Tu Cancha ⚽</h1>
-            <p className="info-contacto">📞 {CONTACTO.telefono}</p>
-          </div>
+          <img src={logo} alt="" />
+          <span>Arma Tu Cancha</span>
         </button>
 
-        <div className="auth-box-header">
+        {autenticado && <nav className="app-nav" aria-label="Principal">{enlaces}</nav>}
+
+        <div className="app-cuenta">
           {autenticado ? (
-            <div>
-              <span id="saludo-usuario">
-                👤 <strong>{perfil?.nombre ?? 'Jugador'}</strong>
-                <span style={{
-                  fontSize: 11, background: esAdmin ? '#22c55e' : '#38bdf8',
-                  color: '#0f172a', padding: '2px 7px', borderRadius: 4,
-                  fontWeight: 700, textTransform: 'uppercase', marginLeft: 6,
-                }}>
-                  {NOMBRES_ROL[perfil?.rol] ?? 'Jugador'}
-                </span>
-              </span>
-              <button
-                type="button"
-                className={'btn-panel-admin' + (vista === 'mis-reservas' ? ' activo' : '')}
-                onClick={() => irA('mis-reservas')}
-              >
-                📅 Mis reservas
+            <>
+              <span className="app-usuario">{perfil?.nombre ?? 'Jugador'}</span>
+              <button type="button" className="app-salir" onClick={salir}>
+                <Icono nombre="salir" />
+                <span>Salir</span>
               </button>
-              {puedeVerPanel && (
-                <button
-                  type="button"
-                  className={'btn-panel-admin' + (vista === 'admin' ? ' activo' : '')}
-                  onClick={() => irA('admin')}
-                >
-                  📊 {esSuperadmin ? 'Panel de administración' : 'Panel de mi sede'}
-                </button>
-              )}
-              <button onClick={salir} className="btn-logout" style={{ marginLeft: 12 }}>
-                Cerrar sesión
-              </button>
-            </div>
+            </>
           ) : vista !== 'portada' ? (
-            <button type="button" className="btn-cta-secondary" onClick={() => irA('portada')}>
-              ← Volver al inicio
+            <button type="button" className="app-salir" onClick={() => irA('portada')}>
+              <Icono nombre="volver" />
+              <span>Inicio</span>
             </button>
           ) : (
-            <button type="button" className="btn-cta-header" onClick={() => irA('login')}>
+            <button type="button" className="btn-cta-primary app-entrar" onClick={() => irA('login')}>
               Iniciar sesión
             </button>
           )}
         </div>
       </header>
+
+      {!enLinea && (
+        <p className="app-sin-conexion" role="status">
+          Sin conexión. Necesitas internet para ver horarios y reservar.
+        </p>
+      )}
 
       {/* Llegó por el enlace de "olvidé mi contraseña": primero la clave nueva. */}
       {recuperando ? (
@@ -305,7 +301,6 @@ function Contenido() {
               onAutenticado={alAutenticarse}
               onRegistrado={registrado}
               onRegistroPendiente={registroPendiente}
-              onVolver={() => irA('portada')}
             />
           )}
 
@@ -321,7 +316,6 @@ function Contenido() {
             <PanelAdmin
               nombre={perfil?.nombre}
               sedeId={esSuperadmin ? null : perfil.sede_id}
-              onVolver={() => irA('marketplace')}
             />
           )}
 
@@ -333,7 +327,7 @@ function Contenido() {
           )}
 
           {autenticado && vistaPrivada === 'mis-reservas' && (
-            <TodasMisReservas onVolver={() => irA('marketplace')} />
+            <TodasMisReservas />
           )}
 
           {autenticado && seccion && (
@@ -341,25 +335,26 @@ function Contenido() {
               key={vistaPrivada}
               slug={slugSeccion}
               tipo={seccion}
-              onVolver={() => irA(slugSeccion)}
-              onCambiar={seccion === 'reservas' ? undefined : () => irA((seccion === 'partidos' ? 'torneos/' : 'partidos/') + slugSeccion)}
+              onVolver={() => irA('marketplace')}
+              onIrSeccion={(s) => irA(s === 'reservar' ? slugSeccion : `${s}/${slugSeccion}`)}
             />
           )}
 
           {autenticado && !esVistaFija && !seccion && (
             <Sede
+              key={vistaPrivada}
               slug={vistaPrivada}
               onVolver={() => irA('marketplace')}
-              onVerPartidos={() => irA('partidos/' + vistaPrivada)}
-              onVerTorneos={() => irA('torneos/' + vistaPrivada)}
-              onVerReservas={() => irA('reservas/' + vistaPrivada)}
+              onIrSeccion={(s) => irA(`${s}/${vistaPrivada}`)}
             />
           )}
         </>
       )}
 
-      <PiePagina onIr={irA} />
-    </>
+      <PiePagina onIr={irA} conAliados={!autenticado} />
+
+      {autenticado && <nav className="app-barra" aria-label="Principal">{enlaces}</nav>}
+    </div>
   )
 }
 

@@ -123,68 +123,8 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 .btn-cta-secondary:hover { border-color: var(--sky); }
 
 /* Logout */
-.btn-logout {
-  background: var(--red) !important;
-  color: #fff !important;
-  padding: 6px 14px !important;
-  font-size: 13px !important;
-  width: auto !important;
-}
-.btn-logout:hover { background: #b91c1c !important; }
 
 /* ── Header ──────────────────────────────────────────────── */
-.header-wembley {
-  background: var(--navy);
-  color: #fff;
-  padding: 16px 28px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  border-bottom: 3px solid var(--green);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 12px rgba(0,0,0,.3);
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.logo-img {
-  height: 54px;
-  width: auto;
-  max-width: 96px;
-  object-fit: contain;
-  background: transparent;
-  padding: 0;
-}
-
-.header-wembley h1 {
-  font-size: 20px;
-  color: #f8fafc;
-  font-weight: 800;
-  letter-spacing: -.3px;
-}
-
-.info-contacto {
-  font-size: 12px;
-  color: var(--gray-400);
-  margin-top: 3px;
-}
-.info-contacto a { color: var(--sky); }
-.info-contacto a:hover { text-decoration: underline; }
-
-.auth-box-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
 
 /* ── Toast container ─────────────────────────────────────── */
 #toast-container {
@@ -583,7 +523,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   .tab-btn { padding: 8px 14px; font-size: 12px; }
   .tab-content { padding: 18px 12px; }
   #vista-marketplace { padding: 32px 14px; }
-  .header-wembley { padding: 14px 16px; }
   .auth-landing-container { flex-direction: column; align-items: center; padding: 36px 16px; }
   .auth-card-landing { max-width: 100%; }
 }
@@ -595,8 +534,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   .mkt-grid { grid-template-columns: 1fr; }
   .landing-grid-3 { grid-template-columns: 1fr; }
 }
-
-.header-wembley { z-index: 1000; }
 
 .leaflet-container { z-index: 1; }
 
@@ -763,51 +700,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 /* Sin foto: bloque del color de la sede. Con foto: la imagen se funde
    hacia abajo en un fondo oscuro teñido con el color de la sede, y el
    texto queda sobre esa transición sin tapar el escudo del centro. */
-.sede-hero {
-  position: relative;
-  padding: 48px 20px;
-  text-align: center;
-  background: var(--sede-color);
-}
-.sede-hero-con-foto {
-  padding: 0;
-  background:
-    radial-gradient(ellipse 70% 90% at 50% 100%,
-      color-mix(in srgb, var(--sede-color) 45%, transparent), transparent 70%),
-    var(--navy, #0f172a);
-}
-.sede-hero-foto {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1600 / 590;
-  max-height: 420px;
-  object-fit: cover;
-  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-}
-.sede-hero-con-foto .sede-hero-texto {
-  position: relative;
-  margin-top: -48px;
-  padding: 0 20px 34px;
-}
-.sede-hero h1 {
-  font-size: 42px;
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 6px;
-  text-shadow: 0 3px 16px rgba(0,0,0,.45);
-}
-.sede-hero-etiqueta {
-  color: rgba(255,255,255,.85);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  margin: 0 0 6px;
-}
-.sede-hero-datos { color: rgba(255,255,255,.85); font-size: 14px; margin: 0; }
-
-.sede-reservas-cuerpo { padding: 32px 36px; }
 .canchas-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -840,11 +732,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 }
 .cancha-card-cuerpo > p { font-size: 13px; margin: 0; }
 .cancha-card-cuerpo strong { color: var(--navy); }
-.cancha-card-fecha {
-  margin-top: 10px !important;
-  font-weight: 600;
-  color: var(--navy) !important;
-}
 .cancha-card-estado { font-size: 13px; color: var(--gray-400) !important; padding: 10px 0; }
 .cancha-card-franjas {
   display: grid;
@@ -918,20 +805,10 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   .canchas-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
-  .sede-reservas-cuerpo { padding: 22px 16px; }
-  .sede-hero h1 { font-size: 30px; }
-  .sede-hero-con-foto .sede-hero-texto { margin-top: -20px; padding: 0 16px 24px; }
   .canchas-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ── Sede: barra superior y sección de partidos ──────────── */
-.sede-barra {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
 .sede-volver {
   background: none;
   color: var(--gray-600);
@@ -1003,26 +880,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
    ═══════════════════════════════════════════════════════ */
 
 /* Header: logo clicable y boton de login */
-.logo-boton {
-  background: none;
-  border: none;
-  padding: 0;
-  text-align: left;
-  color: inherit;
-}
-.logo-boton:active { transform: none; }
-.btn-cta-header {
-  background: var(--green);
-  color: #fff;
-  padding: 10px 22px;
-  font-size: 14px;
-  border-radius: 999px;
-  box-shadow: 0 0 0 0 rgba(34,197,94,.5);
-}
-.btn-cta-header:hover {
-  background: var(--green-d);
-  box-shadow: 0 0 0 4px rgba(34,197,94,.2);
-}
 
 .btn-grande { padding: 13px 26px; font-size: 15px; border-radius: 10px; }
 .btn-cta-primary.btn-grande { box-shadow: 0 8px 24px rgba(34,197,94,.3); }
@@ -1450,7 +1307,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   .login-card { padding: 24px 20px; }
   .login-fila { grid-template-columns: 1fr; gap: 0; }
   .hero-stats { gap: 22px; }
-  .btn-cta-header { width: auto; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1459,15 +1315,13 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 
 /* Brillo que cruza los botones principales al pasar el mouse */
 .btn-grande,
-.login-submit,
-.btn-cta-header {
+.login-submit{
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 .btn-grande::after,
-.login-submit::after,
-.btn-cta-header::after {
+.login-submit::after{
   content: '';
   position: absolute;
   top: 0;
@@ -1481,10 +1335,7 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   pointer-events: none;
 }
 .btn-grande:hover::after,
-.login-submit:hover::after,
-.btn-cta-header:hover::after { left: 130%; }
-
-.btn-cta-header:hover { transform: translateY(-1px); }
+.login-submit:hover::after{ left: 130%; }
 .btn-cta-primary.btn-grande:hover,
 .login-submit:not(:disabled):hover {
   transform: translateY(-2px);
@@ -1500,7 +1351,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 
 /* Botones sólidos: brillo que los cruza, se elevan y brillan con su color */
 .btn-cta-primary,
-.btn-logout,
 .btn-peligro,
 .btn-reserva-cancelar {
   position: relative;
@@ -1508,7 +1358,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   isolation: isolate;
 }
 .btn-cta-primary::after,
-.btn-logout::after,
 .btn-peligro::after,
 .btn-reserva-cancelar::after {
   content: '';
@@ -1524,7 +1373,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   pointer-events: none;
 }
 .btn-cta-primary:not(:disabled):hover::after,
-.btn-logout:hover::after,
 .btn-peligro:not(:disabled):hover::after,
 .btn-reserva-cancelar:not(:disabled):hover::after { left: 130%; }
 
@@ -1532,7 +1380,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(34,197,94,.38);
 }
-.btn-logout:hover,
 .btn-peligro:not(:disabled):hover,
 .btn-reserva-cancelar:not(:disabled):hover {
   transform: translateY(-2px);
@@ -1544,14 +1391,12 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 .btn-cta-outline,
 .btn-elegir-dia,
 .btn-torneo-cancelar,
-.btn-chico,
-.btn-panel-admin {
+.btn-chico{
   transition: background var(--transition), color var(--transition), border-color var(--transition),
               transform var(--transition), box-shadow var(--transition);
 }
 .btn-cta-secondary:not(:disabled):hover,
-.btn-cta-outline:not(:disabled):hover,
-.btn-panel-admin:hover {
+.btn-cta-outline:not(:disabled):hover{
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(56,189,248,.18);
 }
@@ -1597,8 +1442,6 @@ button:focus-visible,
 }
 
 /* Logo del header */
-.logo-boton .logo-img { transition: transform .3s ease; }
-.logo-boton:hover .logo-img { transform: rotate(-8deg) scale(1.06); }
 
 /* Hero: badge y contadores */
 .hero-badge { transition: background var(--transition), transform var(--transition); }
@@ -1949,8 +1792,6 @@ button:focus-visible,
 /* ═══════════════════════════════════════════════════════
    Página de partidos
    ═══════════════════════════════════════════════════════ */
-.btn-ir-partidos { border-radius: 999px; padding: 10px 20px; box-shadow: 0 8px 20px rgba(34,197,94,.3); }
-.btn-ir-partidos:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(34,197,94,.4); }
 
 .pagina-partidos { background: var(--gray-50); min-height: calc(100vh - 88px); }
 
@@ -2099,25 +1940,13 @@ button:focus-visible,
 /* ═══════════════════════════════════════════════════════
    Torneos (reusa el diseño de la página de partidos)
    ═══════════════════════════════════════════════════════ */
-.sede-acciones { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-.btn-ir-torneos {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  box-shadow: 0 8px 20px rgba(245,158,11,.3);
-}
-.btn-ir-torneos:hover {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  box-shadow: 0 12px 26px rgba(245,158,11,.4);
-}
 
 .partidos-hero-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
 .partidos-hero-nav .partidos-hero-volver { margin-bottom: 0; }
-.partidos-hero-otro { border-color: rgba(34,197,94,.45); color: #bbf7d0; }
-.partidos-hero-otro:hover { background: rgba(34,197,94,.2); transform: translateX(3px); }
 
 /* En torneos el acento es dorado */
 .pagina-torneos .partidos-hero-titulo span { color: #fbbf24; }
 .pagina-torneos .partidos-bloque:first-child { border-top-color: #f59e0b; }
-.pagina-torneos .partidos-hero-otro { border-color: rgba(34,197,94,.45); }
 .pagina-torneos .tarjeta-cancha::before { background: linear-gradient(90deg, #f59e0b, var(--green)); }
 .pagina-torneos .form-partido textarea { resize: vertical; min-height: 84px; font-family: inherit; }
 
@@ -2180,14 +2009,6 @@ button:focus-visible,
 /* ═══════════════════════════════════════════════════════
    Mis reservas (reusa el diseño de la página de partidos)
    ═══════════════════════════════════════════════════════ */
-.btn-ir-reservas {
-  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
-  box-shadow: 0 8px 20px rgba(56,189,248,.3);
-}
-.btn-ir-reservas:hover {
-  background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
-  box-shadow: 0 12px 26px rgba(56,189,248,.4);
-}
 .pagina-reservas .partidos-hero-titulo span { color: var(--sky); }
 .pagina-reservas .partidos-bloque:first-child { border-top-color: var(--sky); }
 .pagina-reservas .tarjeta-cancha::before { background: linear-gradient(90deg, var(--sky), var(--green)); }
@@ -2204,26 +2025,9 @@ button:focus-visible,
 .btn-reserva-cancelar:hover { background: #dc2626; }
 .btn-reserva-cancelar:disabled { opacity: .6; cursor: not-allowed; }
 
-@media (max-width: 640px) {
-  .sede-barra { flex-direction: column; align-items: stretch; }
-  .sede-acciones { justify-content: stretch; }
-  .sede-acciones .btn-ir-partidos { flex: 1; }
-}
-
 /* ═══════════════════════════════════════════════════════
    Panel de administración
    ═══════════════════════════════════════════════════════ */
-.btn-panel-admin {
-  background: rgba(56,189,248,.12);
-  color: var(--sky);
-  border: 1.5px solid rgba(56,189,248,.4);
-  padding: 6px 14px;
-  font-size: 13px;
-  border-radius: 999px;
-  margin-left: 12px;
-}
-.btn-panel-admin:hover,
-.btn-panel-admin.activo { background: var(--sky); color: var(--navy); }
 
 .pagina-admin { background: var(--gray-50); min-height: calc(100vh - 88px); }
 
@@ -2518,7 +2322,6 @@ button:focus-visible,
   .admin-contenido { padding: 20px 12px 40px; }
   .admin-oculto-movil { display: none; }
   .admin-nuevo { grid-template-columns: minmax(0, 1fr); }
-  .btn-panel-admin { margin: 8px 0 0; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2662,13 +2465,6 @@ button:focus-visible,
   color: var(--tema);
 }
 .tema-sede .partidos-hero-titulo span { color: var(--tema); }
-.tema-sede .sede-hero-con-foto {
-  background:
-    radial-gradient(ellipse 70% 90% at 50% 100%,
-      color-mix(in srgb, var(--sede-color) 45%, transparent), transparent 70%),
-    var(--tema-oscuro);
-}
-.tema-sede .sede-hero-etiqueta { color: var(--tema); }
 .tema-sede .partido-cupos span { color: var(--tema-d); }
 .tema-sede .partido-barra i { background: var(--tema); }
 
@@ -3362,8 +3158,6 @@ button:focus-visible,
   --breb:       #0b5cff;
   --breb-suave: #eff4ff;
 }
-
-.cancha-card-nota-pago { font-size: 11.5px; color: var(--gray-400); line-height: 1.45; text-align: center; }
 
 /* Tarjeta de la cancha mientras el horario está apartado */
 .pago-apartado { background: #fffbeb; border-color: #fde68a; }
@@ -4060,3 +3854,476 @@ button:focus-visible,
    ancho (.tarjeta-cancha button); los pequeños del pago no. */
 .pagina-partidos .tarjeta-cancha .pago-copiar,
 .tarjeta-cancha .pago-copiar { width: auto; margin: 0; padding: 3px 10px; font-size: 11px; border-radius: 999px; }
+
+/* ═══════════════════════════════════════════════════════
+   Rediseño: base, navegación y página de la sede.
+   Va al final para mandar sobre los estilos anteriores.
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --font: 'Barlow', 'Segoe UI', system-ui, sans-serif;
+  --font-titulo: 'Barlow Condensed', 'Arial Narrow', 'Segoe UI', sans-serif;
+  --alto-header: 64px;
+  --alto-barra: 60px;
+  --ancho-pagina: 1180px;
+}
+html { scroll-padding-top: calc(var(--alto-header) + 56px); -webkit-text-size-adjust: 100%; }
+body { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { font-family: var(--font-titulo); letter-spacing: 0; }
+button, a, summary { touch-action: manipulation; }
+.icono { width: 22px; height: 22px; flex: none; }
+
+/* El verde de la marca solo alcanza buen contraste con texto oscuro */
+.btn-cta-primary { color: var(--navy); font-weight: 700; min-height: 44px; }
+.btn-cta-primary:hover { background: #4ade80; }
+.btn-cta-primary:disabled { background: var(--gray-200); color: var(--gray-600); opacity: 1; }
+.btn-cta-primary:disabled::after { display: none; }
+
+/* ── Encabezado de la app ── */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: var(--alto-header);
+  padding: env(safe-area-inset-top) max(24px, env(safe-area-inset-right)) 0 max(24px, env(safe-area-inset-left));
+  background: var(--navy);
+  color: #fff;
+}
+.app-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  color: #fff;
+  padding: 0;
+  font-family: var(--font-titulo);
+  font-size: 24px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.app-marca img { height: 48px; width: auto; display: block; }
+.app-nav { display: flex; align-self: stretch; gap: 4px; }
+.app-nav button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  background: none;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+  border-top: 3px solid transparent;
+  color: var(--gray-400);
+  font-size: 15px;
+}
+.app-nav button:hover { color: #fff; }
+.app-nav button[aria-current='page'] { color: #fff; border-bottom-color: var(--green); }
+.app-cuenta { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.app-usuario {
+  max-width: 180px;
+  color: var(--gray-400);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-salir {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 10px;
+  background: none;
+  color: #fff;
+  font-size: 14px;
+}
+.app-salir:hover { background: rgba(255,255,255,.1); }
+.app-entrar { padding: 8px 18px; }
+.app-sin-conexion {
+  padding: 8px 16px;
+  background: #fef3c7;
+  color: #78350f;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Barra inferior: solo en el celular */
+.app-barra { display: none; }
+
+@media (max-width: 768px) {
+  /* Con barra inferior el encabezado no necesita seguir al usuario */
+  .app-header {
+    position: static;
+    gap: 12px;
+    min-height: 56px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+  }
+  .app-marca { font-size: 21px; }
+  .app-marca img { height: 40px; }
+  .app-nav, .app-usuario { display: none; }
+  .app-con-barra { padding-bottom: calc(var(--alto-barra) + env(safe-area-inset-bottom)); }
+  .app-barra {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 1000;
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--navy);
+    box-shadow: 0 -2px 12px rgba(15,23,42,.25);
+  }
+  .app-barra button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: var(--alto-barra);
+    background: none;
+    border-radius: 0;
+    color: var(--gray-400);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .app-barra button[aria-current='page'] { color: var(--green); }
+  html { scroll-padding-top: 64px; }
+  /* iOS acerca la página al enfocar campos con letra de menos de 16px */
+  input, select, textarea, .input-moderno { font-size: 16px; }
+}
+
+/* ── Cabecera de la sede ── */
+.encabezado-sede {
+  background: var(--navy);
+  color: #fff;
+  border-bottom: 4px solid var(--sede-color);
+}
+.encabezado-sede-interior {
+  max-width: var(--ancho-pagina);
+  margin: 0 auto;
+  padding: 12px 20px 16px;
+}
+.encabezado-sede-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 40px;
+  margin-left: -6px;
+  padding: 0 8px 0 0;
+  background: none;
+  color: var(--gray-400);
+  font-size: 15px;
+}
+.encabezado-sede-volver:hover { color: #fff; }
+.encabezado-sede h1 {
+  color: #fff;
+  font-size: clamp(38px, 7vw, 64px);
+  line-height: 1;
+}
+.encabezado-sede-direccion { margin-top: 8px; color: #cbd5e1; font-size: 15px; overflow-wrap: anywhere; }
+.encabezado-sede-telefono {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.encabezado-sede-telefono .icono { width: 18px; height: 18px; color: var(--green); }
+
+/* Marcador: los tres datos que deciden dónde jugar */
+.marcador-sede { display: flex; margin-top: 12px; }
+.marcador-sede > div { min-width: 0; padding: 0 16px; border-left: 1px solid rgba(255,255,255,.2); }
+.marcador-sede > div:first-child { padding-left: 0; border-left: 0; }
+.marcador-sede dt { color: var(--gray-400); font-size: 13px; line-height: 1.3; }
+.marcador-sede dd {
+  color: #fff;
+  font-family: var(--font-titulo);
+  font-size: clamp(22px, 6vw, 32px);
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.encabezado-sede-foto { display: block; width: 100%; object-fit: cover; }
+
+@media (max-width: 859px) {
+  .encabezado-sede-completo .encabezado-sede-interior { padding: 0 0 16px; }
+  .encabezado-sede-completo .encabezado-sede-foto { aspect-ratio: 16 / 7; }
+  .encabezado-sede-completo .encabezado-sede-texto { padding: 4px 16px 0; }
+}
+@media (max-width: 400px) {
+  .marcador-sede > div { padding: 0 10px; }
+}
+@media (min-width: 860px) {
+  .encabezado-sede-completo .encabezado-sede-interior {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: center;
+    gap: 40px;
+    padding-top: 24px;
+    padding-bottom: 28px;
+  }
+  .encabezado-sede-foto { order: 2; aspect-ratio: 1600 / 700; border-radius: 12px; }
+}
+
+/* ── Pestañas de la sede ── */
+.nav-sede {
+  position: sticky;
+  top: var(--alto-header);
+  z-index: 50;
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+}
+.nav-sede-interior {
+  display: flex;
+  max-width: var(--ancho-pagina);
+  margin: 0 auto;
+  padding: 0 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-sede-interior::-webkit-scrollbar { display: none; }
+.nav-sede button {
+  flex: 0 0 auto;
+  min-height: 50px;
+  padding: 0 14px;
+  background: none;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--gray-600);
+  font-size: 16px;
+  white-space: nowrap;
+}
+.nav-sede button:hover { color: var(--navy); }
+.nav-sede button[aria-current='page'] { color: var(--navy); font-weight: 700; border-bottom-color: var(--sede-color); }
+@media (max-width: 768px) {
+  .nav-sede { top: 0; }
+  .nav-sede button { flex: 1 0 auto; padding: 0 10px; font-size: 15px; }
+}
+
+/* ── Cuerpo de "Reservar" ── */
+.pagina-sede-cuerpo {
+  max-width: var(--ancho-pagina);
+  margin: 0 auto;
+  padding: 20px 20px 40px;
+}
+.selector-dia { margin-bottom: 20px; }
+.selector-dia-pista {
+  display: flex;
+  gap: 8px;
+  margin: 0 -20px;
+  padding: 2px 20px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.selector-dia-pista::-webkit-scrollbar { display: none; }
+.selector-dia-pista button {
+  flex: 0 0 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 6px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  color: var(--navy);
+}
+.selector-dia-pista button:hover { border-color: var(--navy3); }
+.selector-dia-pista span { color: var(--gray-600); font-size: 13px; font-weight: 500; line-height: 1.2; white-space: nowrap; }
+.selector-dia-pista span::first-letter { text-transform: uppercase; }
+.selector-dia-pista strong { font-family: var(--font-titulo); font-size: 26px; font-weight: 600; line-height: 1.15; }
+.selector-dia-pista button[aria-pressed='true'] { background: var(--navy); border-color: var(--navy); color: #fff; }
+.selector-dia-pista button[aria-pressed='true'] span { color: #cbd5e1; }
+.selector-dia-texto { margin-top: 8px; color: var(--navy); font-size: 15px; font-weight: 600; }
+
+.lista-canchas { container-type: inline-size; display: flex; flex-direction: column; gap: 16px; }
+
+/* Sin overflow hidden: el botón "Reservar" se pega al borde mientras se baja */
+.cancha-card { overflow: visible; box-shadow: none; }
+.cancha-card-cabeza { display: flex; align-items: center; gap: 14px; padding: 14px 14px 0; }
+.cancha-card-imagen {
+  flex: none;
+  width: 92px;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.cancha-card-datos { min-width: 0; }
+.cancha-card-datos h3 { font-size: 24px; line-height: 1.1; }
+.cancha-card-datos p { color: var(--gray-600); font-size: 15px; }
+.cancha-card-datos .cancha-card-precio { color: var(--navy); font-weight: 700; }
+.cancha-card-precio small { color: var(--gray-600); font-size: 13px; font-weight: 400; }
+.cancha-card-cuerpo { gap: 14px; padding: 14px; }
+.cancha-card-tramo h4 {
+  margin-bottom: 6px;
+  color: var(--gray-600);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+}
+.cancha-card-franjas { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin: 0; }
+.franja {
+  min-height: 44px;
+  padding: 4px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  color: #166534;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.franja:hover:not(:disabled) { border-color: var(--green-d); }
+.franja-activa,
+.franja-activa:hover:not(:disabled) { background: var(--navy); border-color: var(--navy); color: #fff; }
+.franja:disabled { background: transparent; border-color: var(--gray-100); color: var(--gray-400); }
+.cancha-card-estado { padding: 4px 0; color: var(--gray-600) !important; font-size: 15px; }
+.cancha-card-acciones { margin: 0; padding: 0; }
+.cancha-card-acciones-lista {
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+}
+.btn-reservar { margin: 0; min-height: 50px; font-size: 16px; }
+.cancha-card-acciones-lista .btn-reservar { box-shadow: 0 6px 18px rgba(15,23,42,.25); }
+@media (max-width: 768px) {
+  .cancha-card-acciones-lista { bottom: calc(var(--alto-barra) + env(safe-area-inset-bottom) + 10px); }
+}
+
+@container (min-width: 720px) {
+  .cancha-card { display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+  .cancha-card-cabeza { flex-direction: column; align-items: stretch; padding: 16px 0 16px 16px; }
+  .cancha-card-imagen { width: 100%; aspect-ratio: 4 / 3; font-size: 18px; }
+  .cancha-card-cuerpo { padding: 16px; }
+  .cancha-card-franjas { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+  .cancha-card-acciones { max-width: 320px; margin-left: auto; width: 100%; }
+}
+
+.sede-nota-pago { margin-top: 16px; color: var(--gray-600); font-size: 14px; }
+.sede-detalles { margin-top: 20px; border-top: 1px solid var(--gray-200); }
+.sede-detalles summary {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  color: var(--navy);
+  font-weight: 600;
+  cursor: pointer;
+}
+.sede-detalles summary::after { content: '+'; margin-left: auto; font-size: 22px; font-weight: 500; }
+.sede-detalles[open] summary::after { content: '–'; }
+.sede-detalles > p { max-width: 68ch; margin-bottom: 16px; }
+.sede-error { padding: 60px 20px; text-align: center; }
+.sede-error p { color: #b91c1c; }
+.sede-error div { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+.sede-error button { min-height: 44px; }
+
+/* ── Secciones de la sede y "Mis reservas" ── */
+.pagina-sede .partidos-contenedor,
+.pagina-reservas .partidos-contenedor { margin-top: 20px; }
+.encabezado-pagina {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 20px 0;
+}
+.encabezado-pagina h1 { font-size: clamp(36px, 6vw, 52px); line-height: 1.05; }
+.encabezado-pagina p { margin-top: 4px; }
+
+/* ── Pie de página ── */
+.pie-pagina { margin-top: 24px; }
+.pie-enlaces { gap: 0; }
+.pie-enlaces button { min-height: 36px; padding: 0; }
+
+/* ── Textos pequeños: sin mayúsculas sostenidas ── */
+.sub-tag, .sub-tag-green, .hero-badge {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.hero-stats span { font-size: 14px; letter-spacing: 0; text-transform: none; }
+
+/* ── Portada ── */
+.hero-title { font-size: clamp(46px, 6vw, 72px); line-height: 1; }
+.hero-title span { color: inherit; }
+.texto-resaltado { background: none; color: inherit; }
+.landing-title, .landing-title-white { font-size: clamp(34px, 4.5vw, 48px); line-height: 1.05; }
+@media (max-width: 768px) {
+  .landing-header-flex { align-items: flex-start; text-align: left; }
+  .seccion-flujo .flujo-encabezado { text-align: left; }
+  /* Pasos: icono al lado del texto, para no ocupar tres pantallas */
+  .flujo-paso {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    column-gap: 14px;
+    padding: 16px;
+    border-radius: 14px;
+    text-align: left;
+  }
+  .flujo-icono { grid-row: 1 / span 2; width: 52px; height: 52px; margin: 0; font-size: 24px; }
+  .flujo-num { display: none; }
+  .flujo-paso h3 { font-size: 22px; margin-bottom: 2px; }
+  .pie-contenido { text-align: left; }
+  .pie-contacto, .pie-enlaces { align-items: flex-start; }
+  .pie-enlaces button { text-align: left; }
+  .pie-aliados { text-align: left; }
+}
+
+/* ── Partidos y torneos: tarjetas más sobrias ── */
+.pagina-partidos .partidos-bloque {
+  border-radius: 14px;
+  box-shadow: none;
+}
+.pagina-sede .partidos-bloque:first-child {
+  top: calc(var(--alto-header) + 66px);
+  border-top: 1px solid var(--gray-200);
+}
+.pagina-partidos .form-partido .btn-cta-primary { box-shadow: none; }
+.pagina-partidos .tarjeta-cancha { border-radius: 12px; box-shadow: none; }
+@media (max-width: 1000px) {
+  /* En el celular primero se ve a qué unirse y después el formulario para crear */
+  .pagina-sede .partidos-bloque:first-child { order: 2; }
+}
+
+.pagina-reservas .partidos-bloque:first-child { border-top: 1px solid var(--gray-200); }
+
+/* ── Títulos de un solo color ── */
+.partidos-hero-titulo span,
+.login-panel-titulo span { color: inherit; }
+
+/* ── Login: en el celular el formulario va primero ── */
+@media (max-width: 768px) {
+  .login-panel { display: none; }
+  .login-lado-form { padding: 20px 16px 32px; }
+}
+
+/* ── Panel: dos cifras por fila en el celular ── */
+@media (max-width: 640px) {
+  .admin-cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .admin-hero .partidos-hero-titulo { margin-bottom: 16px; }
+}
+
+/* ── Sede en el celular: los horarios más arriba ── */
+@media (max-width: 859px) {
+  .encabezado-sede-completo .encabezado-sede-interior { position: relative; }
+  .encabezado-sede-completo .encabezado-sede-foto { aspect-ratio: 16 / 6; }
+  .encabezado-sede-completo .encabezado-sede-volver {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    margin: 0;
+    padding: 0 12px 0 6px;
+    background: rgba(15,23,42,.78);
+    border-radius: 999px;
+    color: #fff;
+  }
+  .encabezado-sede-completo .encabezado-sede-texto { padding-top: 10px; }
+  .encabezado-sede-completo h1 { font-size: 44px; }
+  .encabezado-sede-direccion { margin-top: 2px; }
+}
+@media (max-width: 700px) {
+  .cancha-card-imagen { width: 72px; }
+  .cancha-card-datos h3 { font-size: 22px; }
+}
