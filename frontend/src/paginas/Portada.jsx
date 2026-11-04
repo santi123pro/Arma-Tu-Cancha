@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { listarSedes } from '../lib/datos'
 import { fotoSede } from '../lib/imagenes'
-import MapaSedes from '../componentes/MapasSedes'
+import Cargando from '../componentes/Cargando'
 import ImagenSede from '../componentes/ImagenSede'
+
+// Leaflet y su CSS van aparte para no retrasar la primera pantalla.
+const MapaSedes = lazy(() => import('../componentes/MapasSedes'))
 
 const PASOS = [
   {
@@ -172,7 +175,9 @@ function SeccionMapa({ sedes, onVerSede }) {
         </p>
       </div>
 
-      <MapaSedes sedes={sedes} onVerSede={onVerSede} />
+      <Suspense fallback={<Cargando texto="Cargando mapa" />}>
+        <MapaSedes sedes={sedes} onVerSede={onVerSede} />
+      </Suspense>
     </section>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { fechaLocal } from '../lib/formato'
 import { DIAS_ANTICIPACION, diaSiguiente, hoyTermino } from '../lib/sedes'
 import { temaSede } from '../lib/temas'
@@ -7,8 +7,10 @@ import { MINUTOS_PARA_PAGAR } from '../lib/qrGenerico'
 import CanchaCard from '../componentes/CanchaCard'
 import Cargando from '../componentes/Cargando'
 import EncabezadoSede from '../componentes/EncabezadoSede'
-import { MapaSede } from '../componentes/MapasSedes'
 import SelectorDia from '../componentes/SelectorDia'
+
+// Leaflet y su CSS solo se descargan al abrir "Cómo llegar".
+const MapaSede = lazy(() => import('../componentes/MapasSedes').then((m) => ({ default: m.MapaSede })))
 
 export default function Sede({ slug, onVolver, onIrSeccion }) {
   // detalleSede trae la sede por su slug junto con sus canchas activas
@@ -73,7 +75,11 @@ export default function Sede({ slug, onVolver, onIrSeccion }) {
         <details className="sede-detalles" onToggle={(e) => setVerMapa(e.currentTarget.open)}>
           <summary>Sobre la sede y cómo llegar</summary>
           {sede.descripcion && <p>{sede.descripcion}</p>}
-          {verMapa && <MapaSede sede={sede} />}
+          {verMapa && (
+            <Suspense fallback={<Cargando tamano="chico" texto="Cargando mapa" />}>
+              <MapaSede sede={sede} />
+            </Suspense>
+          )}
         </details>
       </div>
     </main>

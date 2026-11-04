@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useSesion } from './lib/useSesion'
 import { cerrarSesion } from './lib/datos'
 import { ToastProvider, useToast } from './componentes/Toast'
@@ -8,7 +8,6 @@ import Sede from './paginas/sede'
 import Portada from './paginas/Portada'
 import Login from './paginas/Login'
 import PaginaPartidos from './paginas/PaginaPartidos'
-import PanelAdmin from './paginas/PanelAdmin'
 import TodasMisReservas from './paginas/TodasMisReservas'
 import NuevaClave from './paginas/NuevaClave'
 import Cargando from './componentes/Cargando'
@@ -21,6 +20,9 @@ import Icono from './componentes/Icono'
 import { registrarVisita } from './lib/analiticas'
 import { useEnLinea } from './lib/pwa'
 import { useTema } from './lib/tema'
+
+// El panel y sus gráficas solo los descarga quien los abre.
+const PanelAdmin = lazy(() => import('./paginas/PanelAdmin'))
 
 // '/Arma-Tu-Cancha/' en GitHub Pages, '/' en local.
 const BASE = import.meta.env.BASE_URL
@@ -325,10 +327,12 @@ function Contenido() {
           )}
 
           {autenticado && vistaPrivada === 'admin' && (
-            <PanelAdmin
-              nombre={perfil?.nombre}
-              sedeId={esSuperadmin ? null : perfil.sede_id}
-            />
+            <Suspense fallback={<Cargando tamano="grande" texto="Cargando el panel" />}>
+              <PanelAdmin
+                nombre={perfil?.nombre}
+                sedeId={esSuperadmin ? null : perfil.sede_id}
+              />
+            </Suspense>
           )}
 
           {autenticado && vistaPrivada === 'marketplace' && (
