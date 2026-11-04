@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listarSedes } from '../lib/datos'
+import { tiposDe } from '../lib/sedes'
 import TarjetaSede from '../componentes/TarjetaSede'
 import Cargando from '../componentes/Cargando'
 
@@ -8,6 +9,7 @@ export default function Marketplace({ soloSedeId = null, onElegirSede }) {
   const [sedes, setSedes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+  const [tipoElegido, setTipoElegido] = useState(null)
 
   useEffect(() => {
     listarSedes().then(({ datos, error }) => {
@@ -22,41 +24,56 @@ export default function Marketplace({ soloSedeId = null, onElegirSede }) {
   }
 
   if (error) {
-    return <Mensaje color="#dc2626">{error}</Mensaje>
+    return <p className="sedes-mensaje sedes-mensaje-error">{error}</p>
   }
 
   if (!sedes.length) {
     return (
-      <Mensaje>
+      <p className="sedes-mensaje">
         Todavía no hay sedes publicadas.
         <br />
         <small>Vuelve pronto o escríbenos si administras una sede.</small>
-      </Mensaje>
+      </p>
     )
   }
 
+  const tipos = [...new Set(sedes.flatMap(tiposDe))]
+    .sort((a, b) => a.localeCompare(b, 'es', { numeric: true }))
+  const sedesVisibles = tipoElegido
+    ? sedes.filter((s) => tiposDe(s).includes(tipoElegido))
+    : sedes
+
   return (
-    <div style={{ padding: '40px 20px', textAlign: 'center', maxWidth: 1000, margin: '0 auto' }}>
-      <h2 style={{ fontSize: 28, color: '#0f172a', marginBottom: 10 }}>
-        ¡Qué bueno verte! Elige dónde vas a jugar hoy ⚽
-      </h2>
-      <p style={{ color: '#64748b', marginBottom: 30 }}>
-        Selecciona una sede para ver sus canchas y horarios disponibles.
+    <section className="pagina-sedes">
+      <h2>Elige dónde jugar</h2>
+      <p className="pagina-sedes-subtitulo">
+        Toca una sede para ver sus canchas y horarios disponibles.
       </p>
 
+      {tipos.length > 1 && (
+        <div className="filtro-sedes" role="group" aria-label="Filtrar por tipo de cancha">
+          <ChipFiltro activo={!tipoElegido} onClick={() => setTipoElegido(null)}>Todas</ChipFiltro>
+          {tipos.map((tipo) => (
+            <ChipFiltro key={tipo} activo={tipoElegido === tipo} onClick={() => setTipoElegido(tipo)}>
+              {tipo}
+            </ChipFiltro>
+          ))}
+        </div>
+      )}
+
       <div className="lista-sedes">
-        {sedes.map((s) => (
+        {sedesVisibles.map((s) => (
           <TarjetaSede key={s.id} sede={s} onEntrar={() => onElegirSede(s.slug)} />
         ))}
       </div>
-    </div>
+    </section>
   )
 }
 
-function Mensaje({ children, color = '#64748b' }) {
+function ChipFiltro({ activo, onClick, children }) {
   return (
-    <p style={{ textAlign: 'center', padding: 60, color, lineHeight: 1.7 }}>
+    <button type="button" className="chip-filtro" aria-pressed={activo} onClick={onClick}>
       {children}
-    </p>
+    </button>
   )
 }

@@ -614,21 +614,71 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 #auth-landing { scroll-margin-top: 96px; }
 
 /* ── Tarjetas de sede (Marketplace) ──────────────────────── */
-.lista-sedes {
+.pagina-sedes {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+.pagina-sedes h2 { font-size: 28px; margin-bottom: 8px; }
+.pagina-sedes-subtitulo { margin-bottom: 24px; }
+.sedes-mensaje {
+  text-align: center;
+  padding: 60px;
+  color: #64748b;
+  line-height: 1.7;
+}
+.sedes-mensaje-error { color: #dc2626; }
+
+.filtro-sedes {
   display: flex;
-  flex-direction: column;
-  gap: 28px;
-  text-align: left;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.chip-filtro {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 16px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 999px;
+  color: var(--gray-600);
+  font-size: 14px;
+  white-space: nowrap;
+}
+.chip-filtro:hover { background: var(--gray-100); }
+.chip-filtro[aria-pressed="true"] {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.lista-sedes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 .tarjeta-sede {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
   background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+  color: var(--navy);
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
   overflow: hidden;
-  transition: box-shadow var(--transition);
 }
 .tarjeta-sede:hover { box-shadow: var(--shadow); }
+.tarjeta-sede:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
 .imagen-sede {
   display: flex;
   align-items: center;
@@ -647,38 +697,65 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   display: block;
 }
 .imagen-sede:has(img) { padding: 0; }
-.tarjeta-sede-imagen { aspect-ratio: 16 / 6; font-size: 36px; }
+.tarjeta-sede-imagen { width: 100%; aspect-ratio: 16 / 9; font-size: 24px; }
+.tarjeta-sede-imagen img { transition: transform .3s ease; }
+.tarjeta-sede:hover .tarjeta-sede-imagen img { transform: scale(1.04); }
 .tarjeta-sede-info {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  border-top: 1px solid var(--gray-200);
-}
-.tarjeta-sede-zona {
-  padding: 22px 26px;
-  min-width: 0;
-}
-.tarjeta-sede-zona + .tarjeta-sede-zona { border-left: 1px solid var(--gray-200); }
-.tarjeta-sede-zona h3 { color: var(--navy); font-size: 22px; margin: 0 0 6px; }
-.tarjeta-sede-zona h4 { color: var(--navy); font-size: 15px; margin: 0 0 6px; }
-.tarjeta-sede-zona p { font-size: 13px; color: var(--gray-600); margin: 0 0 4px; overflow-wrap: anywhere; }
-.tarjeta-sede-centro {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-left: 40px;
-  padding-right: 40px;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
 }
-
-@media (max-width: 768px) {
-  .tarjeta-sede-zona { padding: 18px; }
-  .tarjeta-sede-centro { padding-left: 24px; padding-right: 24px; }
+.tarjeta-sede-encabezado {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
+.tarjeta-sede-nombre { font-size: 17px; font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.tarjeta-sede-precio { flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--gray-700); }
+.tarjeta-sede-direccion { font-size: 13px; color: var(--gray-600); overflow-wrap: anywhere; }
+.tarjeta-sede-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.tarjeta-sede-chips > span {
+  padding: 3px 9px;
+  background: var(--gray-100);
+  border-radius: 999px;
+  color: var(--gray-600);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tarjeta-sede-accion {
+  margin-top: auto;
+  color: var(--green-d);
+  font-size: 14px;
+  font-weight: 600;
+}
+.tarjeta-sede-flecha {
+  display: inline-block;
+  transition: transform var(--transition);
+}
+.tarjeta-sede:hover .tarjeta-sede-flecha { transform: translateX(4px); }
 
 @media (max-width: 600px) {
-  .tarjeta-sede-imagen { aspect-ratio: 16 / 9; }
-  .tarjeta-sede-info { grid-template-columns: 1fr; }
-  .tarjeta-sede-zona + .tarjeta-sede-zona { border-left: none; border-top: 1px solid var(--gray-200); }
-  .tarjeta-sede-centro .btn-cta-primary { width: 100%; }
+  .lista-sedes { grid-template-columns: minmax(0, 1fr); }
+  .tarjeta-sede-imagen { aspect-ratio: 16 / 7; }
+  /* Los chips llegan hasta el borde de la pantalla al deslizar */
+  .filtro-sedes {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 2px 20px;
+    scrollbar-width: none;
+  }
+  .filtro-sedes::-webkit-scrollbar { display: none; }
 }
 
 /* ── Reservas: canchas de una sede ───────────────────────── */
@@ -2596,7 +2673,7 @@ button:focus-visible,
 .tema-sede .partido-barra i { background: var(--tema); }
 
 /* Tarjeta del listado: franja superior con el color de la sede */
-.tarjeta-sede.tema-sede { border-top: 4px solid var(--tema); }
+.tarjeta-sede.tema-sede { border-top: 3px solid var(--tema); }
 .tarjeta-sede.tema-sede:hover {
   box-shadow: 0 12px 30px color-mix(in srgb, var(--tema) 25%, transparent);
   transform: translateY(-2px);

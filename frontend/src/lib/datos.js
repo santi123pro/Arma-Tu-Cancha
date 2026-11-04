@@ -100,7 +100,7 @@ export function listarSedes() {
   return consultar(
     supabase
       .from('sedes')
-      .select('id, nombre, slug, descripcion, direccion, telefono, color_hex, logo_url, hora_apertura, hora_cierre, canchas(id)')
+      .select('id, nombre, slug, descripcion, direccion, telefono, color_hex, logo_url, hora_apertura, hora_cierre, canchas(id, tipo, precio_hora)')
       .eq('activa', true)
       .order('nombre')
   )
