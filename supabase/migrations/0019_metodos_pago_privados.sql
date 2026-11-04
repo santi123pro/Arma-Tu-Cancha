@@ -1,14 +1,10 @@
 -- =====================================================================
--- 0019 — Los medios de pago solo se leen con sesión iniciada
+-- 0019 — Datos de cobro solo para usuarios con sesión
 -- =====================================================================
--- sede_metodos_pago guarda el titular y la cuenta de cada sede. Hasta
--- ahora cualquiera podía leerlos con la clave pública, sin cuenta.
--- El jugador solo los necesita en la pasarela, y para llegar ahí ya
--- tiene sesión. Las funciones de reserva y pago son security definer:
--- no dependen de este permiso.
---
--- Se puede ejecutar varias veces sin romper nada.
--- Cómo correrlo: Supabase → SQL Editor → pegar todo → Run.
+-- Antes, titular y cuenta (Nequi/Bre-B) de cada sede se podían leer sin
+-- iniciar sesión. La pasarela solo se abre después de reservar, así que
+-- el jugador siempre tiene sesión cuando los necesita.
+-- Aplicada en producción el 2026-11-04.
 -- =====================================================================
 
 drop policy if exists sede_metodos_pago_lectura on public.sede_metodos_pago;
