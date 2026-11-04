@@ -20,6 +20,7 @@ import Aliados from './paginas/Aliados'
 import Icono from './componentes/Icono'
 import { registrarVisita } from './lib/analiticas'
 import { useEnLinea } from './lib/pwa'
+import { useTema } from './lib/tema'
 
 // '/Arma-Tu-Cancha/' en GitHub Pages, '/' en local.
 const BASE = import.meta.env.BASE_URL
@@ -95,6 +96,7 @@ function Contenido() {
   const { perfil, cargando, autenticado, recuperando, terminarRecuperacion } = useSesion()
   const toast = useToast()
   const enLinea = useEnLinea()
+  const { tema, alternar: alternarTema } = useTema()
 
   // Sin sesion: 'portada', 'login' o 'recuperar' (olvidé mi contraseña).
   // Con sesion: 'marketplace', el slug de una sede, 'partidos/<slug>', 'torneos/<slug>',
@@ -233,6 +235,7 @@ function Contenido() {
         <button
           type="button"
           className="app-marca"
+          aria-label="Arma Tu Cancha, ir al inicio"
           onClick={function () {
             irA(autenticado ? 'marketplace' : 'portada')
           }}
@@ -244,6 +247,15 @@ function Contenido() {
         {autenticado && <nav className="app-nav" aria-label="Principal">{enlaces}</nav>}
 
         <div className="app-cuenta">
+          <button
+            type="button"
+            className="app-tema"
+            aria-label={tema === 'oscuro' ? 'Cambiar a modo día' : 'Cambiar a modo oscuro'}
+            title={tema === 'oscuro' ? 'Modo día' : 'Modo oscuro'}
+            onClick={alternarTema}
+          >
+            <Icono nombre={tema === 'oscuro' ? 'sol' : 'luna'} />
+          </button>
           {autenticado ? (
             <>
               <span className="app-usuario">{perfil?.nombre ?? 'Jugador'}</span>

@@ -2,6 +2,18 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <!-- Modo día u oscuro antes de pintar: la elección guardada o, si no hay, la del sistema. -->
+    <script>
+      try {
+        var tema = localStorage.getItem('atc-tema')
+        if (tema !== 'claro' && tema !== 'oscuro') {
+          tema = matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro'
+        }
+        document.documentElement.dataset.tema = tema
+      } catch (e) {
+        document.documentElement.dataset.tema = 'claro'
+      }
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
