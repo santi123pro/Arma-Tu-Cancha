@@ -3870,9 +3870,8 @@ h1, h2, h3, h4 { font-family: var(--font-titulo); letter-spacing: 0; }
 button, a, summary { touch-action: manipulation; }
 .icono { width: 22px; height: 22px; flex: none; }
 
-/* El verde de la marca solo alcanza buen contraste con texto oscuro */
-.btn-cta-primary { color: var(--navy); font-weight: 700; min-height: 44px; }
-.btn-cta-primary:hover { background: #4ade80; }
+.btn-cta-primary { color: #fff; font-weight: 700; min-height: 44px; }
+.btn-cta-primary:hover { background: var(--green-d); }
 .btn-cta-primary:disabled { background: var(--gray-200); color: var(--gray-600); opacity: 1; }
 .btn-cta-primary:disabled::after { display: none; }
 
