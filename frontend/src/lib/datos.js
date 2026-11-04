@@ -63,6 +63,12 @@ export async function entrarConTelefono(telefono, clave) {
     body: { telefono, clave },
   })
   if (error) {
+    // Función sin desplegar: responde 404, pero también a la petición previa
+    // de CORS, y entonces el navegador solo ve un fallo de red (FetchError).
+    const sinFuncion = error.context?.status === 404 ||
+      (error.name === 'FunctionsFetchError' && navigator.onLine)
+    if (sinFuncion) return { datos: null, error: 'Por ahora entra con tu correo.' }
+
     // Los 4xx traen el mensaje en el cuerpo de la respuesta.
     const cuerpo = await error.context?.json?.().catch(() => null)
     return { datos: null, error: cuerpo?.error ?? 'No pudimos iniciar sesión. Intenta más tarde.' }
