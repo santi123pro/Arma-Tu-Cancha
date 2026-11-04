@@ -2,3 +2,8 @@
 .env
 .DS_Store
 *.env
+
+.env*
+
+# Acta con nombres reales: se queda solo en el computador local
+docs/Acta_Entrevista_.docx
