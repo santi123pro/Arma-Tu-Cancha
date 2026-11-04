@@ -24,7 +24,7 @@ export async function registrarse({ nombre, correo, password, telefono }) {
     password,
     // Estos datos los recoge el disparador fn_crear_perfil y con ellos
     // arma la fila en la tabla perfiles.
-    options: { data: { nombre, telefono } },
+    options: { data: { nombre, telefono }, emailRedirectTo: urlApp() },
   })
   return { datos: data, error: traducirError(error) }
 }
@@ -41,12 +41,26 @@ export async function cerrarSesion() {
   await supabase.auth.signOut()
 }
 
-// A donde vuelve el enlace del correo. Esta URL debe estar en
+// A donde vuelven los enlaces de los correos. Esta URL debe estar en
 // Authentication → URL Configuration → Redirect URLs de Supabase.
 // Siempre la raíz de la app (no la pantalla actual), que es la que está
 // registrada en Supabase.
+export function urlApp() {
+  return `${window.location.origin}${import.meta.env.BASE_URL}`
+}
+
 function urlRecuperacion() {
-  return `${window.location.origin}${import.meta.env.BASE_URL}?${MARCA_RECUPERAR}=1`
+  return `${urlApp()}?${MARCA_RECUPERAR}=1`
+}
+
+// Para quien perdió el enlace de confirmación o lo dejó vencer.
+export async function reenviarConfirmacion(correo) {
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: correo.trim(),
+    options: { emailRedirectTo: urlApp() },
+  })
+  return { datos: null, error: traducirError(error) }
 }
 
 export async function recuperarPorCorreo(correo) {

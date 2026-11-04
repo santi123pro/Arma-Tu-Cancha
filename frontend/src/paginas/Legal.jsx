@@ -68,7 +68,7 @@ export function Privacidad({ onVolver }) {
       <ul>
         <li><strong>La sede donde reservas</strong> ve tu nombre y los datos de tu reserva para poder atenderte.</li>
         <li><strong>Partidos abiertos:</strong> si te unes a un partido, el organizador ve tu nombre y tu teléfono, y tú ves los del organizador, para que puedan coordinar. Los demás jugadores no ven tus datos.</li>
-        <li><strong>Proveedores técnicos:</strong> Supabase (base de datos y autenticación), GitHub Pages (alojamiento de la página) y OpenStreetMap (mapas). Si se activan las estadísticas, se usa GoatCounter, que no usa cookies ni guarda datos personales. Algunos de estos proveedores procesan la información fuera de Colombia, con medidas de seguridad adecuadas.</li>
+        <li><strong>Proveedores técnicos:</strong> Supabase (base de datos y autenticación), Google (envío de correos de la cuenta y de reservas), GitHub Pages (alojamiento de la página) y OpenStreetMap (mapas). Si se activan las estadísticas, se usa GoatCounter, que no usa cookies ni guarda datos personales. Algunos de estos proveedores procesan la información fuera de Colombia, con medidas de seguridad adecuadas.</li>
       </ul>
 
       <h2>5. Tus derechos</h2>

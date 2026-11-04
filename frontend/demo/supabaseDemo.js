@@ -18,6 +18,7 @@ export const supabase = {
     onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
     signInWithPassword: async () => ({ data: null, error: SIN_CONEXION }),
     signUp: async () => ({ data: null, error: SIN_CONEXION }),
+    resend: async () => ({ data: null, error: SIN_CONEXION }),
     signOut: async () => ({ error: null }),
   },
 }

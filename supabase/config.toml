@@ -417,3 +417,7 @@ enabled = true
 # La llama el formulario de inicio de sesión con el celular, sin sesión.
 [functions.entrar-con-telefono]
 verify_jwt = false
+
+# La llama pg_cron sin JWT. La propia función exige x-correos-token.
+[functions.enviar-correos-reserva]
+verify_jwt = false

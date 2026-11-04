@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { supabase, traducirError } from '../lib/supabase'
 import { useToast } from '../lib/useToast'
-import { entrarConTelefono, recuperarPorCorreo } from '../lib/datos'
+import { entrarConTelefono, recuperarPorCorreo, reenviarConfirmacion, urlApp } from '../lib/datos'
+import { cuentaYaExiste } from '../lib/registro'
 import fotoFondo from '../../imagenes/cancha_1_wembley.webp'
 
 const BENEFICIOS = [
@@ -59,12 +60,27 @@ function FormEntrar({ onAutenticado, onOlvide }) {
   // Correo o celular: si tiene @ es correo.
   const [usuario, setUsuario] = useState('')
   const [clave, setClave] = useState('')
+  const [sinConfirmar, setSinConfirmar] = useState(false)
+  const [reenviando, setReenviando] = useState(false)
   const esCorreo = usuario.includes('@')
+
+  async function reenviar() {
+    if (reenviando) return
+    setReenviando(true)
+    const { error } = await reenviarConfirmacion(usuario)
+    setReenviando(false)
+    if (error) {
+      toast(error, 'error')
+      return
+    }
+    toast('Te enviamos otro correo. Revisa también el correo no deseado.')
+  }
 
   async function iniciarSesion(e) {
     e.preventDefault()
     if (enviando) return
     setError(null)
+    setSinConfirmar(false)
 
     if (!esCorreo && usuario.replace(/\D/g, '').length < 10) {
       setError('Escribe tu correo o tu celular completo (10 dígitos).')
@@ -84,6 +100,7 @@ function FormEntrar({ onAutenticado, onOlvide }) {
       })
       datos = data
       mensaje = error && traducirError(error)
+      setSinConfirmar(error?.code === 'email_not_confirmed' || Boolean(error?.message?.includes('Email not confirmed')))
     } else {
       const { datos: sesion, error } = await entrarConTelefono(usuario, clave)
       datos = sesion
@@ -124,6 +141,12 @@ function FormEntrar({ onAutenticado, onOlvide }) {
       </button>
 
       <ErrorForm texto={error} />
+
+      {sinConfirmar && (
+        <button type="button" className="login-link" onClick={reenviar} disabled={reenviando}>
+          {reenviando ? 'Enviando…' : 'Reenviar correo de confirmación'}
+        </button>
+      )}
 
       <button type="submit" className="btn-cta-primary login-submit" disabled={enviando}>
         {enviando ? 'Iniciando sesión…' : 'Iniciar sesión'}
@@ -229,6 +252,7 @@ function FormRegistro({ onRegistrado, onCuentaPendiente }) {
           telefono: telefono.trim(),
           rol: 'jugador',
         },
+        emailRedirectTo: urlApp(),
       },
     })
 
@@ -237,6 +261,13 @@ function FormRegistro({ onRegistrado, onCuentaPendiente }) {
     if (error) {
       setError(traducirError(error))
       toast(traducirError(error), 'error')
+      return
+    }
+
+    if (cuentaYaExiste(data)) {
+      const mensaje = 'Ya existe una cuenta con ese correo. Inicia sesión.'
+      setError(mensaje)
+      toast(mensaje, 'error')
       return
     }
 

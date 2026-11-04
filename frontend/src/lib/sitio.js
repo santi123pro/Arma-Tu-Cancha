@@ -19,7 +19,7 @@ export const CONTACTO = {
 }
 
 // Fecha de la última versión de la Política de Privacidad y los Términos.
-export const ACTUALIZACION_LEGAL = '2 de octubre de 2026'
+export const ACTUALIZACION_LEGAL = '4 de noviembre de 2026'
 
 // Analíticas sin cookies con GoatCounter (https://www.goatcounter.com).
 // Crea la cuenta, elige un código (por ejemplo 'armatucancha') y ponlo
