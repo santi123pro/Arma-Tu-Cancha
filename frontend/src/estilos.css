@@ -4201,6 +4201,8 @@ button, a, summary { touch-action: manipulation; }
 .franja-activa:hover:not(:disabled) { background: var(--relleno); border-color: var(--relleno); color: var(--sobre-relleno); }
 .franja:disabled { background: transparent; border-color: var(--gray-100); color: var(--gray-400); }
 .cancha-card-estado { padding: 4px 0; color: var(--gray-600) !important; font-size: 15px; }
+.cancha-card-vacio { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.cancha-card-vacio .btn-elegir-dia { min-height: 44px; padding: 0 16px; font-size: 15px; }
 .cancha-card-acciones { margin: 0; padding: 0; }
 .cancha-card-acciones-lista {
   position: sticky;

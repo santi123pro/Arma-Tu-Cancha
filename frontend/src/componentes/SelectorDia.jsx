@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { fechaLocal } from '../lib/formato'
 import { DIAS_ANTICIPACION } from '../lib/sedes'
 
@@ -28,10 +28,22 @@ export default function SelectorDia({ valor, onCambio }) {
   )
 
   const elegido = dias.find((d) => d.iso === valor) ?? dias[0]
+  const pista = useRef(null)
+
+  // El día elegido desde otro lado ("Ver mañana") debe quedar a la vista.
+  // Solo mueve la franja, sin desplazar la página.
+  useEffect(() => {
+    const el = pista.current
+    const boton = el?.querySelector('[aria-pressed="true"]')
+    if (!boton) return
+    const caja = el.getBoundingClientRect()
+    const b = boton.getBoundingClientRect()
+    el.scrollLeft += b.left - caja.left - (caja.width - b.width) / 2
+  }, [valor])
 
   return (
     <div className="selector-dia">
-      <div className="selector-dia-pista" role="group" aria-label="Día de la reserva">
+      <div className="selector-dia-pista" ref={pista} role="group" aria-label="Día de la reserva">
         {dias.map((d) => (
           <button
             key={d.iso}

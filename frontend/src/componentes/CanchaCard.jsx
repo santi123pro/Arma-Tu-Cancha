@@ -5,6 +5,7 @@ import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
 import { useToast } from './Toast'
 import ImagenSede from './ImagenSede'
 import { fotoCancha } from '../lib/imagenes'
+import { franjaYaPaso } from '../lib/sedes'
 import Cargando from './Cargando'
 import PasarelaPago from './PasarelaPago'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
@@ -37,6 +38,20 @@ function fechaCorta(iso) {
   return `${d}/${m}/${a}`
 }
 
+// Día sin nada que reservar: explica por qué y lleva al siguiente.
+function DiaSinHorarios({ texto, etiqueta, onVerOtroDia }) {
+  return (
+    <div className="cancha-card-vacio">
+      <p className="cancha-card-estado">{texto}</p>
+      {onVerOtroDia && (
+        <button type="button" className="btn-elegir-dia" onClick={onVerOtroDia}>
+          {etiqueta}
+        </button>
+      )}
+    </div>
+  )
+}
+
 // La tarjeta mientras el horario está apartado y la pasarela está cerrada.
 function HorarioApartado({ reserva, onPagar, onOtra }) {
   const restante = useCuentaRegresiva(reserva.pago_vence_at)
@@ -66,8 +81,11 @@ function HorarioApartado({ reserva, onPagar, onOtra }) {
 }
 
 // fecha: el día elegido en la página de la sede, común a todas sus canchas.
-export default function CanchaCard({ cancha, sede, fecha = fechaLocal() }) {
+// onVerOtroDia: pasa al día siguiente cuando este no tiene nada que reservar.
+export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOtroDia }) {
   const toast = useToast()
+  const esHoy = fecha === fechaLocal()
+  const etiquetaOtroDia = esHoy ? 'Ver mañana' : 'Ver otro día'
 
   const [franjas, setFranjas] = useState([])
   const [franja, setFranja] = useState(null)
@@ -219,13 +237,19 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal() }) {
             {cargando ? (
               <Cargando tamano="chico" texto="Consultando disponibilidad" />
             ) : franjas.length === 0 ? (
-              <p className="cancha-card-estado">
-                Esta cancha no tiene horarios configurados para ese día.
-              </p>
+              <DiaSinHorarios
+                texto="Esta cancha no tiene horarios configurados para ese día."
+                etiqueta={etiquetaOtroDia}
+                onVerOtroDia={onVerOtroDia}
+              />
             ) : franjas.every((f) => !f.disponible) ? (
-              <p className="cancha-card-estado">
-                Todos los horarios de este día están ocupados. Prueba con otro día.
-              </p>
+              <DiaSinHorarios
+                texto={esHoy && franjas.every((f) => franjaYaPaso(f.hora_inicio))
+                  ? 'Ya no quedan horarios hoy.'
+                  : 'Todos los horarios de este día están ocupados.'}
+                etiqueta={etiquetaOtroDia}
+                onVerOtroDia={onVerOtroDia}
+              />
             ) : (
               <>
                 {TRAMOS.map((tramo) => {

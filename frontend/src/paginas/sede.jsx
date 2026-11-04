@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { fechaLocal } from '../lib/formato'
+import { DIAS_ANTICIPACION, diaSiguiente, hoyTermino } from '../lib/sedes'
 import { temaSede } from '../lib/temas'
 import { useDetalleSede } from '../lib/useDetalleSede'
 import { MINUTOS_PARA_PAGAR } from '../lib/qrGenerico'
@@ -13,7 +14,8 @@ export default function Sede({ slug, onVolver, onIrSeccion }) {
   // detalleSede trae la sede por su slug junto con sus canchas activas
   // (filtradas por sede_id en la relación), así nunca se mezclan sedes.
   const { sede, cargando, reintentar } = useDetalleSede(slug)
-  const [fecha, setFecha] = useState(() => fechaLocal())
+  // null: el jugador aún no ha elegido día (ver más abajo cuál se muestra).
+  const [fechaElegida, setFechaElegida] = useState(null)
   // El mapa se crea al abrir la sección: Leaflet no sabe medirse estando oculto.
   const [verMapa, setVerMapa] = useState(false)
 
@@ -35,20 +37,31 @@ export default function Sede({ slug, onVolver, onIrSeccion }) {
   }
 
   const canchas = [...(sede.canchas ?? [])].sort((a, b) => a.nombre.localeCompare(b.nombre))
+  // De noche, si ya no quedan franjas hoy, la página abre directo en mañana.
+  const fecha = fechaElegida ?? fechaLocal(hoyTermino(sede) ? 1 : 0)
+  const hayOtroDia = fecha < fechaLocal(DIAS_ANTICIPACION)
 
   return (
     <main className={'pagina-sede ' + temaSede(sede)}>
       <EncabezadoSede sede={sede} seccion="reservar" onVolver={onVolver} onIrSeccion={onIrSeccion} completo />
 
       <div className="pagina-sede-cuerpo">
-        <SelectorDia valor={fecha} onCambio={setFecha} />
+        <SelectorDia valor={fecha} onCambio={setFechaElegida} />
 
         {canchas.length === 0 ? (
           <p className="partidos-aviso">Esta sede todavía no tiene canchas publicadas.</p>
         ) : (
           <>
             <div className="lista-canchas">
-              {canchas.map((c) => <CanchaCard key={c.id} cancha={c} sede={sede} fecha={fecha} />)}
+              {canchas.map((c) => (
+                <CanchaCard
+                  key={c.id}
+                  cancha={c}
+                  sede={sede}
+                  fecha={fecha}
+                  onVerOtroDia={hayOtroDia ? () => setFechaElegida(diaSiguiente(fecha)) : undefined}
+                />
+              ))}
             </div>
             <p className="sede-nota-pago">
               Pagas con QR de Nequi o Bre-B en los siguientes {MINUTOS_PARA_PAGAR} minutos.
