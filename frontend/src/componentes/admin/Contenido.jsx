@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { contenidoAdmin, eliminarPartido, eliminarTorneo } from '../../lib/datos'
-import { useToast } from '../Toast'
+import { useToast } from '../../lib/useToast'
 import Cargando from '../Cargando'
 
 const ESTADOS = {

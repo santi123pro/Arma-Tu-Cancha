@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { cancelarReserva, misReservasEnSede } from '../lib/datos'
-import { useToast } from '../componentes/Toast'
+import { useToast } from '../lib/useToast'
 import Cargando from '../componentes/Cargando'
 import PasarelaPago from '../componentes/PasarelaPago'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'

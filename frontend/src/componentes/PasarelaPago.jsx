@@ -4,7 +4,7 @@ import { cancelarReserva, datosPagoSede, reportarPago, subirComprobante } from '
 import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrPorDefecto } from '../lib/qrGenerico'
 import { PAGOS_POR_DEFECTO } from '../lib/sitio'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
-import { useToast } from './Toast'
+import { useToast } from '../lib/useToast'
 
 const pesos = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
 const MAX_COMPROBANTE = 5 * 1024 * 1024

@@ -5,7 +5,7 @@ import {
   salirDePartido, unirseAPartido,
 } from '../lib/datos'
 import { useSesion } from '../lib/useSesion'
-import { useToast } from '../componentes/Toast'
+import { useToast } from '../lib/useToast'
 import Cargando from '../componentes/Cargando'
 import SelectorHora from '../componentes/SelectorHora'
 import { JugadoresDelPartido, OrganizadorDelPartido } from '../componentes/ContactosPartido'
@@ -82,23 +82,30 @@ export default function Partidos({ sedeId, sedeNombre }) {
 
   const [canchas, setCanchas] = useState([])
   const [form, setForm] = useState(FORM_VACIO)
+  // Al cambiar de sede se limpia la cancha elegida, porque ya no pertenece a ella.
+  const [sedeDelForm, setSedeDelForm] = useState(sedeId)
+  if (sedeDelForm !== sedeId) {
+    setSedeDelForm(sedeId)
+    setForm((f) => ({ ...f, canchaId: '', hora: '' }))
+  }
   const [publicando, setPublicando] = useState(false)
   const [errorForm, setErrorForm] = useState(null)
 
   const [partidos, setPartidos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [errorLista, setErrorLista] = useState(null)
   const [recarga, setRecarga] = useState(0)
+  // Última consulta de la lista. Está cargando mientras no sea la de esta clave.
+  const claveLista = `${sedeId}|${hoy}|${recarga}|${autenticado}`
+  const [consultaLista, setConsultaLista] = useState({ clave: null, error: null })
+  const cargando = consultaLista.clave !== claveLista
+  const errorLista = cargando ? null : consultaLista.error
   // Partido en el que se está uniendo o saliendo, para bloquear su botón.
   const [ocupado, setOcupado] = useState(null)
   // Nombre y celular de la otra parte en mis partidos, por partido_id.
   const [contactos, setContactos] = useState({ porPartido: new Map(), error: null })
 
-  // Canchas del desplegable: se recargan al cambiar de sede y se limpia
-  // la que estuviera elegida, porque ya no pertenece a esta sede.
+  // Canchas del desplegable: se recargan al cambiar de sede.
   useEffect(() => {
     let vigente = true
-    setForm((f) => ({ ...f, canchaId: '', hora: '' }))
     canchasDeSede(sedeId).then(({ datos }) => {
       if (vigente) setCanchas(datos ?? [])
     })
@@ -130,21 +137,18 @@ export default function Partidos({ sedeId, sedeNombre }) {
 
   useEffect(() => {
     let vigente = true
-    setCargando(true)
-    setErrorLista(null)
     Promise.all([
       partidosBuscandoJugadores(sedeId, hoy),
       autenticado ? contactosMisPartidos() : Promise.resolve({ datos: [], error: null }),
     ]).then(([lista, contactos]) => {
       if (!vigente) return
-      if (lista.error) setErrorLista(lista.error)
-      else setPartidos(lista.datos ?? [])
+      if (!lista.error) setPartidos(lista.datos ?? [])
       // Si fallan los contactos, el listado igual se muestra.
       setContactos({ porPartido: agruparContactos(contactos.datos), error: contactos.error })
-      setCargando(false)
+      setConsultaLista({ clave: claveLista, error: lista.error ?? null })
     })
     return () => { vigente = false }
-  }, [sedeId, hoy, recarga, autenticado])
+  }, [sedeId, hoy, claveLista, autenticado])
 
   function cambiar(campo) {
     return (e) => setForm((f) => ({

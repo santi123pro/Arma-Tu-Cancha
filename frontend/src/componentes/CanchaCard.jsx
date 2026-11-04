@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { fechaLocal, formatoPesos } from '../lib/formato'
 import { disponibilidad, crearReserva } from '../lib/datos'
 import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
-import { useToast } from './Toast'
+import { useToast } from '../lib/useToast'
 import ImagenSede from './ImagenSede'
 import { fotoCancha } from '../lib/imagenes'
 import { franjaYaPaso } from '../lib/sedes'
@@ -87,15 +87,25 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
   const esHoy = fecha === fechaLocal()
   const etiquetaOtroDia = esHoy ? 'Ver mañana' : 'Ver otro día'
 
-  const [franjas, setFranjas] = useState([])
-  const [franja, setFranja] = useState(null)
-  const [cargando, setCargando] = useState(true)
+  // Última consulta recibida. Está cargando mientras no sea la de esta clave.
+  const [consulta, setConsulta] = useState({ clave: null, franjas: [], error: null })
+  // La hora elegida y el error al reservar valen solo para su clave y su fecha:
+  // al cambiar de día dejan de aplicar. El error sobrevive a la recarga tras
+  // un choque, para que el jugador alcance a leer por qué falló.
+  const [eleccion, setEleccion] = useState(null)
+  const [errorReserva, setErrorReserva] = useState(null)
   const [enviando, setEnviando] = useState(false)
-  const [error, setError] = useState(null)
   const [comprobante, setComprobante] = useState(null)
   const [pasarela, setPasarela] = useState(false)
   // Subirlo fuerza a consultar otra vez la misma fecha (tras un choque).
   const [recarga, setRecarga] = useState(0)
+
+  const clave = `${cancha.id}|${fecha}|${recarga}`
+  const cargando = consulta.clave !== clave
+  const franjas = cargando ? [] : consulta.franjas
+  const franja = eleccion?.clave === clave ? eleccion.franja : null
+  const error = (cargando ? null : consulta.error)
+    ?? (errorReserva?.fecha === fecha ? errorReserva.mensaje : null)
 
   // Con el comprobante enviado, la tarjeta pasa sola a "confirmada" (o
   // "rechazada") cuando la sede revisa el pago.
@@ -107,27 +117,18 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
 
   useEffect(() => {
     let vigente = true
-    setCargando(true)
-    setFranja(null)
-    setError(null)
 
     disponibilidad(cancha.id, fecha).then(({ datos, error }) => {
       if (!vigente) return
-      if (error) {
-        setError(error)
-        setFranjas([])
-      } else {
-        setFranjas(datos ?? [])
-      }
-      setCargando(false)
+      setConsulta({ clave, franjas: error ? [] : datos ?? [], error: error ?? null })
     })
 
     return () => { vigente = false }
-  }, [cancha.id, fecha, recarga])
+  }, [cancha.id, fecha, clave])
 
   async function reservar() {
     if (!franja?.disponible || enviando) return
-    setError(null)
+    setErrorReserva(null)
     setEnviando(true)
 
     // El usuario lo pone el backend con auth.uid(); aquí no se envía.
@@ -140,7 +141,7 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
     setEnviando(false)
 
     if (error) {
-      setError(error)
+      setErrorReserva({ fecha, mensaje: error })
       if (error === ERROR_FRANJA_OCUPADA) setRecarga((n) => n + 1)
       return
     }
@@ -270,7 +271,7 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
                             className={
                               'franja' + (franja?.hora_inicio === f.hora_inicio ? ' franja-activa' : '')
                             }
-                            onClick={() => f.disponible && setFranja(f)}
+                            onClick={() => f.disponible && setEleccion({ clave, franja: f })}
                           >
                             {hora12(f.hora_inicio)}
                           </button>

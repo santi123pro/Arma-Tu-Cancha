@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase, traducirError } from '../lib/supabase'
-import { useToast } from '../componentes/Toast'
+import { useToast } from '../lib/useToast'
 import { entrarConTelefono, recuperarPorCorreo } from '../lib/datos'
 import fotoFondo from '../../imagenes/cancha_1_wembley.webp'
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { analiticaSede, contenidoAdmin, listarSedes, metricasGlobales } from '../../lib/datos'
 import { formatoNumero, formatoPesos } from '../../lib/formato'
-import { useToast } from '../Toast'
+import { useToast } from '../../lib/useToast'
 import { DIAS_SEMANA, ESTADOS_PARTIDO, ESTADOS_RESERVA, ESTADOS_TORNEO, METODOS_PAGO, ROLES } from './etiquetas'
 import { exportarAnalitica } from './ExportarCsv'
 import { BarrasAgrupadas, BarrasH, Cifra, Columnas, Dona } from './Graficas'

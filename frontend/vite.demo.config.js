@@ -14,6 +14,11 @@ export default defineConfig({
         find: /^(?:(?:\.\.\/)+lib\/|\.\/)datos$/,
         replacement: fileURLToPath(new URL('./demo/datosDemo.js', import.meta.url)),
       },
+      // Lo que aún importa lib/supabase directo usa un cliente falso: sin .env.
+      {
+        find: /^(?:(?:\.\.\/)+(?:src\/)?lib\/|\.\/)supabase$/,
+        replacement: fileURLToPath(new URL('./demo/supabaseDemo.js', import.meta.url)),
+      },
     ],
   },
   server: { host: true, port: 5174, open: '/demo/' },

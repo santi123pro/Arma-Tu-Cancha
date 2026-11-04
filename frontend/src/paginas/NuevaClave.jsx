@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { cambiarClave } from '../lib/datos'
-import { useToast } from '../componentes/Toast'
+import { useToast } from '../lib/useToast'
 import { CampoClave } from './Login'
 import fotoFondo from '../../imagenes/cancha_1_wembley.webp'
 

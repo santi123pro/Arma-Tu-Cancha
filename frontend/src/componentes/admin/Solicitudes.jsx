@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { actualizarSolicitudSede, listarSolicitudesSede } from '../../lib/datos'
-import { useToast } from '../Toast'
+import { useToast } from '../../lib/useToast'
 import Cargando from '../Cargando'
 
 // Solicitudes de "Trabaja con nosotros" (migración 0012). Solo el

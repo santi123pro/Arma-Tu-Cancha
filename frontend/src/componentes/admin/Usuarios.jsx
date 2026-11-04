@@ -3,7 +3,7 @@ import {
   adminCambiarRol, adminCrearUsuario, adminEliminarUsuario, adminListarUsuarios, listarSedes,
 } from '../../lib/datos'
 import { useSesion } from '../../lib/useSesion'
-import { useToast } from '../Toast'
+import { useToast } from '../../lib/useToast'
 import Cargando from '../Cargando'
 
 const ROLES = [

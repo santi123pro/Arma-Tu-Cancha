@@ -5,7 +5,7 @@ import {
 import { formatoNumero, formatoPesos } from '../../lib/formato'
 import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrPorDefecto } from '../../lib/qrGenerico'
 import { formatoRestante, useCuentaRegresiva } from '../../lib/useCuentaRegresiva'
-import { useToast } from '../Toast'
+import { useToast } from '../../lib/useToast'
 import { Persona } from '../ContactosPartido'
 import Cargando from '../Cargando'
 import { Cifra } from './Graficas'
