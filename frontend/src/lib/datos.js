@@ -37,6 +37,22 @@ export async function iniciarSesion(correo, password) {
   return { datos: data, error: traducirError(error) }
 }
 
+// Entrar o registrarse con Google. El navegador va a Google y vuelve a
+// la raíz de la app con la sesión; useSesion la detecta sola. La primera
+// vez, fn_crear_perfil arma el perfil con el nombre y la foto de Google.
+// Requiere el proveedor Google activo en Supabase (Authentication →
+// Sign In / Providers) y urlApp() en Redirect URLs.
+export async function entrarConGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: urlApp(),
+      queryParams: { prompt: 'select_account' },
+    },
+  })
+  return { error: traducirError(error) }
+}
+
 export async function cerrarSesion() {
   await supabase.auth.signOut()
 }

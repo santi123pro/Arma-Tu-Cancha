@@ -4580,3 +4580,39 @@ button, a, summary { touch-action: manipulation; }
 .perfil-interruptor input { width: 40px; height: 22px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
 .mi-cuenta-guardar { display: flex; justify-content: flex-end; position: sticky; bottom: 76px; }
 @media (min-width: 900px) { .mi-cuenta-guardar { bottom: 16px; } }
+
+/* ── Continuar con Google ─────────────────────────────────── */
+.boton-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 18px;
+  padding: 0 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: #fff;
+  color: #1f1f1f;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+.boton-google:hover:not(:disabled) { background: #f8f9fa; box-shadow: var(--shadow-sm); }
+.boton-google:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.boton-google:disabled { opacity: .7; cursor: wait; }
+.login-separador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 4px;
+  color: var(--gray-500);
+  font-size: 13px;
+}
+.login-separador::before,
+.login-separador::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+[data-tema='oscuro'] .boton-google { background: #131314; color: #e3e3e3; border-color: #8e918f; }
+[data-tema='oscuro'] .boton-google:hover:not(:disabled) { background: #1f1f20; }

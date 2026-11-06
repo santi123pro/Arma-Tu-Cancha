@@ -30,7 +30,7 @@ export function Persona({ contacto, detalle, mensaje, titulo, subtitulo }) {
   return (
     <li className="contacto">
       <span className="contacto-avatar" aria-hidden="true">
-        {foto && !titulo ? <img src={foto} alt="" loading="lazy" /> : iniciales(titulo ?? nombre)}
+        {foto && !titulo ? <img src={foto} alt="" loading="lazy" referrerPolicy="no-referrer" /> : iniciales(titulo ?? nombre)}
         {estado && <i className={'contacto-estado estado-' + estado} />}
       </span>
       <span className="contacto-datos">

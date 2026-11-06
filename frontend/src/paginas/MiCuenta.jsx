@@ -156,7 +156,7 @@ export default function MiCuenta({ perfil }) {
             disabled={subiendo}
             aria-label="Cambiar foto de perfil"
           >
-            {datos.foto_url ? <img src={datos.foto_url} alt="" /> : <span>{iniciales(datos.nombre)}</span>}
+            {datos.foto_url ? <img src={datos.foto_url} alt="" referrerPolicy="no-referrer" /> : <span>{iniciales(datos.nombre)}</span>}
             <small>{subiendo ? 'Subiendo…' : '📷 Cambiar'}</small>
           </button>
           <input ref={selector} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={elegirFoto} />
