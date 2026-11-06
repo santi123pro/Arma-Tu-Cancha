@@ -77,6 +77,9 @@ const POR_MENSAJE_AUTH = [
   ['New password should be different', 'La contraseña nueva debe ser distinta de la anterior.'],
   ['rate limit exceeded',        'Se enviaron demasiados correos. Espera unos minutos e inténtalo de nuevo.'],
   ['Auth session missing',       'El enlace ya no es válido. Solicita uno nuevo.'],
+  ['Invalid TOTP code',          'Código incorrecto o vencido. Escribe el que muestra la app ahora.'],
+  ['MFA factor with the provided challenge ID', 'El código venció. Escribe el que muestra la app ahora.'],
+  ['AAL2 session is required',   'Escribe primero el código de tu app autenticadora.'],
 ]
 
 export function traducirError(error) {

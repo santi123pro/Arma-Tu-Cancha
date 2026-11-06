@@ -4516,3 +4516,14 @@ button, a, summary { touch-action: manipulation; }
 @media (min-width: 769px) and (max-width: 900px) {
   .app-marca span { display: none; }
 }
+
+/* ===== Verificación en dos pasos (MFA) ===== */
+.codigo-mfa { font-size: 24px !important; letter-spacing: .4em; text-align: center; font-variant-numeric: tabular-nums; }
+.seguridad-mfa { max-width: 560px; }
+.seguridad-estado { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.seguridad-estado p { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+.seguridad-pasos { display: flex; flex-direction: column; gap: 12px; }
+.seguridad-pasos ol { padding-left: 20px; font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+.seguridad-qr { width: 200px; height: 200px; padding: 10px; background: #fff; border-radius: 12px; align-self: center; }
+.seguridad-secreto { font-family: ui-monospace, monospace; word-break: break-all; user-select: all; }
+.seguridad-botones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }

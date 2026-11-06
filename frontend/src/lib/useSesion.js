@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase, vieneDeRecuperacion } from './supabase'
 import { miPerfil } from './datos'
+import { faltaCodigo } from './mfa'
 
 /**
  * Hook de sesión.
@@ -15,12 +16,15 @@ import { miPerfil } from './datos'
  *   recuperando — true si el usuario llegó por el enlace de "olvidé mi
  *                  contraseña" y aún no ha puesto la nueva
  *   terminarRecuperacion — se llama cuando ya cambió la contraseña
+ *   necesitaCodigo — la cuenta tiene verificación en dos pasos y esta
+ *                    sesión todavía no escribió el código de la app
  */
 export function useSesion() {
   const [usuario, setUsuario] = useState(null)
   const [perfil, setPerfil] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [recuperando, setRecuperando] = useState(vieneDeRecuperacion)
+  const [necesitaCodigo, setNecesitaCodigo] = useState(false)
 
   useEffect(() => {
     let vivo = true
@@ -34,6 +38,7 @@ export function useSesion() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!vivo) return
       setUsuario(session?.user ?? null)
+      setNecesitaCodigo(faltaCodigo(session))
       await cargarPerfil(session?.user)
       if (vivo) setCargando(false)
     })
@@ -43,6 +48,7 @@ export function useSesion() {
         if (!vivo) return
         if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
         setUsuario(session?.user ?? null)
+        setNecesitaCodigo(faltaCodigo(session))
         await cargarPerfil(session?.user)
       }
     )
@@ -60,6 +66,6 @@ export function useSesion() {
 
   return {
     usuario, perfil, cargando, esAdmin, autenticado: Boolean(usuario),
-    recuperando, terminarRecuperacion,
+    recuperando, terminarRecuperacion, necesitaCodigo,
   }
 }

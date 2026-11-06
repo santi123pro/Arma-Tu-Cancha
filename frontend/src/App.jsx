@@ -11,6 +11,7 @@ import Login from './paginas/Login'
 import PaginaPartidos from './paginas/PaginaPartidos'
 import TodasMisReservas from './paginas/TodasMisReservas'
 import NuevaClave from './paginas/NuevaClave'
+import VerificarCodigo from './paginas/VerificarCodigo'
 import Cargando from './componentes/Cargando'
 import PiePagina from './componentes/PiePagina'
 import { Privacidad, Terminos } from './paginas/Legal'
@@ -96,7 +97,7 @@ function tituloDe(vista) {
 }
 
 function Contenido() {
-  const { perfil, cargando, autenticado, recuperando, terminarRecuperacion } = useSesion()
+  const { perfil, cargando, autenticado, recuperando, terminarRecuperacion, necesitaCodigo } = useSesion()
   const toast = useToast()
   const enLinea = useEnLinea()
   const { tema, alternar: alternarTema } = useTema()
@@ -215,7 +216,7 @@ function Contenido() {
   const [, seccion, slugSeccion] = vistaPrivada.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
 
   // La misma navegación va arriba en PC y como barra inferior en el celular.
-  const destinos = autenticado ? [
+  const destinos = autenticado && !necesitaCodigo ? [
     { id: 'marketplace', texto: 'Sedes', icono: 'sedes', activo: !['mis-reservas', 'admin'].includes(vistaPrivada) && !SUELTAS.includes(vista) },
     { id: 'mis-reservas', texto: 'Mis reservas', icono: 'reservas', activo: vistaPrivada === 'mis-reservas' },
     ...(puedeVerPanel ? [{ id: 'admin', texto: esSuperadmin ? 'Panel' : 'Mi sede', icono: 'panel', activo: vistaPrivada === 'admin' }] : []),
@@ -286,8 +287,11 @@ function Contenido() {
         </p>
       )}
 
-      {/* Llegó por el enlace de "olvidé mi contraseña": primero la clave nueva. */}
-      {recuperando ? (
+      {/* Verificación en dos pasos: hasta escribir el código no se ve nada más.
+          Va antes de recuperar la clave porque Supabase no deja cambiarla sin él. */}
+      {necesitaCodigo ? (
+        <VerificarCodigo onSalir={salir} />
+      ) : /* Llegó por el enlace de "olvidé mi contraseña": primero la clave nueva. */ recuperando ? (
         <NuevaClave autenticado={autenticado} onListo={claveCambiada} onPedirOtro={pedirOtroEnlace} />
       ) : SUELTAS.includes(vista) ? (
         <>
@@ -370,7 +374,7 @@ function Contenido() {
 
       <PiePagina onIr={irA} conAliados={!autenticado} />
 
-      {autenticado && <nav className="app-barra" aria-label="Principal">{enlaces}</nav>}
+      {autenticado && !necesitaCodigo && <nav className="app-barra" aria-label="Principal">{enlaces}</nav>}
     </div>
   )
 }
