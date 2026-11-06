@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
-  adminCambiarRol, adminCrearUsuario, adminEliminarUsuario, adminListarUsuarios, listarSedes,
+  adminCambiarRol, adminCrearUsuario, adminEliminarUsuario, adminExigirMfa, adminListarUsuarios,
+  adminRestablecerMfa, listarSedes,
 } from '../../lib/datos'
 import { useSesion } from '../../lib/useSesion'
 import { useToast } from '../../lib/useToast'
@@ -111,6 +112,7 @@ function FilaUsuario({ u, sedes, esYo, onCambio }) {
   const [sedeId, setSedeId] = useState(u.sede_id ?? '')
   const [guardando, setGuardando] = useState(false)
   const [confirmar, setConfirmar] = useState(false)
+  const [confirmarMfa, setConfirmarMfa] = useState(false)
 
   const cambiado = rol !== u.rol || (rol === 'admin_sede' && String(sedeId) !== String(u.sede_id ?? ''))
 
@@ -143,6 +145,26 @@ function FilaUsuario({ u, sedes, esYo, onCambio }) {
     onCambio()
   }
 
+  // Exigir la verificación en dos pasos (0023). Se guarda al instante.
+  async function exigirMfa(exigir) {
+    setGuardando(true)
+    const { error } = await adminExigirMfa(u.id, exigir)
+    setGuardando(false)
+    if (error) return toast(error, 'error')
+    toast(exigir ? `${u.nombre} deberá activar la verificación al entrar.` : `La verificación de ${u.nombre} vuelve a ser opcional.`)
+    onCambio()
+  }
+
+  async function restablecerMfa() {
+    setGuardando(true)
+    const { error } = await adminRestablecerMfa(u.id)
+    setGuardando(false)
+    setConfirmarMfa(false)
+    if (error) return toast(error, 'error')
+    toast(`Se borró la app autenticadora de ${u.nombre}.`)
+    onCambio()
+  }
+
   return (
     <tr className={confirmar ? 'admin-fila-peligro' : ''}>
       <td>
@@ -164,6 +186,36 @@ function FilaUsuario({ u, sedes, esYo, onCambio }) {
             {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
           </select>
         )}
+      </td>
+      <td>
+        <div className="admin-mfa">
+          <label className="admin-mfa-exigir">
+            <input
+              type="checkbox"
+              checked={u.mfa_obligatorio}
+              disabled={guardando}
+              onChange={(e) => exigirMfa(e.target.checked)}
+            />
+            Exigir
+          </label>
+          {u.mfa_activo ? (
+            <span className="torneo-estado estado-curso">Activa</span>
+          ) : u.mfa_obligatorio ? (
+            <span className="torneo-estado estado-cerrado">Pendiente</span>
+          ) : (
+            <span className="torneo-estado estado-fin">No</span>
+          )}
+          {u.mfa_activo && !esYo && (confirmarMfa ? (
+            <>
+              <button type="button" className="btn-peligro" disabled={guardando} onClick={restablecerMfa}>Restablecer</button>
+              <button type="button" className="btn-torneo-cancelar" onClick={() => setConfirmarMfa(false)}>No</button>
+            </>
+          ) : (
+            <button type="button" className="login-link" title="Perdió el celular: borra su app autenticadora" onClick={() => setConfirmarMfa(true)}>
+              Restablecer
+            </button>
+          ))}
+        </div>
       </td>
       <td className="admin-oculto-movil">{u.telefono ?? '—'}</td>
       <td className="admin-oculto-movil">{fecha(u.creado_at)}</td>
@@ -274,6 +326,7 @@ export default function Usuarios() {
               <tr>
                 <th>Usuario</th>
                 <th>Rol</th>
+                <th title="Verificación en dos pasos">2 pasos</th>
                 <th className="admin-oculto-movil">Teléfono</th>
                 <th className="admin-oculto-movil">Registro</th>
                 <th className="admin-oculto-movil">Último ingreso</th>
@@ -283,7 +336,7 @@ export default function Usuarios() {
             <tbody>
               {visibles.map((u) => (
                 <FilaUsuario
-                  key={u.id + u.rol + (u.sede_id ?? '')}
+                  key={u.id + u.rol + (u.sede_id ?? '') + u.mfa_obligatorio + u.mfa_activo}
                   u={u}
                   sedes={sedes}
                   esYo={u.id === usuario?.id}

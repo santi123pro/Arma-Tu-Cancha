@@ -4,7 +4,6 @@ import Usuarios from '../componentes/admin/Usuarios'
 import Contenido from '../componentes/admin/Contenido'
 import Solicitudes from '../componentes/admin/Solicitudes'
 import ConfirmarReservas from '../componentes/admin/ConfirmarReservas'
-import Seguridad from '../componentes/admin/Seguridad'
 
 // soloSede: pestañas que también ve el admin de sede.
 const PESTANAS = [
@@ -13,7 +12,6 @@ const PESTANAS = [
   { id: 'usuarios', icono: '👥', texto: 'Usuarios', Componente: Usuarios },
   { id: 'contenido', icono: '🏆', texto: 'Partidos y torneos', Componente: Contenido },
   { id: 'solicitudes', icono: '🤝', texto: 'Solicitudes', Componente: Solicitudes },
-  { id: 'seguridad', icono: '🔐', texto: 'Seguridad', Componente: Seguridad, soloSede: true },
 ]
 
 // Sin sedeId: superadmin, ve todo. Con sedeId: admin de sede, solo su analítica y la confirmación de sus reservas.

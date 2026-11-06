@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase, vieneDeRecuperacion } from './supabase'
 import { miPerfil } from './datos'
-import { faltaCodigo } from './mfa'
+import { faltaCodigo, tieneFactor } from './mfa'
 
 /**
  * Hook de sesión.
@@ -18,6 +18,8 @@ import { faltaCodigo } from './mfa'
  *   terminarRecuperacion — se llama cuando ya cambió la contraseña
  *   necesitaCodigo — la cuenta tiene verificación en dos pasos y esta
  *                    sesión todavía no escribió el código de la app
+ *   debeActivarMfa — el superadmin le exige la verificación y aún no
+ *                    configuró la app autenticadora
  */
 export function useSesion() {
   const [usuario, setUsuario] = useState(null)
@@ -56,6 +58,8 @@ export function useSesion() {
     return () => { vivo = false; subscription.unsubscribe() }
   }, [])
 
+  const debeActivarMfa = Boolean(usuario && perfil?.mfa_obligatorio && !tieneFactor(usuario))
+
   const esAdmin = perfil?.rol === 'admin_sede' || perfil?.rol === 'superadmin'
 
   function terminarRecuperacion() {
@@ -66,6 +70,6 @@ export function useSesion() {
 
   return {
     usuario, perfil, cargando, esAdmin, autenticado: Boolean(usuario),
-    recuperando, terminarRecuperacion, necesitaCodigo,
+    recuperando, terminarRecuperacion, necesitaCodigo, debeActivarMfa,
   }
 }

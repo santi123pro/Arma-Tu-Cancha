@@ -12,6 +12,8 @@ import PaginaPartidos from './paginas/PaginaPartidos'
 import TodasMisReservas from './paginas/TodasMisReservas'
 import NuevaClave from './paginas/NuevaClave'
 import VerificarCodigo from './paginas/VerificarCodigo'
+import ActivarVerificacion from './paginas/ActivarVerificacion'
+import Seguridad from './componentes/admin/Seguridad'
 import Cargando from './componentes/Cargando'
 import PiePagina from './componentes/PiePagina'
 import { Privacidad, Terminos } from './paginas/Legal'
@@ -42,7 +44,7 @@ const SOLO_SIN_SESION = ['portada', 'login', 'recuperar', 'gracias']
 //   recuperar     → /recuperar-clave   'partidos/wembley' → /sede/wembley/partidos
 //   privacidad    → /privacidad/       (igual: mis-reservas, admin, gracias, bienvenida)
 const RUTA_FIJA = { portada: '', login: 'entrar', recuperar: 'recuperar-clave', marketplace: 'sedes' }
-const VISTAS_CON_NOMBRE = ['mis-reservas', 'admin', 'gracias', 'bienvenida', 'no-encontrada']
+const VISTAS_CON_NOMBRE = ['mis-reservas', 'mi-cuenta', 'admin', 'gracias', 'bienvenida', 'no-encontrada']
 
 function rutaDe(vista) {
   if (vista in RUTA_FIJA) return BASE + RUTA_FIJA[vista]
@@ -80,6 +82,7 @@ const TITULOS = {
   bienvenida: '¡Bienvenido!',
   marketplace: 'Elige tu sede',
   'mis-reservas': 'Mis reservas',
+  'mi-cuenta': 'Mi cuenta',
   admin: 'Panel de administración',
   privacidad: 'Política de Privacidad',
   terminos: 'Términos y condiciones',
@@ -97,7 +100,7 @@ function tituloDe(vista) {
 }
 
 function Contenido() {
-  const { perfil, cargando, autenticado, recuperando, terminarRecuperacion, necesitaCodigo } = useSesion()
+  const { perfil, cargando, autenticado, recuperando, terminarRecuperacion, necesitaCodigo, debeActivarMfa } = useSesion()
   const toast = useToast()
   const enLinea = useEnLinea()
   const { tema, alternar: alternarTema } = useTema()
@@ -208,7 +211,7 @@ function Contenido() {
   const puedeVerPanel = esSuperadmin || esAdminSede
   let vistaPrivada = SOLO_SIN_SESION.includes(vista) ? 'marketplace' : vista
   if (vistaPrivada === 'admin' && !puedeVerPanel) vistaPrivada = 'marketplace'
-  const esVistaFija = ['marketplace', 'admin', 'mis-reservas', 'bienvenida'].includes(vistaPrivada)
+  const esVistaFija = ['marketplace', 'admin', 'mis-reservas', 'mi-cuenta', 'bienvenida'].includes(vistaPrivada)
   // El admin de sede solo entra a la sede que administra.
   const slugPedido = vistaPrivada.replace(/^(partidos|torneos|reservas)\//, '')
   if (esAdminSede && !esVistaFija && slugPedido !== perfil.sedes?.slug) vistaPrivada = 'marketplace'
@@ -216,10 +219,12 @@ function Contenido() {
   const [, seccion, slugSeccion] = vistaPrivada.match(/^(partidos|torneos|reservas)\/(.+)$/) ?? []
 
   // La misma navegación va arriba en PC y como barra inferior en el celular.
-  const destinos = autenticado && !necesitaCodigo ? [
-    { id: 'marketplace', texto: 'Sedes', icono: 'sedes', activo: !['mis-reservas', 'admin'].includes(vistaPrivada) && !SUELTAS.includes(vista) },
+  const bloqueado = necesitaCodigo || debeActivarMfa
+  const destinos = autenticado && !bloqueado ? [
+    { id: 'marketplace', texto: 'Sedes', icono: 'sedes', activo: !['mis-reservas', 'mi-cuenta', 'admin'].includes(vistaPrivada) && !SUELTAS.includes(vista) },
     { id: 'mis-reservas', texto: 'Mis reservas', icono: 'reservas', activo: vistaPrivada === 'mis-reservas' },
     ...(puedeVerPanel ? [{ id: 'admin', texto: esSuperadmin ? 'Panel' : 'Mi sede', icono: 'panel', activo: vistaPrivada === 'admin' }] : []),
+    { id: 'mi-cuenta', texto: 'Mi cuenta', icono: 'cuenta', activo: vistaPrivada === 'mi-cuenta' },
   ] : []
   const enlaces = destinos.map((d) => (
     <button
@@ -262,7 +267,15 @@ function Contenido() {
           </button>
           {autenticado ? (
             <>
-              <span className="app-usuario">{perfil?.nombre ?? 'Jugador'}</span>
+              <button
+                type="button"
+                className="app-usuario"
+                title="Mi cuenta"
+                disabled={bloqueado}
+                onClick={() => irA('mi-cuenta')}
+              >
+                {perfil?.nombre ?? 'Jugador'}
+              </button>
               <button type="button" className="app-salir" onClick={salir}>
                 <Icono nombre="salir" />
                 <span>Salir</span>
@@ -291,6 +304,9 @@ function Contenido() {
           Va antes de recuperar la clave porque Supabase no deja cambiarla sin él. */}
       {necesitaCodigo ? (
         <VerificarCodigo onSalir={salir} />
+      ) : debeActivarMfa ? (
+        /* El superadmin se la exige: sin activarla no sigue. */
+        <ActivarVerificacion onSalir={salir} />
       ) : /* Llegó por el enlace de "olvidé mi contraseña": primero la clave nueva. */ recuperando ? (
         <NuevaClave autenticado={autenticado} onListo={claveCambiada} onPedirOtro={pedirOtroEnlace} />
       ) : SUELTAS.includes(vista) ? (
@@ -351,6 +367,12 @@ function Contenido() {
             <TodasMisReservas />
           )}
 
+          {autenticado && vistaPrivada === 'mi-cuenta' && (
+            <main className="admin-contenido">
+              <Seguridad obligatoria={perfil?.mfa_obligatorio} />
+            </main>
+          )}
+
           {autenticado && seccion && (
             <PaginaPartidos
               key={vistaPrivada}
@@ -374,7 +396,7 @@ function Contenido() {
 
       <PiePagina onIr={irA} conAliados={!autenticado} />
 
-      {autenticado && !necesitaCodigo && <nav className="app-barra" aria-label="Principal">{enlaces}</nav>}
+      {autenticado && !bloqueado && <nav className="app-barra" aria-label="Principal">{enlaces}</nav>}
     </div>
   )
 }

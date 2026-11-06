@@ -20,12 +20,16 @@ function nivelDelToken(token) {
   }
 }
 
+// true si la cuenta ya activó la app autenticadora.
+export function tieneFactor(usuario) {
+  return (usuario?.factors ?? []).some((f) => f.status === 'verified')
+}
+
 // true si la cuenta tiene la verificación activa pero esta sesión aún no
 // pasó el código. Mismo criterio que mfa.getAuthenticatorAssuranceLevel().
 export function faltaCodigo(session) {
   if (!session) return false
-  const tieneFactor = (session.user?.factors ?? []).some((f) => f.status === 'verified')
-  return tieneFactor && nivelDelToken(session.access_token) === 'aal1'
+  return tieneFactor(session.user) && nivelDelToken(session.access_token) === 'aal1'
 }
 
 // El factor TOTP ya verificado, o null.

@@ -3942,6 +3942,10 @@ button, a, summary { touch-action: manipulation; }
 .app-cuenta { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .app-usuario {
   max-width: 180px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   color: var(--gray-400);
   font-size: 14px;
   overflow: hidden;
@@ -4527,3 +4531,5 @@ button, a, summary { touch-action: manipulation; }
 .seguridad-qr { width: 200px; height: 200px; padding: 10px; background: #fff; border-radius: 12px; align-self: center; }
 .seguridad-secreto { font-family: ui-monospace, monospace; word-break: break-all; user-select: all; }
 .seguridad-botones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.admin-mfa { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.admin-mfa-exigir { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; }

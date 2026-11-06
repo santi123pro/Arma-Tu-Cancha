@@ -6,7 +6,7 @@ import Cargando from '../Cargando'
 
 // Activar o quitar la verificación en dos pasos de la propia cuenta.
 // Pasos: QR → escanear con la app → escribir el código → activa.
-export default function Seguridad() {
+export default function Seguridad({ obligatoria = false, onActivada }) {
   const toast = useToast()
   const [cargando, setCargando] = useState(true)
   const [factor, setFactor] = useState(null)
@@ -58,6 +58,7 @@ export default function Seguridad() {
     setInscripcion(null)
     toast('Verificación en dos pasos activada. 🔐')
     cargar()
+    onActivada?.()
   }
 
   async function quitar() {
@@ -82,7 +83,9 @@ export default function Seguridad() {
       {factor ? (
         <div className="seguridad-estado">
           <p><span className="torneo-estado estado-curso">Activada</span> Tu cuenta pide el código de la app al iniciar sesión.</p>
-          {confirmarQuitar ? (
+          {obligatoria ? (
+            <p className="recuperar-nota">El administrador la exige para tu cuenta, así que no se puede desactivar.</p>
+          ) : confirmarQuitar ? (
             <div className="seguridad-botones">
               <span className="admin-pregunta">¿Seguro? Tu cuenta quedará menos protegida.</span>
               <button type="button" className="btn-cta-primary btn-chico" onClick={quitar} disabled={ocupado}>
@@ -124,7 +127,10 @@ export default function Seguridad() {
         </form>
       ) : (
         <div className="seguridad-estado">
-          <p><span className="torneo-estado estado-fin">Desactivada</span> Cualquiera con tu contraseña puede entrar al panel.</p>
+          <p>
+            <span className="torneo-estado estado-fin">Desactivada</span>
+            {obligatoria ? 'El administrador la exige para tu cuenta.' : 'Es opcional, pero protege tu cuenta si alguien consigue tu contraseña.'}
+          </p>
           <button type="button" className="btn-cta-primary btn-chico" onClick={empezar} disabled={ocupado}>
             {ocupado ? 'Preparando…' : 'Activar verificación'}
           </button>

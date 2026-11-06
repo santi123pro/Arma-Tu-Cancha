@@ -106,7 +106,7 @@ export async function miPerfil() {
   return consultar(
     supabase
       .from('perfiles')
-      .select('id, nombre, telefono, rol, sede_id, sedes(id, nombre, slug, color_hex)')
+      .select('id, nombre, telefono, rol, sede_id, mfa_obligatorio, sedes(id, nombre, slug, color_hex)')
       .eq('id', user.id)
       .single()
   )
@@ -628,6 +628,16 @@ export function adminCambiarRol(usuarioId, rol, sedeId = null) {
   return consultar(
     supabase.rpc('admin_cambiar_rol', { p_usuario: usuarioId, p_rol: rol, p_sede_id: sedeId })
   )
+}
+
+// Verificación en dos pasos exigida por el superadmin (migración 0023).
+export function adminExigirMfa(usuarioId, exigir) {
+  return consultar(supabase.rpc('admin_exigir_mfa', { p_usuario: usuarioId, p_exigir: exigir }))
+}
+
+// Borra la app autenticadora de alguien que perdió el celular.
+export function adminRestablecerMfa(usuarioId) {
+  return consultar(supabase.rpc('admin_restablecer_mfa', { p_usuario: usuarioId }))
 }
 
 export function adminEliminarUsuario(usuarioId) {
