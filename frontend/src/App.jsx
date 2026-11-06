@@ -13,7 +13,7 @@ import TodasMisReservas from './paginas/TodasMisReservas'
 import NuevaClave from './paginas/NuevaClave'
 import VerificarCodigo from './paginas/VerificarCodigo'
 import ActivarVerificacion from './paginas/ActivarVerificacion'
-import Seguridad from './componentes/admin/Seguridad'
+import MiCuenta from './paginas/MiCuenta'
 import Cargando from './componentes/Cargando'
 import PiePagina from './componentes/PiePagina'
 import { Privacidad, Terminos } from './paginas/Legal'
@@ -368,9 +368,7 @@ function Contenido() {
           )}
 
           {autenticado && vistaPrivada === 'mi-cuenta' && (
-            <main className="admin-contenido">
-              <Seguridad obligatoria={perfil?.mfa_obligatorio} />
-            </main>
+            <MiCuenta key={perfil?.id} perfil={perfil} />
           )}
 
           {autenticado && seccion && (

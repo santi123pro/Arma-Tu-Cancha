@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase, vieneDeRecuperacion } from './supabase'
-import { miPerfil } from './datos'
+import { miPerfil, PERFIL_ACTUALIZADO } from './datos'
 import { faltaCodigo, tieneFactor } from './mfa'
 
 /**
@@ -55,7 +55,18 @@ export function useSesion() {
       }
     )
 
-    return () => { vivo = false; subscription.unsubscribe() }
+    // "Mi cuenta" guardó cambios: se vuelve a leer el perfil.
+    async function recargarPerfil() {
+      const { data: { session } } = await supabase.auth.getSession()
+      await cargarPerfil(session?.user)
+    }
+    window.addEventListener(PERFIL_ACTUALIZADO, recargarPerfil)
+
+    return () => {
+      vivo = false
+      subscription.unsubscribe()
+      window.removeEventListener(PERFIL_ACTUALIZADO, recargarPerfil)
+    }
   }, [])
 
   const debeActivarMfa = Boolean(usuario && perfil?.mfa_obligatorio && !tieneFactor(usuario))

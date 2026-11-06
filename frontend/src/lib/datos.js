@@ -99,6 +99,73 @@ export async function cambiarClave(nueva) {
   return { datos: data, error: traducirError(error) }
 }
 
+// Columnas del perfil (las de jugador vienen de la migración 0024).
+const CAMPOS_PERFIL =
+  'id, nombre, telefono, rol, sede_id, mfa_obligatorio, ' +
+  'foto_url, estado, estado_texto, posicion, nivel, pie, ubicacion, ' +
+  'mostrar_telefono, mostrar_foto, mostrar_ubicacion, ' +
+  'sedes(id, nombre, slug, color_hex)'
+
+// useSesion escucha este aviso para volver a leer el perfil (por ejemplo,
+// el nombre del encabezado después de guardar "Mi cuenta").
+export const PERFIL_ACTUALIZADO = 'perfil-actualizado'
+
+// Guarda los datos del propio perfil. RLS no deja tocar rol, sede ni
+// mfa_obligatorio (perfiles_editar_propio, 0023).
+export async function actualizarMiPerfil(campos) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { datos: null, error: 'Tu sesión venció. Vuelve a iniciar sesión.' }
+  const resultado = await consultar(
+    supabase.from('perfiles').update(campos).eq('id', user.id).select(CAMPOS_PERFIL).single()
+  )
+  if (!resultado.error) window.dispatchEvent(new Event(PERFIL_ACTUALIZADO))
+  return resultado
+}
+
+// Achica la foto a 320 px y la pasa a WEBP antes de subirla: pesa poco
+// y carga rápido en los contactos de los partidos.
+async function fotoCuadrada(archivo, lado = 320) {
+  const imagen = await createImageBitmap(archivo)
+  const corte = Math.min(imagen.width, imagen.height)
+  const lienzo = document.createElement('canvas')
+  lienzo.width = lado
+  lienzo.height = lado
+  lienzo.getContext('2d').drawImage(
+    imagen,
+    (imagen.width - corte) / 2, (imagen.height - corte) / 2, corte, corte,
+    0, 0, lado, lado,
+  )
+  imagen.close?.()
+  return new Promise((listo) => lienzo.toBlob(listo, 'image/webp', 0.85))
+}
+
+// Sube la foto a 'avatars/<id>/foto-<fecha>.webp', borra las anteriores
+// y devuelve la URL pública. No la guarda en el perfil: eso lo hace
+// actualizarMiPerfil.
+export async function subirFotoPerfil(archivo) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { datos: null, error: 'Tu sesión venció. Vuelve a iniciar sesión.' }
+  if (!archivo.type.startsWith('image/')) return { datos: null, error: 'Elige una imagen (JPG, PNG o WEBP).' }
+
+  let foto
+  try {
+    foto = await fotoCuadrada(archivo)
+  } catch {
+    return { datos: null, error: 'No pudimos leer esa imagen. Prueba con otra.' }
+  }
+
+  const ruta = `${user.id}/foto-${Date.now()}.webp`
+  const almacen = supabase.storage.from('avatars')
+  const { error } = await almacen.upload(ruta, foto, { contentType: 'image/webp', upsert: false })
+  if (error) return { datos: null, error: 'No se pudo subir la foto. Intenta de nuevo.' }
+
+  const { data: viejas } = await almacen.list(user.id)
+  const borrar = (viejas ?? []).map((f) => `${user.id}/${f.name}`).filter((r) => r !== ruta)
+  if (borrar.length) await almacen.remove(borrar)
+
+  return { datos: almacen.getPublicUrl(ruta).data.publicUrl, error: null }
+}
+
 export async function miPerfil() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { datos: null, error: null }
@@ -106,7 +173,7 @@ export async function miPerfil() {
   return consultar(
     supabase
       .from('perfiles')
-      .select('id, nombre, telefono, rol, sede_id, mfa_obligatorio, sedes(id, nombre, slug, color_hex)')
+      .select(CAMPOS_PERFIL)
       .eq('id', user.id)
       .single()
   )

@@ -20,18 +20,30 @@ function iniciales(nombre) {
 
 // Una persona con sus botones de contacto. También la usan los torneos:
 // ahí `titulo` es el nombre del equipo y `subtitulo` el del capitán.
+// Los partidos traen además el perfil (0024): foto, estado, nivel y
+// ubicación. Si el jugador los oculta, llegan vacíos.
+const NIVEL = { recreativo: 'Recreativo', intermedio: 'Intermedio', competitivo: 'Competitivo' }
+
 export function Persona({ contacto, detalle, mensaje, titulo, subtitulo }) {
-  const { nombre, telefono, correo } = contacto
+  const { nombre, telefono, correo, foto_url: foto, estado, estado_texto: estadoTexto, nivel, ubicacion } = contacto
+  const extras = [detalle, NIVEL[nivel]].filter(Boolean).join(' · ')
   return (
     <li className="contacto">
-      <span className="contacto-avatar" aria-hidden="true">{iniciales(titulo ?? nombre)}</span>
+      <span className="contacto-avatar" aria-hidden="true">
+        {foto && !titulo ? <img src={foto} alt="" loading="lazy" /> : iniciales(titulo ?? nombre)}
+        {estado && <i className={'contacto-estado estado-' + estado} />}
+      </span>
       <span className="contacto-datos">
         <strong>{titulo ?? nombre}</strong>
         {subtitulo && <small className="contacto-subtitulo">{subtitulo}</small>}
         <small>
-          {telefono ? telefonoLegible(telefono) : 'Sin celular registrado'}
-          {detalle && <> · {detalle}</>}
+          {telefono ? telefonoLegible(telefono) : estado === undefined ? 'Sin celular registrado' : 'Celular no disponible'}
+          {extras && <> · {extras}</>}
         </small>
+        {(estadoTexto || estado === 'ocupado') && (
+          <small className="contacto-subtitulo">{estado === 'ocupado' ? '🔴 ' : ''}{estadoTexto || 'Ocupado'}</small>
+        )}
+        {ubicacion && <small>📍 {ubicacion}</small>}
         {correo && <small className="contacto-correo">{correo}</small>}
       </span>
       {(telefono || correo) && (
