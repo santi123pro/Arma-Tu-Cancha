@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { ToastContext } from '../lib/useToast'
+import { avisarToki } from '../lib/toki'
 
 export function ToastProvider({ children }) {
   const [avisos, setAvisos] = useState([])
@@ -11,6 +12,7 @@ export function ToastProvider({ children }) {
   const toast = useCallback((mensaje, tipo = 'success') => {
     const id = Date.now() + Math.random()
     setAvisos((a) => [...a, { id, mensaje, tipo }])
+    if (tipo === 'error') avisarToki('triste', '', { duracion: 5000 })
     // Los errores duran mas: un mensaje largo no alcanza a leerse en 3,4 s.
     setTimeout(() => cerrar(id), tipo === 'error' ? 8000 : 3400)
   }, [cerrar])

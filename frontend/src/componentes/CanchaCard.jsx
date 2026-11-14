@@ -3,6 +3,7 @@ import { fechaLocal, formatoPesos } from '../lib/formato'
 import { disponibilidad, crearReserva } from '../lib/datos'
 import { ERROR_FRANJA_OCUPADA } from '../lib/supabase'
 import { useToast } from '../lib/useToast'
+import { avisarToki } from '../lib/toki'
 import ImagenSede from './ImagenSede'
 import { fotoCancha } from '../lib/imagenes'
 import { franjaYaPaso } from '../lib/sedes'
@@ -39,7 +40,12 @@ function fechaCorta(iso) {
 }
 
 // Día sin nada que reservar: explica por qué y lleva al siguiente.
-function DiaSinHorarios({ texto, etiqueta, onVerOtroDia }) {
+function DiaSinHorarios({ texto, etiqueta, onVerOtroDia, dormir = false }) {
+  // Si ya no queda nada hoy, Toki se duerme y sugiere mirar mañana.
+  useEffect(() => {
+    if (dormir) avisarToki('duerme', 'Ya no quedan horarios hoy. ¡Mira mañana!', { duracion: 9000 })
+  }, [dormir])
+
   return (
     <div className="cancha-card-vacio">
       <p className="cancha-card-estado">{texto}</p>
@@ -111,8 +117,12 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
   // "rechazada") cuando la sede revisa el pago.
   useSeguimientoReserva(comprobante, (datos) => {
     setComprobante((c) => ({ ...c, ...datos }))
-    if (datos.pago_estado === 'aprobado') toast('¡Tu reserva quedó confirmada!')
-    else if (datos.pago_estado === 'rechazado') toast('La sede no pudo verificar tu pago.', 'error')
+    if (datos.pago_estado === 'aprobado') {
+      toast('¡Tu reserva quedó confirmada!')
+      avisarToki('celebra', '¡Cancha confirmada! A jugar.', { duracion: 9000 })
+    } else if (datos.pago_estado === 'rechazado') {
+      toast('La sede no pudo verificar tu pago.', 'error')
+    }
   })
 
   useEffect(() => {
@@ -148,8 +158,13 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
 
     setComprobante(datos)
     // Quien administra la sede reserva sin pasar por el pago.
-    if (datos.pago_estado === 'esperando_pago') setPasarela(true)
-    else toast('¡Reserva confirmada!')
+    if (datos.pago_estado === 'esperando_pago') {
+      setPasarela(true)
+      avisarToki('espera', 'Te guardo la cancha 10 minutos. ¡Paga con el QR!', { duracion: 12000 })
+    } else {
+      toast('¡Reserva confirmada!')
+      avisarToki('celebra', '¡Cancha confirmada! A jugar.', { duracion: 9000 })
+    }
   }
 
   function otraReserva() {
@@ -181,7 +196,7 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
             reserva={comprobante}
             cancha={cancha}
             sede={sede}
-            onEnviado={(r) => { setComprobante(r); toast('Comprobante enviado. Tu reserva está pendiente por confirmar.') }}
+            onEnviado={(r) => { setComprobante(r); toast('Comprobante enviado. Tu reserva está pendiente por confirmar.'); avisarToki('piensa', 'La sede está revisando tu pago. Te aviso apenas lo confirme.', { duracion: 10000 }) }}
             onCancelada={otraReserva}
             onCerrar={() => setPasarela(false)}
           />
@@ -245,6 +260,7 @@ export default function CanchaCard({ cancha, sede, fecha = fechaLocal(), onVerOt
               />
             ) : franjas.every((f) => !f.disponible) ? (
               <DiaSinHorarios
+                dormir={esHoy && franjas.every((f) => franjaYaPaso(f.hora_inicio))}
                 texto={esHoy && franjas.every((f) => franjaYaPaso(f.hora_inicio))
                   ? 'Ya no quedan horarios hoy.'
                   : 'Todos los horarios de este día están ocupados.'}

@@ -21,6 +21,7 @@ import NoEncontrada from './paginas/NoEncontrada'
 import Gracias from './paginas/Gracias'
 import Aliados from './paginas/Aliados'
 import Icono from './componentes/Icono'
+import Toki from './componentes/Toki'
 import { registrarVisita } from './lib/analiticas'
 import { useEnLinea } from './lib/pwa'
 import { useTema } from './lib/tema'
@@ -220,6 +221,18 @@ function Contenido() {
 
   // La misma navegación va arriba en PC y como barra inferior en el celular.
   const bloqueado = necesitaCodigo || debeActivarMfa
+
+  // Toki acompaña al jugador; no sale en el panel de administración ni
+  // mientras se pide el código o la clave nueva.
+  let pantallaToki = null
+  if (!cargando && !bloqueado && !recuperando) {
+    if (SUELTAS.includes(vista)) pantallaToki = 'suelta'
+    else if (!autenticado) pantallaToki = ['portada', 'gracias'].includes(vista) ? vista : 'login'
+    else if (vistaPrivada === 'admin') pantallaToki = null
+    else if (['marketplace', 'mis-reservas', 'mi-cuenta', 'bienvenida'].includes(vistaPrivada)) pantallaToki = vistaPrivada
+    else if (seccion === 'partidos' || seccion === 'torneos') pantallaToki = seccion
+    else pantallaToki = 'sede'
+  }
   const destinos = autenticado && !bloqueado ? [
     { id: 'marketplace', texto: 'Sedes', icono: 'sedes', activo: !['mis-reservas', 'mi-cuenta', 'admin'].includes(vistaPrivada) && !SUELTAS.includes(vista) },
     { id: 'mis-reservas', texto: 'Mis reservas', icono: 'reservas', activo: vistaPrivada === 'mis-reservas' },
@@ -393,6 +406,8 @@ function Contenido() {
       )}
 
       <PiePagina onIr={irA} conAliados={!autenticado} />
+
+      {pantallaToki && <Toki key={pantallaToki} pantalla={pantallaToki} conBarra={autenticado && !bloqueado} />}
 
       {autenticado && !bloqueado && <nav className="app-barra" aria-label="Principal">{enlaces}</nav>}
     </div>

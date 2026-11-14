@@ -5,6 +5,7 @@ import { MEDIOS_PAGO, MINUTOS_PARA_CONFIRMAR, MINUTOS_PARA_PAGAR, qrPorDefecto }
 import { PAGOS_POR_DEFECTO } from '../lib/sitio'
 import { formatoRestante, useCuentaRegresiva } from '../lib/useCuentaRegresiva'
 import { useToast } from '../lib/useToast'
+import { avisarToki } from '../lib/toki'
 
 const pesos = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
 const MAX_COMPROBANTE = 5 * 1024 * 1024
@@ -155,6 +156,20 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
   const vencida = reserva.pago_estado === 'vencido' ||
     (reserva.pago_estado === 'esperando_pago' && restante === 0)
 
+  // Toki avisa una sola vez cuando quedan 2 minutos y si el tiempo se acaba.
+  const avisoToki = useRef({ dos: false, fin: false })
+  useEffect(() => {
+    if (reserva.pago_estado !== 'esperando_pago' || restante == null) return
+    if (restante > 0 && restante <= 120 && !avisoToki.current.dos) {
+      avisoToki.current.dos = true
+      avisarToki('espera', '¡Quedan 2 minutos para pagar!', { duracion: 8000 })
+    }
+    if (restante === 0 && !avisoToki.current.fin) {
+      avisoToki.current.fin = true
+      avisarToki('triste', 'Se acabó el tiempo y el horario quedó libre. ¿Lo intentamos otra vez?', { duracion: 9000 })
+    }
+  }, [restante, reserva.pago_estado])
+
   useEffect(() => {
     let vigente = true
     datosPagoSede(sede.id).then(({ datos, error }) => {
@@ -250,6 +265,7 @@ export default function PasarelaPago({ reserva, cancha, sede, onEnviado, onCance
       return
     }
     toast('Reserva cancelada. El horario quedó libre.')
+    avisarToki('triste', 'Listo, cancelé la reserva. ¿Buscamos otro horario?', { duracion: 7000 })
     onCancelada?.()
   }
 
