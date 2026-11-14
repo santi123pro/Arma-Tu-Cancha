@@ -103,7 +103,7 @@ function SeccionHero({ sedes, cargando, onIrLogin, onVerSede }) {
             <span className="preview-sub">Toca una para ver sus canchas</span>
           </div>
           <span className="badge-activo">
-            <span className="punto-vivo" /> EN LÍNEA
+            <span className="punto-vivo" /> En línea
           </span>
         </div>
 

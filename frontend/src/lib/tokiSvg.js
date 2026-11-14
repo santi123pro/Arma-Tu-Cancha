@@ -2,7 +2,8 @@
 // Toki, la mascota de Arma Tu Cancha: un balón con cinta de capitán.
 // svgToki(estado) devuelve el dibujo como texto SVG. Todo es nuestro y
 // fijo (no lleva datos del usuario), así que se puede insertar tal cual.
-// Estados: saluda, senala, espera, celebra, piensa, triste, duerme.
+// Estados: saluda, senala, espera, celebra, piensa, triste, duerme,
+// pulgar, patea, baila, sorpresa.
 // Las clases (toki-ojos, toki-mirada, toki-brazo-saludo, toki-zzz…) son
 // las que anima estilos.css.
 // ---------------------------------------------------------------------
@@ -27,7 +28,7 @@ function brazo([sx, sy], [ex, ey], [hx, hy], { dedo = false, angulo = null, clas
 
 function piernas(tipo = 'normal') {
   const izq = tipo === 'paso' ? [96, 206, 84, 248] : [100, 208, 94, 250]
-  const der = tipo === 'paso' ? [142, 208, 156, 246] : [140, 208, 146, 250]
+  const der = tipo === 'paso' ? [142, 208, 156, 246] : tipo === 'patada' ? [140, 206, 178, 232] : [140, 208, 146, 250]
   const bota = (x, y, dir) => `<path d="M${x - 18 * (dir < 0 ? 1 : .2)} ${y + 14} Q${x - 18 * (dir < 0 ? 1 : .2)} ${y - 2} ${x} ${y - 2} Q${x + 18 * (dir > 0 ? 1 : .2)} ${y - 2} ${x + 18 * (dir > 0 ? 1 : .2)} ${y + 14}Z" fill="${C.verde}" ${L}/>
     <path d="M${x - 18 * (dir < 0 ? 1 : .2)} ${y + 14} H${x + 18 * (dir > 0 ? 1 : .2)}" stroke="${C.linea}" stroke-width="5"/>`
   return `<g class="toki-piernas">
@@ -148,6 +149,35 @@ const ESTADOS = {
     cuerpo: { ojo: 'cerrados', b: 'dormido', inclina: 12 },
     extra: `<g class="toki-zzz" font-family="'Barlow Condensed', Arial, sans-serif" font-weight="700" fill="${C.verdeO}">
       <text x="190" y="44" font-size="30">Z</text><text x="212" y="22" font-size="22">z</text><text x="226" y="6" font-size="16">z</text></g>`,
+  }),
+  pulgar: () => ({
+    atras: brazo([42, 150], [22, 170], [30, 198]),
+    frente: brazo([198, 132], [224, 128], [218, 96], { dedo: true, angulo: -Math.PI / 2, clase: 'toki-brazo-pulgar' }),
+    cuerpo: { ojo: 'guino', b: 'abierta', inclina: -3 },
+  }),
+  patea: () => ({
+    atras: brazo([42, 140], [18, 126], [20, 100]),
+    frente: brazo([198, 150], [218, 170], [210, 194]),
+    cuerpo: { ojo: 'lado', b: 'sonrisa', ceja: 'una', inclina: -8 },
+    piernas: 'patada',
+    extra: `<g class="toki-pelotita"><circle cx="204" cy="236" r="14" fill="#fff" ${L} stroke-width="4"/>
+      <path d="M204 228 l6 4 -2 7 h-8 l-2 -7z" fill="${C.linea}"/></g>`,
+  }),
+  baila: () => ({
+    atras: brazo([46, 110], [20, 92], [34, 62], { clase: 'toki-brazo-baile-a' }),
+    frente: brazo([196, 150], [222, 166], [228, 194], { clase: 'toki-brazo-baile-b' }),
+    cuerpo: { ojo: 'feliz', b: 'abierta' },
+    piernas: 'paso',
+    extra: `<g class="toki-notas" fill="${C.verdeO}"><path d="M200 30 v-22 l16 -4 v20" fill="none" stroke="${C.verdeO}" stroke-width="4" stroke-linecap="round"/>
+      <ellipse cx="196" cy="31" rx="6" ry="5"/><ellipse cx="212" cy="25" rx="6" ry="5"/>
+      <path d="M36 26 v-18" stroke="${C.naranja}" stroke-width="4" stroke-linecap="round"/><ellipse cx="32" cy="27" rx="6" ry="5" fill="${C.naranja}"/></g>`,
+  }),
+  sorpresa: () => ({
+    atras: brazo([46, 120], [18, 108], [26, 78]),
+    frente: brazo([194, 120], [222, 108], [214, 78]),
+    cuerpo: { ojo: 'normal', b: 'o', ceja: 'alzadas' },
+    extra: `<g class="toki-exclama" stroke="${C.naranja}" stroke-width="5" stroke-linecap="round">
+      <path d="M120 -2 v18 M120 26 v1"/><path d="M90 6 l6 14 M150 6 l-6 14"/></g>`,
   }),
 }
 

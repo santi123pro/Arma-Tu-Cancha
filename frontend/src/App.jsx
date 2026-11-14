@@ -226,11 +226,12 @@ function Contenido() {
   // mientras se pide el código o la clave nueva.
   let pantallaToki = null
   if (!cargando && !bloqueado && !recuperando) {
-    if (SUELTAS.includes(vista)) pantallaToki = 'suelta'
+    if (SUELTAS.includes(vista)) pantallaToki = vista
     else if (!autenticado) pantallaToki = ['portada', 'gracias'].includes(vista) ? vista : 'login'
     else if (vistaPrivada === 'admin') pantallaToki = null
     else if (['marketplace', 'mis-reservas', 'mi-cuenta', 'bienvenida'].includes(vistaPrivada)) pantallaToki = vistaPrivada
     else if (seccion === 'partidos' || seccion === 'torneos') pantallaToki = seccion
+    else if (seccion === 'reservas') pantallaToki = 'sede-reservas'
     else pantallaToki = 'sede'
   }
   const destinos = autenticado && !bloqueado ? [
