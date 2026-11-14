@@ -4134,34 +4134,92 @@ button, a, summary { touch-action: manipulation; }
   margin: 0 auto;
   padding: 20px 20px 40px;
 }
-.selector-dia { margin-bottom: 20px; }
-.selector-dia-pista {
-  display: flex;
-  gap: 8px;
-  margin: 0 -20px;
-  padding: 2px 20px 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.selector-dia-pista::-webkit-scrollbar { display: none; }
-.selector-dia-pista button {
-  flex: 0 0 64px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 0 6px;
+/* Calendario semanal (estilo iOS): mes, flechas, iniciales y días en círculo */
+.selector-dia {
+  --cal-acento: var(--sede-color, #ef4444);
+  max-width: 440px;
+  margin-bottom: 24px;
+  padding: 16px 16px 14px;
   background: var(--superficie);
   border: 1px solid var(--gray-200);
-  border-radius: 10px;
-  color: var(--texto);
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
 }
-.selector-dia-pista button:hover { border-color: var(--navy3); }
-.selector-dia-pista span { color: var(--gray-600); font-size: 13px; font-weight: 500; line-height: 1.2; white-space: nowrap; }
-.selector-dia-pista span::first-letter { text-transform: uppercase; }
-.selector-dia-pista strong { font-family: var(--font-titulo); font-size: 26px; font-weight: 600; line-height: 1.15; }
-.selector-dia-pista button[aria-pressed='true'] { background: var(--relleno); border-color: var(--relleno); color: var(--sobre-relleno); }
-.selector-dia-pista button[aria-pressed='true'] span { color: #cbd5e1; }
-.selector-dia-texto { margin-top: 8px; color: var(--texto); font-size: 15px; font-weight: 600; }
+.cal-cabecera { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 2px 12px; }
+.cal-titulo { margin: 0; font-family: var(--font); font-size: 17px; font-weight: 600; letter-spacing: -.01em; color: var(--texto); }
+.cal-controles { display: flex; align-items: center; gap: 2px; }
+.cal-hoy {
+  margin-right: 4px;
+  padding: 4px 10px;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--cal-acento);
+  font-size: 14px;
+  font-weight: 600;
+}
+.cal-hoy:hover { background: color-mix(in srgb, var(--cal-acento) 10%, transparent); }
+.cal-flecha {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  color: var(--cal-acento);
+  transition: background var(--transition), transform var(--transition);
+}
+.cal-flecha:hover:not(:disabled) { background: var(--gray-100); }
+.cal-flecha:disabled { color: var(--gray-400); opacity: .45; cursor: default; }
+.cal-expandir svg { transition: transform .25s ease; }
+.cal-expandir[aria-expanded='true'] svg { transform: rotate(180deg); }
+
+.cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; justify-items: center; }
+.cal-inicial {
+  padding-bottom: 6px;
+  color: var(--texto-suave);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.cal-inicial.finde { color: var(--gray-400); }
+.cal-dia {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  color: var(--texto);
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  transition: background var(--transition), color var(--transition), transform .12s ease;
+}
+.cal-dia:hover:not(:disabled):not(.elegido) { background: var(--gray-100); }
+.cal-dia:active:not(:disabled) { transform: scale(.92); }
+.cal-dia:focus-visible { outline: 2px solid var(--cal-acento); outline-offset: 2px; }
+.cal-dia:disabled { color: var(--gray-400); opacity: .4; cursor: default; }
+.cal-dia.es-hoy { color: var(--cal-acento); font-weight: 600; }
+.cal-dia.elegido { background: var(--relleno); color: var(--sobre-relleno); font-weight: 600; }
+.cal-dia.elegido.es-hoy { background: var(--cal-acento); color: #fff; }
+.selector-dia-texto {
+  margin: 10px 2px 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--gray-200);
+  color: var(--texto-suave);
+  font-size: 14px;
+  font-weight: 500;
+}
+@media (max-width: 480px) {
+  .selector-dia { max-width: none; padding: 14px 10px 12px; }
+  .cal-dia { width: 38px; height: 38px; font-size: 16px; }
+}
 
 .lista-canchas { container-type: inline-size; display: flex; flex-direction: column; gap: 16px; }
 /* Elegir cancha: solo en el celular, para no mostrar todas las horas de golpe */
@@ -4481,8 +4539,7 @@ button, a, summary { touch-action: manipulation; }
 [data-tema='oscuro'] .medio-config-qr-imagen img,
 [data-tema='oscuro'] .confirmar-comprobante img { background: #fff; }
 [data-tema='oscuro'] .pasarela-qr-imagen figcaption { color: #475569; }
-/* Selección clara: su texto secundario y contador pasan a oscuro */
-[data-tema='oscuro'] .selector-dia-pista button[aria-pressed='true'] span { color: #334155; }
+/* Selección clara: su contador pasa a oscuro */
 [data-tema='oscuro'] .confirmar-pestanas button.activo .admin-contador { background: rgba(15,23,42,.14); color: #0f172a; }
 /* Colores que el modo día fija en su propia regla */
 [data-tema='oscuro'] .mapa-sede { background: var(--gray-50); }
