@@ -5316,10 +5316,12 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
 }
 [data-tema='oscuro'] .toki-globo { background: #2c2c2e; box-shadow: 0 12px 40px rgba(0,0,0,.6); }
 .toki-globo p { margin: 0; color: inherit; font-size: 15px; line-height: 1.4; }
-.toki-globo-acciones { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
-.toki-globo-pista { color: var(--texto-suave); font-size: 12px; }
+/* "Esconder" se empuja a la derecha con flex-end y no con margin-left: auto,
+   porque la regla global button:active pone margin: 0 y en el celular el
+   botón saltaba al otro lado bajo el dedo y el toque no le llegaba. */
+.toki-globo-acciones { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.toki-globo-pista { margin-right: auto; color: var(--texto-suave); font-size: 12px; }
 .toki-globo-esconder {
-  margin-left: auto;
   padding: 2px 0;
   background: none;
   color: var(--enlace);
