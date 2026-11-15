@@ -4498,7 +4498,11 @@ button, a, summary { touch-action: manipulation; }
    Modo oscuro. El atributo data-tema lo pone index.html
    antes de pintar y lo cambia lib/tema.js.
    ═══════════════════════════════════════════════════════ */
-:root { color-scheme: light; }
+/* "only light": el modo claro no deja que el navegador lo oscurezca solo
+   (modo oscuro automático de Chrome/Android/Samsung). Ese oscurecido
+   invertía los colores de Toki y solo se aplicaba al recargar. El modo
+   oscuro de la app pone "dark" abajo, y con eso el navegador tampoco se mete. */
+:root { color-scheme: only light; }
 :root[data-tema='oscuro'] {
   color-scheme: dark;
   --gray-50: #0b1220;
