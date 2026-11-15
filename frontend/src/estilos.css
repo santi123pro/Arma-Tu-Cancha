@@ -585,8 +585,8 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   margin: 0 auto;
   padding: 40px 20px;
 }
-.pagina-sedes h2 { font-size: 28px; margin-bottom: 8px; }
-.pagina-sedes-subtitulo { margin-bottom: 24px; }
+.pagina-sedes h2 { font-size: clamp(26px, 4vw, 36px); margin-bottom: 8px; }
+.pagina-sedes-subtitulo { margin-bottom: 24px; font-size: clamp(15px, 1.6vw, 17px); }
 .sedes-mensaje {
   text-align: center;
   padding: 60px;
@@ -621,8 +621,12 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 
 .lista-sedes {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  /* auto-fit + ancho acotado (340–420px) => tarjetas grandes y parejas,
+     sin columnas fantasma ni una tarjeta solitaria estirada en la última
+     fila. min() evita que se desborden en pantallas muy angostas. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 420px));
+  justify-content: center;
+  gap: 24px;
 }
 .tarjeta-sede {
   display: flex;
@@ -671,7 +675,7 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   flex: 1;
   flex-direction: column;
   gap: 8px;
-  padding: 16px;
+  padding: 18px 18px 20px;
 }
 .tarjeta-sede-encabezado {
   display: flex;
@@ -679,7 +683,7 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
   justify-content: space-between;
   gap: 12px;
 }
-.tarjeta-sede-nombre { font-size: 17px; font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.tarjeta-sede-nombre { font-size: 18px; font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
 .tarjeta-sede-precio { flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--gray-700); }
 .tarjeta-sede-direccion { font-size: 13px; color: var(--gray-600); overflow-wrap: anywhere; }
 .tarjeta-sede-chips {
