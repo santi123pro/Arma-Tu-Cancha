@@ -5435,3 +5435,53 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
 @keyframes portada-hero-sale-lento { to { opacity: .2; translate: 0 -30px; scale: .96; } }
 @keyframes portada-entra { from { opacity: 0; translate: 0 48px; } }
 @keyframes portada-crece { from { opacity: .3; scale: .94; } }
+
+/* ── Modo claro con más contraste ────────────────────────────
+   Antes el fondo (#f5f5f7) y las tarjetas (#fff) casi no se
+   distinguían, los bordes eran invisibles y las sombras no existían:
+   todo se veía blanco. Aquí el fondo baja a un gris azulado, las
+   tarjetas llevan borde y sombra suave y el hero tiene su tinte.
+   Solo aplica al modo claro; el oscuro no cambia. */
+:root:not([data-tema='oscuro']) {
+  --fondo: #e2e9e5;
+  --gray-50: #e2e9e5;
+  --gray-100: #d6dfda;
+  --gray-200: #c6d1cb;
+  --gray-400: #98a2ae;
+  --borde-fuerte: #b8c2cd;
+  --texto-suave: #5f6670;
+  --shadow-sm: 0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.05);
+  --shadow: 0 4px 14px rgba(15,23,42,.08);
+  --shadow-lg: 0 16px 40px rgba(15,23,42,.14);
+  --vidrio: rgba(255,255,255,.85);
+}
+
+/* Tarjetas: se despegan del fondo */
+:root:not([data-tema='oscuro']) :is(
+  .flujo-paso, .flujo-cta, .tarjeta-cancha, .pie-aliados, .sede-fila, .hero-card-preview
+) {
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+:root:not([data-tema='oscuro']) :is(.tarjeta-cancha, .sede-fila):hover { box-shadow: var(--shadow-lg); }
+:root:not([data-tema='oscuro']) .hero-card-preview { background: rgba(255,255,255,.7); box-shadow: var(--shadow); }
+
+/* Hero con tinte verde-azul en vez de blanco puro */
+:root:not([data-tema='oscuro']) .hero-section {
+  background: radial-gradient(680px 460px at 85% 12%, rgba(52,199,89,.32), transparent 70%),
+    radial-gradient(560px 420px at 2% 98%, rgba(0,113,227,.2), transparent 72%),
+    linear-gradient(160deg, #eef8f1 0%, #e6eef6 100%);
+}
+
+/* Encabezados claros (app, sede, admin): una línea que los separe */
+:root:not([data-tema='oscuro']) :is(.app-header, .encabezado-sede, .admin-hero) {
+  border-bottom: 1px solid var(--gray-200);
+}
+
+/* Toques de color de la marca en el modo claro */
+:root:not([data-tema='oscuro']) :is(.flujo-icono, .flujo-paso:nth-child(2) .flujo-icono, .flujo-paso:nth-child(3) .flujo-icono) {
+  background: rgba(52,199,89,.16);
+}
+:root:not([data-tema='oscuro']) .flujo-num { color: rgba(36,138,61,.22); }
+:root:not([data-tema='oscuro']) .sede-fila-chips span { background: rgba(52,199,89,.12); color: var(--verde-texto); }
+:root:not([data-tema='oscuro']) .flujo-cta { background: linear-gradient(120deg, #fff 40%, #eaf7ee 100%); }
