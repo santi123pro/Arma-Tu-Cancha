@@ -5608,3 +5608,30 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
   .aviso-saliendo { opacity: 0; }
   .aviso-barra { display: none; }
 }
+
+/* Portada: los botones grandes se levantan y sueltan una sombra
+   difuminada al pasar el mouse, como las tarjetas. El verde brilla en
+   verde y el de contorno en azul. Solo con mouse (en el celular no hay
+   hover y el efecto se quedaría pegado). */
+.portada :is(.btn-cta-primary, .btn-cta-secondary).btn-grande {
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease,
+              background var(--transition), color var(--transition);
+}
+@media (hover: hover) {
+  .portada .btn-cta-primary.btn-grande:not(:disabled):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px -6px color-mix(in srgb, var(--acento) 55%, transparent),
+                0 4px 10px -2px color-mix(in srgb, var(--acento) 30%, transparent);
+  }
+  .portada .btn-cta-secondary.btn-grande:not(:disabled):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px -6px color-mix(in srgb, var(--enlace) 35%, transparent),
+                0 4px 10px -2px color-mix(in srgb, var(--enlace) 18%, transparent);
+  }
+}
+.portada :is(.btn-cta-primary, .btn-cta-secondary).btn-grande:not(:disabled):active {
+  transform: translateY(-1px) scale(.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  .portada :is(.btn-cta-primary, .btn-cta-secondary).btn-grande:not(:disabled):hover { transform: none; }
+}
