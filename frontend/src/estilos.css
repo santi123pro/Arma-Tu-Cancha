@@ -5513,3 +5513,98 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
 .campana-boton { color: var(--texto); border-radius: 50%; }
 .campana-boton:hover { background: var(--gray-100); }
 .campana-punto { border-color: var(--superficie); }
+
+/* ── Avisos (toasts): tarjeta con ícono y barra de tiempo ─────
+   Siguen el tema claro/oscuro; el color de cada tipo va en el
+   ícono, el borde izquierdo y la barra que se vacía. */
+.avisos {
+  position: fixed;
+  top: calc(var(--alto-header, 56px) + 12px);
+  left: 50%;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(400px, calc(100vw - 24px));
+  translate: -50% 0;
+  pointer-events: none;
+}
+.aviso {
+  --aviso-color: #16a34a;
+  --aviso-fondo-icono: rgba(22,163,74,.14);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 12px 14px 14px;
+  overflow: hidden;
+  background: var(--superficie);
+  color: var(--texto);
+  border: 1px solid var(--gray-200);
+  border-left: 4px solid var(--aviso-color);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(15,23,42,.16), 0 2px 6px rgba(15,23,42,.08);
+  pointer-events: auto;
+  animation: aviso-entra .32s cubic-bezier(.34,1.56,.64,1);
+}
+.aviso-warn { --aviso-color: #d97706; --aviso-fondo-icono: rgba(217,119,6,.15); }
+.aviso-error { --aviso-color: #dc2626; --aviso-fondo-icono: rgba(220,38,38,.14); }
+[data-tema='oscuro'] .aviso { background: #2c2c2e; border-color: #3a3a3c; border-left-color: var(--aviso-color); box-shadow: 0 12px 32px rgba(0,0,0,.55); }
+[data-tema='oscuro'] .aviso-success { --aviso-color: #30d158; }
+[data-tema='oscuro'] .aviso-warn { --aviso-color: #ff9f0a; }
+[data-tema='oscuro'] .aviso-error { --aviso-color: #ff453a; }
+.aviso-saliendo { animation: aviso-sale .22s ease-in forwards; }
+
+.aviso-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--aviso-fondo-icono);
+  color: var(--aviso-color);
+}
+.aviso-icono svg { width: 18px; height: 18px; }
+.aviso-texto { flex: 1; font-size: 14px; font-weight: 600; line-height: 1.4; letter-spacing: -.01em; }
+.aviso-cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: none;
+  border-radius: 50%;
+  color: var(--texto-suave);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+}
+.aviso-cerrar:hover { background: var(--gray-100); color: var(--texto); }
+/* Barra que se vacía mientras el aviso sigue en pantalla */
+.aviso-barra {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--aviso-color);
+  opacity: .5;
+  transform-origin: 0 50%;
+  animation: aviso-tiempo var(--aviso-duracion, 3400ms) linear forwards;
+}
+
+@keyframes aviso-entra { from { opacity: 0; transform: translateY(-14px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes aviso-sale { to { opacity: 0; transform: translateY(-8px) scale(.97); } }
+@keyframes aviso-tiempo { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .aviso, .aviso-saliendo { animation: none; }
+  .aviso-saliendo { opacity: 0; }
+  .aviso-barra { display: none; }
+}
