@@ -621,11 +621,11 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 
 .lista-sedes {
   display: grid;
-  /* auto-fit + ancho acotado (340–420px) => tarjetas grandes y parejas,
-     sin columnas fantasma ni una tarjeta solitaria estirada en la última
-     fila. min() evita que se desborden en pantallas muy angostas. */
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 420px));
-  justify-content: center;
+  /* Todas las sedes en una sola fila, repartiéndose el ancho por igual.
+     Como la imagen es 16:9, al ensancharse las tarjetas también crecen de
+     alto y llenan la página (el footer deja de quedar muy arriba). */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 24px;
 }
 .tarjeta-sede {
@@ -714,7 +714,12 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
 .tarjeta-sede:hover .tarjeta-sede-flecha { transform: translateX(4px); }
 
 @media (max-width: 600px) {
-  .lista-sedes { grid-template-columns: minmax(0, 1fr); }
+  /* En móvil la fila horizontal queda muy angosta: apilamos en columna. */
+  .lista-sedes {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
   .tarjeta-sede-imagen { aspect-ratio: 16 / 7; }
   /* Los chips llegan hasta el borde de la pantalla al deslizar */
   .filtro-sedes {
