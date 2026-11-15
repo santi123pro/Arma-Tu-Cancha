@@ -201,7 +201,7 @@ export default function Portada({ onIrLogin, onVerSede }) {
   }, [])
 
   return (
-    <main>
+    <main className="portada">
       <SeccionHero sedes={sedes} cargando={cargando} onIrLogin={onIrLogin} onVerSede={onVerSede} />
       <SeccionFlujo onIrLogin={onIrLogin} />
       <SeccionMapa sedes={sedes} onVerSede={onVerSede} />

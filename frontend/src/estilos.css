@@ -5377,3 +5377,61 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
   .toki-patea .toki-todo, .toki-baila .toki-todo, .toki-sorpresa .toki-todo,
   .toki-truco-salto .toki-dibujo, .toki-truco-giro .toki-dibujo { animation: none !important; }
 }
+
+/* ── Portada: animaciones con el scroll ──────────────────────
+   Solo en la portada (main.portada) y solo en navegadores que las
+   soportan; en los demás, o con "reducir movimiento", todo queda quieto
+   como antes. Usan opacity/translate/scale y no transform, para no
+   pisar los efectos de hover que ya existen. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Barra de progreso arriba */
+    .portada::before {
+      content: '';
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 1001;
+      height: 3px;
+      background: linear-gradient(90deg, var(--green), var(--sky));
+      transform-origin: 0 50%;
+      animation: portada-progreso linear both;
+      animation-timeline: scroll(root);
+    }
+
+    /* Hero: al bajar, el texto sube y se desvanece; la tarjeta va más lento */
+    .portada .hero-section { view-timeline: --portada-hero block; }
+    .portada .hero-content,
+    .portada .hero-card-preview {
+      animation: portada-hero-sale linear both;
+      animation-timeline: --portada-hero;
+      animation-range: exit 0% exit 90%;
+    }
+    .portada .hero-card-preview { animation-name: portada-hero-sale-lento; }
+
+    /* Lo de abajo aparece a medida que entra en pantalla */
+    .portada .flujo-encabezado,
+    .portada .flujo-paso,
+    .portada .flujo-cta,
+    .portada .seccion-mapa .landing-header-flex {
+      animation: portada-entra linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+    /* Los tres pasos entran uno detrás del otro */
+    .portada .flujo-paso:nth-child(2) { animation-range: entry 10% cover 34%; }
+    .portada .flujo-paso:nth-child(3) { animation-range: entry 20% cover 38%; }
+
+    /* El mapa crece un poco al entrar */
+    .portada .seccion-mapa > :last-child {
+      animation: portada-crece linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+  }
+}
+
+@keyframes portada-progreso { from { scale: 0 1; } to { scale: 1 1; } }
+@keyframes portada-hero-sale { to { opacity: 0; translate: 0 -80px; } }
+@keyframes portada-hero-sale-lento { to { opacity: .2; translate: 0 -30px; scale: .96; } }
+@keyframes portada-entra { from { opacity: 0; translate: 0 48px; } }
+@keyframes portada-crece { from { opacity: .3; scale: .94; } }
