@@ -21,6 +21,7 @@ import NoEncontrada from './paginas/NoEncontrada'
 import Gracias from './paginas/Gracias'
 import Aliados from './paginas/Aliados'
 import Icono from './componentes/Icono'
+import CampanaNotificaciones from './componentes/CampanaNotificaciones'
 import Toki from './componentes/Toki'
 import { registrarVisita } from './lib/analiticas'
 import { useEnLinea } from './lib/pwa'
@@ -281,6 +282,9 @@ function Contenido() {
           </button>
           {autenticado ? (
             <>
+              {!bloqueado && (
+                <CampanaNotificaciones onIrAReservas={() => irA('mis-reservas')} />
+              )}
               <button
                 type="button"
                 className="app-usuario"
