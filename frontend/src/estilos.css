@@ -5447,17 +5447,17 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
    tarjetas llevan borde y sombra suave y el hero tiene su tinte.
    Solo aplica al modo claro; el oscuro no cambia. */
 :root:not([data-tema='oscuro']) {
-  --fondo: #e2e9e5;
-  --gray-50: #e2e9e5;
-  --gray-100: #d6dfda;
-  --gray-200: #c6d1cb;
+  --fondo: #d5e0d9;
+  --gray-50: #d5e0d9;
+  --gray-100: #cbd7d0;
+  --gray-200: #b9c7bf;
   --gray-400: #98a2ae;
   --borde-fuerte: #b8c2cd;
   --texto-suave: #5f6670;
   --shadow-sm: 0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.05);
   --shadow: 0 4px 14px rgba(15,23,42,.08);
   --shadow-lg: 0 16px 40px rgba(15,23,42,.14);
-  --vidrio: rgba(255,255,255,.85);
+  --vidrio: rgba(240,246,242,.85);
 }
 
 /* Tarjetas: se despegan del fondo */
@@ -5472,9 +5472,9 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
 
 /* Hero con tinte verde-azul en vez de blanco puro */
 :root:not([data-tema='oscuro']) .hero-section {
-  background: radial-gradient(680px 460px at 85% 12%, rgba(52,199,89,.32), transparent 70%),
-    radial-gradient(560px 420px at 2% 98%, rgba(0,113,227,.2), transparent 72%),
-    linear-gradient(160deg, #eef8f1 0%, #e6eef6 100%);
+  background: radial-gradient(680px 460px at 85% 12%, rgba(52,199,89,.42), transparent 70%),
+    radial-gradient(560px 420px at 2% 98%, rgba(0,113,227,.24), transparent 72%),
+    linear-gradient(160deg, #d3eedc 0%, #d2e1ee 100%);
 }
 
 /* Encabezados claros (app, sede, admin): una línea que los separe */
