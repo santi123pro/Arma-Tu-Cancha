@@ -5451,6 +5451,37 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
 }
 .hero-fondo-cancha { position: absolute; inset: 0; width: 100%; height: 100%; }
 
+/* Manchas de color que flotan despacio. La animación usa transform y el
+   mouse usa translate (--mx/--my de -1 a 1, que pone FondoHero.jsx), así
+   no se pisan. Son degradados, sin filter: blur, para que sea liviano. */
+.hero-fondo { overflow: hidden; }
+.hero-mancha {
+  --prof: 40px;
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-mancha), transparent 68%);
+  translate: calc(var(--mx, 0) * var(--prof)) calc(var(--my, 0) * var(--prof));
+  transition: translate 1.6s cubic-bezier(.22, 1, .36, 1);
+  animation: hero-mancha-flota 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.hero-mancha-1 { --color-mancha: rgba(34,197,94,.30); --prof: 60px; top: -18vmax; right: -10vmax; }
+.hero-mancha-2 { --color-mancha: rgba(56,189,248,.22); --prof: -45px; bottom: -22vmax; left: -14vmax; animation-duration: 27s; animation-delay: -9s; }
+.hero-mancha-3 { --color-mancha: rgba(20,184,166,.20); --prof: 30px; bottom: -26vmax; left: 38%; width: 38vmax; height: 38vmax; animation-duration: 31s; animation-delay: -17s; }
+:root:not([data-tema='oscuro']) .hero-mancha-1 { --color-mancha: rgba(52,199,89,.38); }
+:root:not([data-tema='oscuro']) .hero-mancha-2 { --color-mancha: rgba(0,113,227,.20); }
+:root:not([data-tema='oscuro']) .hero-mancha-3 { --color-mancha: rgba(20,184,166,.26); }
+@keyframes hero-mancha-flota {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-7vmax, 5vmax) scale(1.12); }
+  100% { transform: translate(5vmax, -4vmax) scale(.94); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-mancha { animation: none; transition: none; }
+}
+
 /* Cifras del hero (sedes, canchas, en línea): más grandes, en el color de
    acento, y con la etiqueta más legible sobre la cancha. */
 .hero-stats strong { color: var(--acento); font-size: 34px; font-weight: 700; }
