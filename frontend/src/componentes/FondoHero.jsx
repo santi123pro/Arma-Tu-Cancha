@@ -138,6 +138,9 @@ export default function FondoHero() {
     const luz = { x: 0, y: 0 }
     let paseo = { x: 0, y: 0, hasta: 0 }
     let ancho = 0, alto = 0, dpr = 1, radioLuz = 220
+    // Zona del texto del hero: ahí la luz se atenúa para no lavar las letras.
+    let zonaTexto = null
+    let intensidad = 1
     let temaActual = ''
     let visible = true, frame = 0
 
@@ -170,7 +173,18 @@ export default function FondoHero() {
       radioLuz = Math.max(140, Math.min(260, ancho * 0.22))
       foco.width = foco.height = Math.ceil(radioLuz * 2 * dpr)
       balon.r = ancho < 700 ? 12 : 15
+      medirTexto()
       prepararCanchas()
+    }
+
+    function medirTexto() {
+      const texto = seccion.querySelector('.hero-content')
+      if (!texto) return
+      const s = seccion.getBoundingClientRect()
+      const r = texto.getBoundingClientRect()
+      // Un margen alrededor, porque la luz es grande y su borde también molesta.
+      const m = 40
+      zonaTexto = { x0: r.left - s.left - m, y0: r.top - s.top - m, x1: r.right - s.left + m, y1: r.bottom - s.top + m }
     }
 
     function iniciarBalon() {
@@ -201,7 +215,9 @@ export default function FondoHero() {
       borde.addColorStop(1, 'rgba(0,0,0,0)')
       f.fillStyle = borde
       f.fillRect(0, 0, R * 2, R * 2)
+      ctx.globalAlpha = intensidad
       ctx.drawImage(foco, luz.x - R, luz.y - R, R * 2, R * 2)
+      ctx.globalAlpha = 1
     }
 
     function mover(ahora) {
@@ -237,6 +253,13 @@ export default function FondoHero() {
       const objetivo = mouse.activo ? mouse : balon
       luz.x += (objetivo.x - luz.x) * 0.12
       luz.y += (objetivo.y - luz.y) * 0.12
+
+      const z = zonaTexto
+      const sobreTexto = z && luz.x > z.x0 && luz.x < z.x1 && luz.y > z.y0 && luz.y < z.y1
+      // En celular el texto ocupa casi todo el hero: ahí se atenúa menos
+      // para que la luz no desaparezca.
+      const minima = conMouse ? 0.3 : 0.55
+      intensidad += ((sobreTexto ? minima : 1) - intensidad) * 0.08
     }
 
     function dibujar(ahora) {
@@ -287,6 +310,9 @@ export default function FondoHero() {
       const r = seccion.getBoundingClientRect()
       return { x: e.clientX - r.left, y: e.clientY - r.top }
     }
+    function alEntrar() {
+      medirTexto()
+    }
     function alMover(e) {
       Object.assign(mouse, posicion(e), { activo: true })
     }
@@ -307,6 +333,7 @@ export default function FondoHero() {
       balon.vy += Math.sin(angulo) * golpe
     }
     if (conMouse) {
+      seccion.addEventListener('pointerenter', alEntrar)
       seccion.addEventListener('pointermove', alMover)
       seccion.addEventListener('pointerleave', alSalir)
       seccion.addEventListener('pointerdown', alPatear)
@@ -316,6 +343,7 @@ export default function FondoHero() {
       cancelAnimationFrame(frame)
       observador.disconnect()
       removeEventListener('resize', alRedimensionar)
+      seccion.removeEventListener('pointerenter', alEntrar)
       seccion.removeEventListener('pointermove', alMover)
       seccion.removeEventListener('pointerleave', alSalir)
       seccion.removeEventListener('pointerdown', alPatear)
