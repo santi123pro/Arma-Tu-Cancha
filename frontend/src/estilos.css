@@ -5451,6 +5451,25 @@ button:focus-visible, .input-moderno:focus-visible, a:focus-visible { outline: 2
 }
 .hero-fondo-cancha { position: absolute; inset: 0; width: 100%; height: 100%; }
 
+/* Cifras del hero (sedes, canchas, en línea): más grandes, en el color de
+   acento, y con la etiqueta más legible sobre la cancha. */
+.hero-stats strong { color: var(--acento); font-size: 34px; font-weight: 700; }
+.hero-stats span { color: var(--texto-2); font-weight: 500; }
+
+/* Tarjeta "Sedes disponibles": un poco más grande */
+.hero-card-preview { width: min(460px, 100%); padding: 26px; }
+.preview-titulo { font-size: 19px; }
+.preview-sub { font-size: 14px; }
+.sede-fila { padding: 12px; }
+.sede-fila-foto { width: 72px; height: 72px; }
+.sede-fila-texto strong { font-size: 16.5px; }
+/* En celular la foto vuelve a su tamaño para que los chips quepan en una línea */
+@media (max-width: 480px) {
+  .hero-card-preview { padding: 20px; }
+  .sede-fila { padding: 10px; gap: 12px; }
+  .sede-fila-foto { width: 60px; height: 60px; }
+}
+
 /* ── Modo claro con más contraste ────────────────────────────
    Antes el fondo (#f5f5f7) y las tarjetas (#fff) casi no se
    distinguían, los bordes eran invisibles y las sombras no existían:
