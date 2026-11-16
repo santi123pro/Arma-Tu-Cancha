@@ -3,6 +3,7 @@ import { listarSedes } from '../lib/datos'
 import { fotoSede } from '../lib/imagenes'
 import Cargando from '../componentes/Cargando'
 import ImagenSede from '../componentes/ImagenSede'
+import FondoHero from '../componentes/FondoHero'
 
 // Leaflet y su CSS van aparte para no retrasar la primera pantalla.
 const MapaSedes = lazy(() => import('../componentes/MapasSedes'))
@@ -63,6 +64,7 @@ function FilaSede({ sede, onVer }) {
 function SeccionHero({ sedes, cargando, onIrLogin, onVerSede }) {
   return (
     <section className="hero-section">
+      <FondoHero />
       <div className="hero-content">
         <span className="hero-badge">Cali · Canchas sintéticas</span>
 
